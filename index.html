@@ -821,7 +821,13 @@ async function fetchRSS(outlet){
       return[];
     }
     const items=[...doc.querySelectorAll("item, entry")];
-    return items.slice(0,15).map(item=>{
+    const cutoff=Date.now()-(24*60*60*1000);
+    return items.filter(item=>{
+      const pd=item.querySelector("pubDate,published,updated")?.textContent||"";
+      if(!pd)return true; // keep if no date
+      const age=Date.now()-new Date(pd).getTime();
+      return age<24*60*60*1000;
+    }).map(item=>{
       const title=stripHTML(item.querySelector("title")?.textContent||"");
       const link=(item.querySelector("link")?.textContent||item.querySelector("link")?.getAttribute("href")||"").trim();
       const desc=stripHTML(item.querySelector("description")?.textContent||item.querySelector("summary")?.textContent||"").slice(0,250);
@@ -997,7 +1003,7 @@ async function loadFeeds(silent=false){
   });
 
   clusters.sort((a,b)=>b.sources.length-a.sources.length||((b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0)));
-  allClusters=clusters.slice(0,200);
+  allClusters=clusters.slice(0,500);
   renderContent();
   renderDirtyNews();
 }
@@ -1077,7 +1083,7 @@ function renderContent(){
   const rest=filtered.filter(c=>c.sources.length<3);
   let html="";
   if(top.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">Top Stories</span><span class="story-count">${top.length} stories</span></div><div class="cluster-list">${top.map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
-  if(rest.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">More News</span><span class="story-count">${rest.length} stories</span></div><div class="cluster-list">${rest.slice(0,100).map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
+  if(rest.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">More News</span><span class="story-count">${rest.length} stories</span></div><div class="cluster-list">${rest.slice(0,200).map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
   content.innerHTML=html;
 }
 
