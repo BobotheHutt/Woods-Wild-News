@@ -25,15 +25,12 @@ body{background:#cccccc;margin:0;padding:0;}
 .tog.on-green{background:#16a34a !important;border-color:#16a34a !important;}.tog.on-green::after{left:20px;}
 .tog-group{display:flex;align-items:center;gap:6px;}
 .tog-label{font-size:11px;font-weight:700;color:var(--text);}
-.gemini-banner{background:#e8f0fe;border:2px solid #4285f4;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;}
-.gemini-banner h3{font-size:13px;font-weight:700;color:#1a56db;margin-bottom:.4rem;}
-.gemini-banner p{font-size:11px;color:#333;margin-bottom:.75rem;line-height:1.5;}
-.gemini-key-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.gki{flex:1;min-width:200px;padding:7px 12px;border-radius:7px;border:2px solid #4285f4;background:#fff;color:#111;font-size:12px;outline:none;font-family:inherit;}
-.gks{padding:7px 16px;border-radius:7px;border:none;background:#1a56db;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
-.gks:hover{background:#1440a8;}
-.gskip{font-size:11px;color:#666;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:inherit;}
-.gnote{font-size:10px;color:#555;margin-top:.4rem;}
+
+
+
+
+
+
 .gnote a{color:#1a56db;}
 .settings-panel{background:#fff;border:2px solid #aaa;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:none;}
 .settings-panel.open{display:block;}
@@ -237,15 +234,6 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
   </div>
 </div>
 
-<div class="gemini-banner" id="gemini-banner" style="display:none">
-  <h3>✨ Optional: Add a free Gemini API key for AI summaries</h3>
-  <p>All 46 news sources, bias bars, Dirty News, themes, tags and bookmarks work <strong>completely free with no key</strong>. The key only adds AI summaries when you click "View all sources" on a story.</p>
-  <div class="gemini-key-row">
-    <input class="gki" type="password" id="gemini-key-input" placeholder="AIza... (from aistudio.google.com)">
-    <button class="gks" onclick="saveGeminiKey()">Save Key</button>
-    <button class="gskip" onclick="dismissGemini()">Skip for now</button>
-  </div>
-  <p class="gnote">Get a free key in ~30 seconds: <a href="https://aistudio.google.com" target="_blank" rel="noopener">aistudio.google.com</a> → Sign in with Google → Get API key → Create API key. No credit card, 1,500 free summaries/day. Your key is stored only in your own browser — never shared with anyone.</p>
 </div>
 
 <div class="settings-panel" id="settings-panel">
@@ -268,10 +256,6 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
       <span style="font-size:16px">🔒</span>
     </div>
     <div class="key-setting-row">
-      <span class="setting-name">Gemini Key:</span>
-      <input type="password" id="gemini-key-setting" placeholder="AIza... (optional, for AI summaries)">
-      <button onclick="saveGeminiKeySetting()" style="background:#1a56db">Save</button>
-      <button onclick="clearGeminiKey()" style="background:#c00">Clear</button>
     </div>
     <div class="key-setting-row" style="grid-column:1/-1;flex-wrap:wrap;gap:6px;">
       <span class="setting-name">Local News ZIP:</span>
@@ -499,12 +483,12 @@ let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
 let autoRefresh=false,arIntervalSec=60,arTimer=null,arRemaining=0;
 const AR_STEPS=[30,60,120,300,600,900,1800,3600,7200,14400];
-let geminiKey="";
+
 
 try{bookmarks=JSON.parse(localStorage.getItem("wp_bm")||"[]");}catch{}
 try{searchHistory=JSON.parse(localStorage.getItem("wp_sh")||"[]");}catch{}
 try{myTags=new Set(JSON.parse(localStorage.getItem("wp_tags")||"[]"));}catch{}
-try{geminiKey=localStorage.getItem("gemini_key")||"";}catch{}
+
 try{
   userZip=localStorage.getItem("wwn_zip")||"";
   userCity=localStorage.getItem("wwn_city")||"";
@@ -521,48 +505,10 @@ const saveTags=()=>{try{localStorage.setItem("wp_tags",JSON.stringify([...myTags
 const upCounts=()=>{document.getElementById("bmark-count").textContent=bookmarks.length;document.getElementById("hist-count").textContent=searchHistory.length;};
 upCounts();
 
-if(!geminiKey&&!localStorage.getItem("gemini_dismissed")){
-  document.getElementById("gemini-banner").style.display="block";
-}
-if(geminiKey)document.getElementById("gemini-key-setting").value="";
 
-function saveGeminiKey(){const k=document.getElementById("gemini-key-input").value.trim();if(!k)return;geminiKey=k;localStorage.setItem("gemini_key",k);document.getElementById("gemini-banner").style.display="none";showToast("✨ Gemini key saved! AI summaries enabled.");}
-function saveGeminiKeySetting(){const k=document.getElementById("gemini-key-setting").value.trim();if(!k)return;geminiKey=k;localStorage.setItem("gemini_key",k);document.getElementById("gemini-banner").style.display="none";document.getElementById("gemini-key-setting").value="";showToast("✨ Gemini key saved!");}
-function clearGeminiKey(){geminiKey="";localStorage.removeItem("gemini_key");document.getElementById("gemini-key-setting").value="";showToast("Gemini key cleared.");}
 
-async function saveZip(){
-  const z=(document.getElementById("zip-input").value||"").trim();
-  const r=parseInt(document.getElementById("zip-radius")?.value||"25");
-  if(!z||!/^\d{5}$/.test(z)){showToast("Enter a valid 5-digit ZIP");return;}
-  const locEl=document.getElementById("zip-location");
-  locEl.textContent="Looking up...";
-  try{
-    // zippopotam.us - free, no key needed
-    const res=await fetch("https://api.zippopotam.us/us/"+z);
-    if(!res.ok){locEl.textContent="ZIP not found";showToast("ZIP code not found");return;}
-    const data=await res.json();
-    const place=data.places[0];
-    userZip=z;
-    userCity=place["place name"];
-    userState=place["state abbreviation"];
-    userCounty=place["state"]||"";
-    userLat=parseFloat(place.latitude);
-    userLng=parseFloat(place.longitude);
-    userRadius=r;
-    localStorage.setItem("wwn_zip",userZip);
-    localStorage.setItem("wwn_city",userCity);
-    localStorage.setItem("wwn_state",userState);
-    localStorage.setItem("wwn_county",userCounty);
-    localStorage.setItem("wwn_lat",userLat);
-    localStorage.setItem("wwn_lng",userLng);
-    localStorage.setItem("wwn_radius",userRadius);
-    const msg=userCity+", "+userState+" ("+r+" mile radius)";
-    locEl.textContent=msg;
-    showToast("Local news: "+msg);
-    try{localStorage.removeItem(CACHE_KEY);}catch{}
-    loadFeeds(false);
-  }catch(e){locEl.textContent="Lookup failed — check connection";showToast("ZIP lookup failed");}
-}
+
+
 
 function clearZip(){
   userZip="";userCity="";userState="";userCounty="";userLat=null;userLng=null;userRadius=25;
@@ -607,34 +553,7 @@ function updateCacheStatus(){
     if(el)el.textContent=keys.length?`${totalArticles} articles from ${keys.length} feeds · oldest ${ageMin}m ago`:"Empty";
   }catch{}
 }
-function dismissGemini(){localStorage.setItem("gemini_dismissed","1");document.getElementById("gemini-banner").style.display="none";}
-function showToast(msg){let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;z-index:9999;font-family:Verdana,sans-serif;pointer-events:none;";document.body.appendChild(t);}t.textContent=msg;t.style.opacity="1";setTimeout(()=>t.style.opacity="0",2500);}
 
-const appEl=document.getElementById("app");
-let currentAccent="#1a56db";
-function applyTheme(id){
-  const t=THEMES.find(x=>x.id===id)||THEMES[0];
-  // Apply CSS pattern to both body and app
-  const cssProps=t.css||(`background-color:${t.bg};`);
-  // Parse and apply each property individually
-  cssProps.split(";").filter(s=>s.trim()).forEach(rule=>{
-    const [prop,...rest]=rule.split(":");
-    const val=rest.join(":").trim();
-    if(prop&&val){
-      const camel=prop.trim().replace(/-([a-z])/g,(_,c)=>c.toUpperCase());
-      document.body.style[camel]=val;
-      appEl.style[camel]=val;
-    }
-  });
-  // Set text color variables based on background darkness
-  const isDark=["dark","slate","storm","wildfire","flood","volcano","tornado","winter","blizzard","heatwave","autumn"].includes(id);
-  document.documentElement.style.setProperty("--text", isDark?"#f0f0f0":"#111111");
-  document.documentElement.style.setProperty("--text-muted", isDark?"#aaaaaa":"#666666");
-
-  document.querySelectorAll(".swatch-thumb").forEach(e=>e.classList.remove("active"));
-  const sw=document.getElementById("sw-"+id);if(sw)sw.classList.add("active");
-  localStorage.setItem("wwn_theme",id);
-}
 function applyAccent(color,id){
   currentAccent=color;
   localStorage.setItem("wwn_accent",color);
@@ -652,7 +571,6 @@ function applyAccent(color,id){
   // My tag border color
   document.querySelectorAll("button.my-tag").forEach(t=>{t.style.borderColor=color;t.style.color=t.classList.contains("active")?color:color;});
   // Gemini banner border
-  const gb=document.querySelector(".gemini-banner");if(gb)gb.style.borderColor=color;
   // Bias track center segment
   document.querySelectorAll(".seg-c").forEach(s=>{/* keep green for center bias */});
   // Search button hover state stored for reference
@@ -1086,13 +1004,13 @@ async function loadFeeds(silent=false){
       tags:extractTags(item.title),
       pubDate:item.pubDate,
       image:item.image||null,
-      sources:[{name:item.outlet.name,lean:item.outlet.lean,url:item.link,image:item.image||null}]
+      sources:[{name:item.outlet.name,lean:item.outlet.lean,url:item.link,image:item.image||null,desc:item.desc||''}]
     };
     used.add(i);
     all.forEach((other,j)=>{
       if(used.has(j)||j===i||other.outlet.name===item.outlet.name)return;
       if(similarity(item.title,other.title)>=0.55){
-        cluster.sources.push({name:other.outlet.name,lean:other.outlet.lean,url:other.link,image:other.image||null});
+        cluster.sources.push({name:other.outlet.name,lean:other.outlet.lean,url:other.link,image:other.image||null,desc:other.desc||''});
         used.add(j);
         if(!cluster.image&&other.image)cluster.image=other.image;
       }
@@ -1218,17 +1136,13 @@ async function openStoryViewer(idx){
   const c=allClusters[idx];if(!c)return;
   const bias=calcBias(c.sources);
   const col=RC[c.region]||{bg:"#ddd",color:"#111"};
-
-  // Collect all theme vars from parent page
   const cs=getComputedStyle(document.documentElement);
   const D={
-    key:geminiKey,
     headline:c.headline,
-    excerpt:c.excerpt||"",
     region:c.region,
     topic:c.topic,
     tags:c.tags||[],
-    sources:c.sources.map(s=>({name:s.name,lean:s.lean,url:s.url})),
+    sources:c.sources.map(s=>({name:s.name,lean:s.lean,url:s.url,desc:s.desc||""})),
     bias:bias,
     regionBg:col.bg,
     regionColor:col.color,
@@ -1238,22 +1152,21 @@ async function openStoryViewer(idx){
     mutedColor:cs.getPropertyValue("--text-muted").trim()||"#666"
   };
 
-  // The popup is pure JS — no HTML string building with quotes
-  const script = [
-    "var D="+JSON.stringify(D)+";console.log('[VIEWER] key length:',D.key?D.key.length:0,'has key:',!!(D.key&&D.key.length>5));",
+  const script=[
+    "var D="+JSON.stringify(D)+";",
     "document.body.style.cssText='font-family:Verdana,sans-serif;background:'+D.bodyBg+';color:'+D.textColor+';padding:2rem;max-width:960px;margin:0 auto;';",
     "function el(tag,props,parent){var e=document.createElement(tag);Object.assign(e,props||{});if(parent)parent.appendChild(e);return e;}",
     "function sty(e,s){Object.assign(e.style,s);return e;}",
-    // Meta row
+    // Meta
     "var meta=el('div',{},document.body);meta.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.75rem;';",
     "sty(el('span',{textContent:D.region},meta),{padding:'3px 10px',borderRadius:'99px',fontSize:'11px',fontWeight:'700',background:D.regionBg,color:D.regionColor});",
-    "sty(el('span',{textContent:D.topic},meta),{fontSize:'11px',fontWeight:'700',color:D.mutedColor,marginLeft:'4px'});",
+    "sty(el('span',{textContent:D.topic},meta),{fontSize:'11px',fontWeight:'700',color:D.mutedColor});",
     "sty(el('span',{textContent:D.sources.length+' sources'},meta),{fontSize:'11px',color:D.mutedColor,fontWeight:'700',marginLeft:'auto'});",
     // Headline
     "var h1=el('h1',{textContent:D.headline},document.body);h1.style.cssText='font-family:Georgia,serif;font-size:24px;font-weight:700;margin-bottom:.75rem;line-height:1.35;color:'+D.textColor+';';",
     // Tags
-    "if(D.tags.length){var tr=el('div',{},document.body);tr.style.cssText='display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem;';D.tags.forEach(function(t){var s=el('span',{textContent:t},tr);s.style.cssText='padding:3px 10px;border-radius:99px;border:1px solid #ccc;font-size:10px;font-weight:700;color:'+D.mutedColor+';';});}",
-    // Bias box
+    "if(D.tags.length){var tr=el('div',{},document.body);tr.style.cssText='display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem;';D.tags.forEach(function(t){sty(el('span',{textContent:t},tr),{padding:'3px 10px',borderRadius:'99px',border:'1px solid #ccc',fontSize:'10px',fontWeight:'700',color:D.mutedColor});});}",
+    // Bias
     "var bs=el('div',{},document.body);bs.style.cssText='background:#f8f8f8;border:1px solid #ddd;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;';",
     "sty(el('div',{textContent:'Coverage Bias — AllSides Ratings'},bs),{fontSize:'10px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.mutedColor,marginBottom:'.5rem'});",
     "var bsr=el('div',{},bs);bsr.style.cssText='display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;font-weight:700;';",
@@ -1266,31 +1179,25 @@ async function openStoryViewer(idx){
     "sty(el('div',{},bt),{width:D.bias.right+'%',background:'#c0392b',height:'100%'});",
     // Section title
     "sty(el('div',{textContent:'All Sources ('+D.sources.length+')'},document.body),{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.accent,marginBottom:'1rem'});",
-    // Source cards
-    "D.sources.forEach(function(s,i){",
-    "  var card=el('div',{},document.body);card.style.cssText='background:#ffffff;border:1px solid #ddd;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;color:#111;';",
-    "  var top=el('div',{},card);top.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.65rem;';",
-    "  var info=el('div',{},top);",
-    "  sty(el('div',{textContent:s.name},info),{fontSize:'15px',fontWeight:'700',marginBottom:'3px',color:'#111'});",
+    // Source cards — headline + excerpt + read button
+    "D.sources.forEach(function(s){",
+    "  var card=el('div',{},document.body);card.style.cssText='background:#fff;border:1px solid #ddd;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;';",
+    "  var top=el('div',{},card);top.style.cssText='display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.5rem;';",
+    "  var info=el('div',{},top);info.style.flex='1';",
+    "  var nameRow=el('div',{},info);nameRow.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:.35rem;';",
+    "  sty(el('div',{textContent:s.name},nameRow),{fontSize:'14px',fontWeight:'700',color:'#111'});",
     "  var lc=s.lean.replace(/-/g,'_');",
-    "  var lnColors={left:'#dbeafe::#1e3a8a',left_center:'#dbeafe::#1e3a8a',center:'#dcfce7::#14532d',right_center:'#fee2e2::#7f1d1d',right:'#fee2e2::#7f1d1d'};",
-    "  var lnc=(lnColors[lc]||'#eee::#333').split('::');",
-    "  sty(el('span',{textContent:s.lean},info),{fontSize:'10px',fontWeight:'700',padding:'2px 8px',borderRadius:'99px',background:lnc[0],color:lnc[1]});",
-    "  var btn=el('a',{textContent:'Read →',href:s.url,target:'_blank'},top);btn.style.cssText='padding:7px 18px;border-radius:99px;background:'+D.accent+';color:#fff;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;text-transform:uppercase;flex-shrink:0;';",
-    "  var air=el('div',{},card);air.style.cssText='border-top:1px solid #eee;padding-top:.65rem;margin-top:.1rem;';",
-    "  sty(el('div',{textContent:'Gemini: '+s.name+' angle'},air),{fontSize:'9px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.accent,marginBottom:'.35rem'});",
-    "  var ait=el('div',{},air);ait.id='ai-'+i;ait.style.cssText='font-size:12px;line-height:1.65;font-style:italic;color:'+D.mutedColor+';';",
-    "  if(D.key&&D.key.length>5){ait.innerHTML='<em style=\"color:#999\">Generating...</em>';}else{ait.textContent='Add Gemini key in settings for summaries';}",
+    "  var lnc={left:'#dbeafe::#1e3a8a',left_center:'#dbeafe::#1e3a8a',center:'#dcfce7::#14532d',right_center:'#fee2e2::#7f1d1d',right:'#fee2e2::#7f1d1d'}[lc]||'#eee::#333';",
+    "  var lncp=lnc.split('::');",
+    "  sty(el('span',{textContent:s.lean},nameRow),{fontSize:'10px',fontWeight:'700',padding:'2px 8px',borderRadius:'99px',background:lncp[0],color:lncp[1]});",
+    "  if(s.desc){sty(el('p',{textContent:s.desc},info),{fontSize:'13px',color:'#444',lineHeight:'1.6',margin:'0'});}",
+    "  var btn=el('a',{textContent:'Read →',href:s.url,target:'_blank'},top);btn.style.cssText='padding:7px 18px;border-radius:99px;background:'+D.accent+';color:#fff;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;text-transform:uppercase;flex-shrink:0;margin-top:2px;';",
     "});",
-    // Auto-generate summaries for all sources with stagger delay
-    "if(D.key&&D.key.length>5){D.sources.forEach(function(s,i){setTimeout(function(){getSummary(s.name,s.url,i);},i*1500);});}",
-    // Footer
-    "var cb=el('button',{textContent:'← Close & Return to Woods Wild News'},document.body);cb.onclick=function(){window.close();};cb.style.cssText='display:block;margin:2rem auto 0;padding:10px 24px;border-radius:99px;background:#333;color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;';",
-    // getSummary
-    "function getSummary(sn,su,i){var el2=document.getElementById('ai-'+i);if(!el2)return;el2.innerHTML='<em style=\"color:#999\">Generating...</em>';fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+D.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'In 1-2 sentences, describe how '+sn+' covers this story. What angle or perspective do they bring? Story: '+D.headline+'. Be concise and neutral.'}]}]})}).then(function(r){return r.json();}).then(function(d){if(d.error){el2.textContent='API error: '+d.error.message;el2.style.color='#c00';return;}var t=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]&&d.candidates[0].content.parts[0].text;el2.textContent=t||('Response: '+JSON.stringify(d).slice(0,100));el2.style.color='#333';el2.style.fontStyle='normal';}).catch(function(e){el2.textContent='Network error: '+e.message;el2.style.color='#c00';});}"
+    // Close button
+    "var cb=el('button',{textContent:'← Close & Return to Woods Wild News'},document.body);cb.onclick=function(){window.close();};cb.style.cssText='display:block;margin:2rem auto 0;padding:10px 24px;border-radius:99px;background:#333;color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;';"
   ].join("\n");
 
-  const html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>"+c.headline.replace(/</g,"&lt;")+"</title></head><body><script>"+script+"<\/script></body></html>";
+  const html="<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>"+c.headline.replace(/</g,"&lt;")+"</title></head><body><script>"+script+"<\/script></body></html>";
   const blob=new Blob([html],{type:"text/html"});
   const url=URL.createObjectURL(blob);
   window.open(url,"_blank");
