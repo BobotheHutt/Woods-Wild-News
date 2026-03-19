@@ -433,6 +433,7 @@ const ACCENTS=[{id:"blue",color:"#1a56db"},{id:"teal",color:"#0d7a70"},{id:"purp
 const CACHE_KEY = "wwn_article_cache";
 let CACHE_TTL_MS = 5 * 60 * 1000;        // syncs with auto-refresh interval
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // drop articles older than 24h
+const arL=s=>s<60?s+"s":s<3600?(s/60)+"min":(s/3600)+"h";
 
 let allClusters=[],activeFilter="all",searchQuery="";
 let myTags=new Set(),activeTagFilters=new Set();
@@ -590,7 +591,6 @@ function onARSlider(v){
   localStorage.setItem("wwn_ar_interval",arIntervalSec);
   if(autoRefresh){stopAR();startAR();}
 }
-const arL=s=>s<60?s+"s":s<3600?(s/60)+"min":(s/3600)+"h";
 function startAR(){stopAR();arRemaining=arIntervalSec;updCD();arTimer=setInterval(()=>{arRemaining--;updCD();if(arRemaining<=0){arRemaining=arIntervalSec;loadFeeds(true);}},1000);}
 function stopAR(){clearInterval(arTimer);arTimer=null;document.getElementById("ar-countdown").textContent="";}
 function updCD(){const e=document.getElementById("ar-countdown");if(e)e.textContent=autoRefresh?`Next: ${arL(arRemaining)}`:"";} 
