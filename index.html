@@ -107,12 +107,20 @@ body{background:#cccccc;margin:0;padding:0;}
 #search-btn{padding:10px 20px;border-radius:8px;border:2px solid #111 !important;background:#111 !important;color:#fff !important;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;text-transform:uppercase;letter-spacing:.06em;}
 #search-btn:hover{background:#333 !important;}
 .filter-section{margin-bottom:1rem;}
-.filter-row{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin;}
-.filter-row::-webkit-scrollbar{height:3px;}
-.filter-row::-webkit-scrollbar-thumb{background:#aaa;border-radius:99px;}
+.filter-row{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.filter-row::-webkit-scrollbar{display:none;}
 .filter-row-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#666;margin-bottom:5px;}
-button.pill{padding:5px 13px !important;border-radius:99px !important;border:2px solid #444 !important;font-size:11px !important;font-weight:700 !important;cursor:pointer !important;background:#fff !important;color:#111 !important;font-family:inherit !important;white-space:nowrap !important;flex-shrink:0 !important;}
-button.pill:hover{background:#ddd !important;}
+.my-tags-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#666;margin-bottom:5px;}
+
+/* Topic nav — full width bar above main content */
+.topic-nav{display:flex;align-items:center;gap:0;background:#ffffff;border:2px solid #aaa;border-radius:10px;padding:4px 8px;margin-bottom:1rem;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}
+.topic-nav::-webkit-scrollbar{display:none;}
+.tnav-divider{width:1px;height:20px;background:#ccc;margin:0 6px;flex-shrink:0;}
+.tnav{padding:5px 14px !important;border-radius:7px !important;border:none !important;font-size:12px !important;font-weight:700 !important;cursor:pointer !important;background:transparent !important;color:#555 !important;font-family:inherit !important;white-space:nowrap !important;flex-shrink:0 !important;transition:all .15s !important;}
+.tnav:hover{background:#eee !important;color:#111 !important;}
+.tnav.active{background:#111 !important;color:#fff !important;}
+button.pill{padding:6px 16px !important;border-radius:99px !important;border:2px solid #888 !important;font-size:12px !important;font-weight:700 !important;cursor:pointer !important;background:#fff !important;color:#333 !important;font-family:inherit !important;white-space:nowrap !important;flex-shrink:0 !important;transition:all .15s !important;}
+button.pill:hover{background:#eee !important;border-color:#555 !important;color:#111 !important;}
 button.pill.active{background:#111 !important;color:#fff !important;border-color:#111 !important;}
 .my-tags-row{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;align-items:center;min-height:34px;scrollbar-width:thin;}
 button.my-tag{display:inline-flex !important;align-items:center !important;gap:5px !important;padding:5px 10px !important;border-radius:99px !important;border:2px solid var(--accent) !important;font-size:11px !important;font-weight:700 !important;cursor:pointer !important;background:#fff !important;color:#1a56db !important;font-family:inherit !important;white-space:nowrap !important;flex-shrink:0 !important;}
@@ -127,7 +135,9 @@ button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
 .cluster-card{background:#fff !important;border:2px solid #aaa;border-radius:12px;overflow:hidden;transition:border-color .15s;}
 .cluster-card:hover{border-color:#555;}
 .cluster-hero{display:flex;align-items:stretch;}
-.cluster-emoji{width:110px;flex-shrink:0;min-height:120px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);font-size:38px;}
+.cluster-hero-img{width:160px;flex-shrink:0;min-height:130px;position:relative;overflow:hidden;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);}
+.cluster-hero-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.cluster-emoji-fb{width:100%;height:100%;min-height:130px;display:flex;align-items:center;justify-content:center;font-size:40px;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);}
 .cluster-hero-body{flex:1;padding:.85rem 1rem .75rem;}
 .cluster-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.45rem;}
 .region-badge{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:700;}
@@ -244,27 +254,29 @@ button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
   </div>
 </div>
 
+<div class="topic-nav" id="topic-nav">
+  <button class="tnav active" data-filter="all">All</button>
+  <div class="tnav-divider"></div>
+  <button class="tnav" data-filter="US & Americas">U.S.</button>
+  <button class="tnav" data-filter="World">World</button>
+  <button class="tnav" data-filter="local">Local</button>
+  <button class="tnav" data-filter="Economy">Business</button>
+  <button class="tnav" data-filter="Tech">Technology</button>
+  <button class="tnav" data-filter="General">Entertainment</button>
+  <button class="tnav" data-filter="Conflict">Politics</button>
+  <button class="tnav" data-filter="Science">Science</button>
+  <button class="tnav" data-filter="Health">Health</button>
+  <button class="tnav" data-filter="Climate">Environment</button>
+</div>
 <div class="body-layout">
   <div class="main-col">
     <div class="search-row">
       <input id="search-input" type="text" placeholder="Filter stories by keyword..."/>
       <button id="search-btn">Search</button>
     </div>
-    <div class="filter-section">
-      <div class="filter-row-label">Region</div>
-      <div class="filter-row" id="region-filters">
-        <button class="pill active" data-filter="all">All</button>
-        <button class="pill" data-filter="US & Americas">Americas</button>
-        <button class="pill" data-filter="World">World</button>
-        <button class="pill" data-filter="Europe">Europe</button>
-        <button class="pill" data-filter="Asia">Asia</button>
-        <button class="pill" data-filter="Middle East">Middle East</button>
-        <button class="pill" data-filter="Africa">Africa</button>
-      </div>
-      <div id="my-tags-section" style="margin-top:8px;display:none;">
-        <div class="filter-row-label">My Tags <span style="font-size:9px;color:#888;cursor:pointer;font-weight:700;margin-left:6px;" onclick="clearAllTags()">clear all</span></div>
-        <div class="my-tags-row" id="my-tags-row"></div>
-      </div>
+    <div id="my-tags-section" style="margin-bottom:.75rem;display:none;">
+      <div class="my-tags-label">My Tags <span style="font-size:9px;color:#888;cursor:pointer;font-weight:700;margin-left:6px;" onclick="clearAllTags()">clear all</span></div>
+      <div class="my-tags-row" id="my-tags-row"></div>
     </div>
     <div id="content"><div class="loading-state">Loading news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div></div>
   </div>
@@ -384,7 +396,7 @@ const THEMES=[
 ];
 const ACCENTS=[{id:"blue",color:"#1a56db"},{id:"teal",color:"#0d7a70"},{id:"purple",color:"#6030c0"},{id:"amber",color:"#b07000"},{id:"coral",color:"#b83020"},{id:"pink",color:"#a01858"},{id:"green",color:"#166534"},{id:"red",color:"#a00000"}];
 
-let allClusters=[],activeRegion="all",searchQuery="";
+let allClusters=[],activeFilter="all",searchQuery="";
 let myTags=new Set(),activeTagFilters=new Set();
 let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
@@ -523,6 +535,36 @@ function reS(q){document.getElementById("search-input").value=q;searchQuery=q;ad
 // ── RSS VIA /rss PROXY ON CLOUDFLARE WORKER ──
 function stripHTML(h){return(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g," ").trim();}
 
+function extractImage(item){
+  // Try multiple places RSS feeds put images
+  // 1. media:content or media:thumbnail
+  const media=item.querySelector("content,thumbnail");
+  if(media){
+    const url=media.getAttribute("url");
+    if(url&&url.match(/\.(jpg|jpeg|png|webp)/i))return url;
+  }
+  // 2. enclosure tag
+  const enc=item.querySelector("enclosure");
+  if(enc){
+    const url=enc.getAttribute("url");
+    if(url&&url.match(/\.(jpg|jpeg|png|webp)/i))return url;
+  }
+  // 3. image tag inside item
+  const img=item.querySelector("image url");
+  if(img)return img.textContent.trim();
+  // 4. og:image or first <img> inside description/content
+  const desc=item.querySelector("description,content,summary")?.textContent||"";
+  const imgMatch=desc.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if(imgMatch)return imgMatch[1];
+  // 5. media:group > media:content
+  const mgContent=item.querySelector("group content");
+  if(mgContent){
+    const url=mgContent.getAttribute("url");
+    if(url)return url;
+  }
+  return null;
+}
+
 async function fetchRSS(outlet){
   try{
     const res=await fetch(`/rss?url=${encodeURIComponent(outlet.rss)}`,{signal:AbortSignal.timeout(10000)});
@@ -536,20 +578,19 @@ async function fetchRSS(outlet){
       return[];
     }
     const doc=new DOMParser().parseFromString(text,"text/xml");
-    // Check for XML parse errors
     const parseErr=doc.querySelector("parsererror");
     if(parseErr){
       console.warn(`${outlet.name}: XML parse error`,parseErr.textContent.slice(0,80));
       return[];
     }
     const items=[...doc.querySelectorAll("item, entry")];
-    if(outlet.name==="NPR") console.log(`NPR: found ${items.length} items`);
     return items.slice(0,15).map(item=>{
       const title=stripHTML(item.querySelector("title")?.textContent||"");
       const link=(item.querySelector("link")?.textContent||item.querySelector("link")?.getAttribute("href")||"").trim();
       const desc=stripHTML(item.querySelector("description")?.textContent||item.querySelector("summary")?.textContent||"").slice(0,250);
       const pubDate=item.querySelector("pubDate")?.textContent||item.querySelector("published")?.textContent||item.querySelector("updated")?.textContent||"";
-      return title&&link?{title,link,desc,pubDate,outlet}:null;
+      const image=extractImage(item);
+      return title&&link?{title,link,desc,pubDate,image,outlet}:null;
     }).filter(Boolean);
   }catch(e){
     console.warn(`${outlet.name} failed:`,e.message);
@@ -645,14 +686,16 @@ async function loadFeeds(silent=false){
       region,
       tags:extractTags(item.title),
       pubDate:item.pubDate,
-      sources:[{name:item.outlet.name,lean:item.outlet.lean,url:item.link}]
+      image:item.image||null,
+      sources:[{name:item.outlet.name,lean:item.outlet.lean,url:item.link,image:item.image||null}]
     };
     used.add(i);
     all.forEach((other,j)=>{
       if(used.has(j)||j===i||other.outlet.name===item.outlet.name)return;
       if(similarity(item.title,other.title)>=0.38){
-        cluster.sources.push({name:other.outlet.name,lean:other.outlet.lean,url:other.link});
+        cluster.sources.push({name:other.outlet.name,lean:other.outlet.lean,url:other.link,image:other.image||null});
         used.add(j);
+        if(!cluster.image&&other.image)cluster.image=other.image;
       }
     });
     clusters.push(cluster);
@@ -677,7 +720,9 @@ function clusterHTML(c,idx){
   const tagsHTML=tags.map(tag=>{const inMT=myTags.has(tag);return`<span class="story-tag${inMT?" in-my-tags":""}" onclick="handleTagClick('${tag.replace(/'/g,"\\'")}',this)">${tag}${inMT?"":' <span class="tag-plus">+</span>'}</span>`;}).join("");
   return`<div class="cluster-card">
 <div class="cluster-hero">
-  <div class="cluster-emoji">${emoji}</div>
+  <div class="cluster-hero-img">
+    ${c.image?`<img src="${c.image}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class='cluster-emoji-fb' style='display:none'>${emoji}</div>`:`<div class='cluster-emoji-fb'>${emoji}</div>`}
+  </div>
   <div class="cluster-hero-body">
     <div class="cluster-meta"><span class="region-badge" style="background:${col.bg};color:${col.color}">${c.region}</span><span class="topic-badge">${c.topic}</span><span class="coverage-count">${c.sources.length} source${c.sources.length>1?"s":""}</span></div>
     <div class="cluster-headline">${c.headline}</div>
@@ -700,7 +745,12 @@ ${tagsHTML?`<div class="cluster-tags">${tagsHTML}</div>`:""}
 
 function filterClusters(){
   let f=allClusters;
-  if(activeRegion!=="all")f=f.filter(c=>c.region===activeRegion);
+  if(activeFilter!=="all"&&activeFilter!=="local"){
+    // Match on region OR topic
+    f=f.filter(c=>c.region===activeFilter||c.topic===activeFilter);
+  }
+  // Local = US & Americas region (closest approximation without geolocation)
+  if(activeFilter==="local") f=f.filter(c=>c.region==="US & Americas");
   if(searchQuery){const q=searchQuery.toLowerCase();f=f.filter(c=>c.headline.toLowerCase().includes(q)||(c.excerpt||"").toLowerCase().includes(q));}
   if(activeTagFilters.size>0)f=f.filter(c=>[...activeTagFilters].every(t=>(c.tags||[]).includes(t)));
   return f;
@@ -816,17 +866,17 @@ ${c.sources.map(s=>`<div class="card"><div><div class="sn">${s.name}</div><span 
   setTimeout(()=>URL.revokeObjectURL(url),120000);
 }
 
-document.getElementById("region-filters").addEventListener("click",e=>{
+document.getElementById("topic-nav").addEventListener("click",e=>{
   const pill=e.target.closest(".pill");if(!pill)return;
-  activeRegion=pill.dataset.filter;
-  document.querySelectorAll("#region-filters .pill").forEach(p=>{const a=p===pill;p.classList.toggle("active",a);p.style.background=a?"#111":"#fff";p.style.color=a?"#fff":"#111";p.style.borderColor=a?"#111":"#444";});
+  activeFilter=pill.dataset.filter;
+  document.querySelectorAll("#topic-nav .tnav").forEach(p=>{const a=p===pill;p.classList.toggle("active",a);p.style.background=a?"#111":"transparent";p.style.color=a?"#fff":"#555";});
   renderContent();
 });
 document.getElementById("search-btn").onclick=()=>{
   searchQuery=document.getElementById("search-input").value.trim();
   if(searchQuery)addH(searchQuery);
-  activeRegion="all";activeTagFilters.clear();renderMyTagsRow();
-  document.querySelectorAll("#region-filters .pill").forEach((p,i)=>{p.classList.toggle("active",i===0);p.style.background=i===0?"#111":"#fff";p.style.color=i===0?"#fff":"#111";p.style.borderColor=i===0?"#111":"#444";});
+  activeFilter="all";activeTagFilters.clear();renderMyTagsRow();
+  document.querySelectorAll("#topic-nav .tnav").forEach((p,i)=>{p.classList.toggle("active",i===0);p.style.background=i===0?"#111":"transparent";p.style.color=i===0?"#fff":"#555";});
   renderContent();
 };
 document.getElementById("search-input").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("search-btn").click();});
