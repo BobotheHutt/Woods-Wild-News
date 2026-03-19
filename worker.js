@@ -398,7 +398,7 @@ async function buildCache(env) {
   });
 
   clusters.sort((a,b)=>b.sources.length-a.sources.length||((b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0)));
-  const allClusters=clusters.slice(0,500);
+  const allClusters=clusters.slice(0,2000);
 
   console.log(`[WWN] Clustered into ${allClusters.length} stories`);
 
