@@ -1,10 +1,10 @@
 /**
  * Wood's Wild News — Cloudflare Worker
- * Routes:
- *   GET  /rss?url=... → proxy RSS feeds server-side (bypasses browser CORS)
- *   POST /api         → proxy to Anthropic (optional, future use)
- *   *                 → serve static assets (index.html etc.)
+ * GET  /rss?url=... → proxy RSS feeds (bypasses CORS)
+ * POST /api         → proxy to Anthropic (optional)
+ * *                 → serve static assets via ASSETS binding
  */
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -22,7 +22,7 @@ export default {
       });
     }
 
-    // ── GET /rss?url=... ── fetch RSS feed server-side ──
+    // ── GET /rss?url=... ── proxy RSS feeds server-side ──
     if (path === '/rss') {
       const feedUrl = url.searchParams.get('url');
       if (!feedUrl) {
@@ -52,7 +52,7 @@ export default {
       }
     }
 
-    // ── POST /api ── Anthropic proxy (optional) ──
+    // ── POST /api ── Anthropic proxy ──
     if (path === '/api' && request.method === 'POST') {
       try {
         const body = await request.json();
@@ -68,18 +68,12 @@ export default {
         const data = await res.json();
         return new Response(JSON.stringify(data), {
           status: res.status,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
         });
       } catch (err) {
         return new Response(JSON.stringify({ error: err.message }), {
           status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
         });
       }
     }
