@@ -1184,6 +1184,7 @@ function classifyTopic(t){const tl=t.toLowerCase();for(const[k,kw]of Object.entr
 function classifyRegion(t){const tl=t.toLowerCase();for(const[k,kw]of Object.entries(REGION_KW))if(kw.some(w=>tl.includes(w)))return k==="Middle_East"?"Middle East":k;return null;}
 
 function getKeywords(h){
+  if(!h||typeof h!=="string")return[];
   const stop=new Set(["the","a","an","in","on","at","to","for","of","and","or","but","is","are","was","were","has","have","had","that","this","with","from","by","as","it","its","says","said","new","over","after","before","into","about","its","their","who","what","how","than","more","will","been"]);
   return h.toLowerCase().replace(/[^\w\s]/g,"").split(/\s+/).filter(w=>w.length>3&&!stop.has(w));
 }
