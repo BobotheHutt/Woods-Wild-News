@@ -540,7 +540,6 @@ function buildUI(){
   THEMES.forEach(t=>{const wrap=document.createElement("div");wrap.className="theme-swatch";const thumb=document.createElement("div");thumb.className="swatch-thumb"+(t.id==="white"?" active":"");thumb.id="sw-"+t.id;thumb.style.background=`linear-gradient(135deg,${t.t1} 50%,${t.t2} 50%)`;thumb.onclick=()=>applyTheme(t.id);const lbl=document.createElement("div");lbl.className="swatch-label";lbl.textContent=t.label;wrap.appendChild(thumb);wrap.appendChild(lbl);sw.appendChild(wrap);});
   ACCENTS.forEach(a=>{const btn=document.createElement("button");btn.className="acc-dot"+(a.id==="blue"?" active":"");btn.id="acc-"+a.id;btn.style.background=a.color;btn.onclick=()=>applyAccent(a.color,a.id);document.getElementById("accent-dots").appendChild(btn);});
 }
-buildUI();
 // Restore saved theme and accent
 // Restore auto-refresh interval and sync cache TTL
 const savedARInterval=parseInt(localStorage.getItem("wwn_ar_interval")||"60");
@@ -996,6 +995,8 @@ document.getElementById("search-btn").onclick=()=>{
 };
 document.getElementById("search-input").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("search-btn").click();});
 
+// Build theme UI now that full DOM including theme bar is available
+buildUI();
 loadFeeds();
 </script>
 
