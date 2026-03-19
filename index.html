@@ -527,6 +527,55 @@ function getLocalSearchTerms(){
   if(userRadius>=50&&userCounty)terms.push(userCounty.replace(" County",""));
   return terms;
 }
+function showToast(msg){
+  let t=document.getElementById("toast");
+  if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;z-index:9999;font-family:Verdana,sans-serif;pointer-events:none;";document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity="1";
+  setTimeout(()=>t.style.opacity="0",2500);
+}
+
+async function saveZip(){
+  const z=(document.getElementById("zip-input")||{value:""}).value.trim();
+  const r=parseInt((document.getElementById("zip-radius")||{value:"25"}).value||"25");
+  if(!z||!/^\d{5}$/.test(z)){showToast("Enter a valid 5-digit ZIP");return;}
+  const locEl=document.getElementById("zip-location");
+  if(locEl)locEl.textContent="Looking up...";
+  try{
+    const res=await fetch("https://api.zippopotam.us/us/"+z);
+    if(!res.ok){if(locEl)locEl.textContent="ZIP not found";showToast("ZIP code not found");return;}
+    const data=await res.json();
+    const place=data.places[0];
+    userZip=z;userCity=place["place name"];userState=place["state abbreviation"];
+    userCounty=place["state"]||"";userLat=parseFloat(place.latitude);
+    userLng=parseFloat(place.longitude);userRadius=r;
+    localStorage.setItem("wwn_zip",userZip);localStorage.setItem("wwn_city",userCity);
+    localStorage.setItem("wwn_state",userState);localStorage.setItem("wwn_county",userCounty);
+    localStorage.setItem("wwn_lat",userLat);localStorage.setItem("wwn_lng",userLng);
+    localStorage.setItem("wwn_radius",userRadius);
+    const msg=userCity+", "+userState+" ("+r+" mile radius)";
+    if(locEl)locEl.textContent=msg;
+    showToast("Local news: "+msg);
+    try{localStorage.removeItem(CACHE_KEY);}catch{}
+    loadFeeds(false);
+  }catch(e){if(locEl)locEl.textContent="Lookup failed";showToast("ZIP lookup failed");}
+}
+
+function clearZip(){
+  userZip="";userCity="";userState="";userCounty="";userLat=null;userLng=null;userRadius=25;
+  ["wwn_zip","wwn_city","wwn_state","wwn_county","wwn_lat","wwn_lng","wwn_radius"].forEach(k=>{try{localStorage.removeItem(k);}catch{}});
+  const zi=document.getElementById("zip-input");if(zi)zi.value="";
+  const zl=document.getElementById("zip-location");if(zl)zl.textContent="";
+  showToast("Local ZIP cleared");
+}
+
+function getLocalSearchTerms(){
+  if(!userCity)return[];
+  const terms=[userCity];
+  if(userRadius>=25)terms.push(userState);
+  if(userRadius>=50&&userCounty)terms.push(userCounty.replace(" County",""));
+  return terms;
+}
+
 function clearArticleCache(){
   try{localStorage.removeItem(CACHE_KEY);}catch{}
   showToast("Cache cleared — reloading feeds...");
