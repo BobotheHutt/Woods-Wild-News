@@ -253,6 +253,10 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
       <div><div class="safe-perm-name">SafeSearch — always on</div><div class="safe-perm-desc">Only AllSides-rated reputable outlets</div></div>
       <span style="font-size:16px">🔒</span>
     </div>
+    <div class="setting-row">
+      <div class="setting-info"><span class="setting-name">Article history</span><span class="setting-desc">Articles you've clicked</span></div>
+      <button onclick="clearHistory();showToast('History cleared')" style="background:#c00;color:#fff;border:none;padding:4px 12px;border-radius:5px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">Clear</button>
+    </div>
     <div class="key-setting-row" style="grid-column:1/-1;flex-wrap:wrap;gap:6px;">
       <span class="setting-name">Local News ZIP:</span>
       <input type="text" id="zip-input" placeholder="e.g. 99301" maxlength="5" style="max-width:80px;">
@@ -815,7 +819,13 @@ function onARSlider(v){
 }
 function startAR(){stopAR();arRemaining=arIntervalSec;updCD();arTimer=setInterval(()=>{arRemaining--;updCD();if(arRemaining<=0){arRemaining=arIntervalSec;loadFeeds(true);}},1000);}
 function stopAR(){clearInterval(arTimer);arTimer=null;document.getElementById("ar-countdown").textContent="";}
-function updCD(){const e=document.getElementById("ar-countdown");if(e)e.textContent=autoRefresh?`Next: ${arL(arRemaining)}`:"";} 
+function updCD(){
+  const e=document.getElementById("ar-countdown");
+  if(!e)return;
+  if(!autoRefresh){e.textContent="";return;}
+  const mins=Math.ceil(arRemaining/60);
+  e.textContent=mins>=1?`Next refresh: ${mins}`:"";
+} 
 
 function setSidebar(panel,btn){
   document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active","dirty-active"));
@@ -827,12 +837,24 @@ const isBM=h=>bookmarks.some(b=>b.headline===h);
 function toggleBM(idx,el){const c=allClusters[idx];if(!c)return;const i=bookmarks.findIndex(b=>b.headline===c.headline);i===-1?bookmarks.unshift({...c,savedAt:new Date().toISOString()}):bookmarks.splice(i,1);saveB();upCounts();if(el)el.className=isBM(c.headline)?"bmark-btn-cluster saved":"bmark-btn-cluster";}
 function renderBM(){const el=document.getElementById("bmarks-content");if(!bookmarks.length){el.innerHTML='<div class="empty-state">No bookmarks yet.</div>';return;}el.innerHTML=bookmarks.map((c,i)=>`<div class="bmark-card"><div class="bmark-hl">${c.headline}</div><div class="bmark-meta"><span>${c.sources[0]?c.sources[0].name:""} · ${ago(c.savedAt)}</span><button class="bmark-del" onclick="rmBM(${i})">✕</button></div></div>`).join("");}
 function rmBM(i){bookmarks.splice(i,1);saveB();upCounts();renderBM();}
-function addH(q){if(!q||!historyEnabled)return;const p=searchHistory.find(h=>h.q===q);searchHistory=searchHistory.filter(h=>h.q!==q);searchHistory.unshift({q,at:new Date().toISOString(),count:(p?p.count:0)+1});if(searchHistory.length>100)searchHistory=searchHistory.slice(0,100);saveH();upCounts();}
+function addH(headline,url,outlet){if(!historyEnabled||!headline||!url)return;searchHistory=searchHistory.filter(h=>h.url!==url);searchHistory.unshift({headline,url,outlet:outlet||'',at:new Date().toISOString()});if(searchHistory.length>200)searchHistory=searchHistory.slice(0,200);saveH();upCounts();}
 function clearHistory(){searchHistory=[];saveH();upCounts();renderHist();}
-function delH(q){searchHistory=searchHistory.filter(h=>h.q!==q);saveH();upCounts();renderHist();}
+function delH(url){searchHistory=searchHistory.filter(h=>h.url!==url);saveH();upCounts();renderHist();}
 function ago(iso){const d=Math.floor((Date.now()-new Date(iso))/1000);if(d<60)return"just now";if(d<3600)return Math.floor(d/60)+"m ago";if(d<86400)return Math.floor(d/3600)+"h ago";return Math.floor(d/86400)+"d ago";}
-function renderHist(){const el=document.getElementById("hist-content");const q=(document.getElementById("hist-search")||{}).value||"";const f=q?searchHistory.filter(h=>h.q.toLowerCase().includes(q.toLowerCase())):searchHistory;if(!f.length){el.innerHTML=`<div class="empty-state">${q?"No matches.":"No history yet."}</div>`;return;}el.innerHTML=f.map(h=>`<div class="hist-card"><div class="hist-q">${h.q}</div><div class="hist-row"><span class="hist-meta">${ago(h.at)}${h.count>1?` · ${h.count}×`:""}</span><div><button class="hist-go" onclick="reS('${h.q.replace(/'/g,"\\'")}')">Go →</button><button class="hist-del" onclick="delH('${h.q.replace(/'/g,"\\'")}')">✕</button></div></div></div>`).join("");}
-function reS(q){document.getElementById("search-input").value=q;searchQuery=q;addH(q);renderContent();}
+function renderHist(){
+  const panel=document.getElementById("history-list");
+  if(!panel)return;
+  const q=(document.getElementById("hist-search")||{value:""}).value.toLowerCase();
+  const items=q?searchHistory.filter(h=>h.headline.toLowerCase().includes(q)||h.outlet.toLowerCase().includes(q)):searchHistory;
+  if(!items.length){panel.innerHTML='<div style="color:#888;font-size:12px;padding:8px 0">'+(searchHistory.length?'No matches':'No history yet — click articles to track them')+'</div>';return;}
+  panel.innerHTML=items.map(h=>`
+    <div class="hist-item">
+      <a href="${h.url}" target="_blank" rel="noopener" onclick="addH(${JSON.stringify(h.headline)},${JSON.stringify(h.url)},${JSON.stringify(h.outlet)})" class="hist-headline">${h.headline}</a>
+      <div class="hist-meta"><span class="hist-outlet">${h.outlet}</span><span class="hist-age">${ageStr(new Date(h.at))}</span><button class="hist-del" onclick="delH(${JSON.stringify(h.url)})">×</button></div>
+    </div>`).join("");
+}
+
+function reS(q){document.getElementById("search-input").value=q;searchQuery=q;renderContent();}
 
 // ── RSS VIA /rss PROXY ON CLOUDFLARE WORKER ──
 function stripHTML(h){return(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g," ").trim();}
@@ -1132,12 +1154,12 @@ function clusterHTML(c,idx){
 
   return`<div class="cluster-card">
 <div class="cluster-hero">
-  <a class="cluster-hero-img" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
+  <a class="cluster-hero-img" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();addH(${JSON.stringify(c.headline)},${JSON.stringify(lead.url)},${JSON.stringify(lead.name)})">
     ${c.image?`<img src="${c.image}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class='cluster-emoji-fb' style='display:none'>${emoji}</div>`:`<div class='cluster-emoji-fb'>${emoji}</div>`}
   </a>
   <div class="cluster-hero-body">
     <div class="cluster-meta"><span class="region-badge" style="background:${col.bg};color:${col.color}">${c.region}</span><span class="topic-badge">${c.topic}</span><span class="coverage-count">${c.sources.length} source${c.sources.length>1?"s":""}</span></div>
-    <a class="cluster-headline-link" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><div class="cluster-headline">${c.headline}</div></a>
+    <a class="cluster-headline-link" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();addH(${JSON.stringify(c.headline)},${JSON.stringify(lead.url)},${JSON.stringify(lead.name)})"><div class="cluster-headline">${c.headline}</div></a>
     ${c.excerpt?`<div class="cluster-excerpt">${c.excerpt}</div>`:""}
     <div class="cluster-sources-inline">
       ${leadRow}
@@ -1334,7 +1356,6 @@ document.getElementById("topic-nav").addEventListener("click",e=>{
 });
 document.getElementById("search-btn").onclick=()=>{
   searchQuery=document.getElementById("search-input").value.trim();
-  if(searchQuery)addH(searchQuery);
   activeFilter="all";activeTagFilters.clear();renderMyTagsRow();
   document.querySelectorAll("#topic-nav .tnav").forEach((p,i)=>{p.classList.toggle("active",i===0);p.style.background=i===0?"#111":"transparent";p.style.color=i===0?"#fff":"#555";});
   renderContent();
