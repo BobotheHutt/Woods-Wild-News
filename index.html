@@ -1251,7 +1251,7 @@ async function openStoryViewer(idx){
     // Tags
     "if(D.tags.length){var tr=el('div',{},document.body);tr.style.cssText='display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem;';D.tags.forEach(function(t){var s=el('span',{textContent:t},tr);s.style.cssText='padding:3px 10px;border-radius:99px;border:1px solid #ccc;font-size:10px;font-weight:700;color:'+D.mutedColor+';';});}",
     // Bias box
-    "var bs=el('div',{},document.body);bs.style.cssText='background:#fff;border:1px solid #ddd;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;';",
+    "var bs=el('div',{},document.body);bs.style.cssText='background:#f8f8f8;border:1px solid #ddd;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;';",
     "sty(el('div',{textContent:'Coverage Bias — AllSides Ratings'},bs),{fontSize:'10px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.mutedColor,marginBottom:'.5rem'});",
     "var bsr=el('div',{},bs);bsr.style.cssText='display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;font-weight:700;';",
     "el('span',{textContent:'Left '+D.bias.left+'%'},bsr).style.color='#1a4eb0';",
@@ -1265,10 +1265,10 @@ async function openStoryViewer(idx){
     "sty(el('div',{textContent:'All Sources ('+D.sources.length+')'},document.body),{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.accent,marginBottom:'1rem'});",
     // Source cards
     "D.sources.forEach(function(s,i){",
-    "  var card=el('div',{},document.body);card.style.cssText='background:#fff;border:1px solid #ddd;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;';",
+    "  var card=el('div',{},document.body);card.style.cssText='background:#ffffff;border:1px solid #ddd;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;color:#111;';",
     "  var top=el('div',{},card);top.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.65rem;';",
     "  var info=el('div',{},top);",
-    "  sty(el('div',{textContent:s.name},info),{fontSize:'15px',fontWeight:'700',marginBottom:'3px',color:D.textColor});",
+    "  sty(el('div',{textContent:s.name},info),{fontSize:'15px',fontWeight:'700',marginBottom:'3px',color:'#111'});",
     "  var lc=s.lean.replace(/-/g,'_');",
     "  var lnColors={left:'#dbeafe::#1e3a8a',left_center:'#dbeafe::#1e3a8a',center:'#dcfce7::#14532d',right_center:'#fee2e2::#7f1d1d',right:'#fee2e2::#7f1d1d'};",
     "  var lnc=(lnColors[lc]||'#eee::#333').split('::');",
@@ -1277,10 +1277,10 @@ async function openStoryViewer(idx){
     "  var air=el('div',{},card);air.style.cssText='border-top:1px solid #eee;padding-top:.65rem;margin-top:.1rem;';",
     "  sty(el('div',{textContent:'Gemini: '+s.name+' angle'},air),{fontSize:'9px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.accent,marginBottom:'.35rem'});",
     "  var ait=el('div',{},air);ait.id='ai-'+i;ait.style.cssText='font-size:12px;line-height:1.65;font-style:italic;color:'+D.mutedColor+';';",
-    "  if(D.key){var ab=el('button',{textContent:'Generate summary'},ait);ab.style.cssText='font-size:11px;font-weight:700;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline;color:'+D.accent+';';(function(sn,su,ii){ab.onclick=function(){getSummary(sn,su,ii);};})(s.name,s.url,i);}else{ait.textContent='Add Gemini key for summaries';}",
+    "  if(D.key&&D.key.length>5){var ab=el('button',{textContent:'Generate summary'},ait);ab.style.cssText='font-size:11px;font-weight:700;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline;color:'+D.accent+';';(function(sn,su,ii){ab.onclick=function(){getSummary(sn,su,ii);};})(s.name,s.url,i);}else{ait.textContent='Add Gemini key for summaries';}",
     "});",
     // Footer
-    "sty(el('p',{textContent:'Close this tab to return to Woods Wild News'},document.body),{fontSize:'11px',color:'#999',marginTop:'2rem',textAlign:'center'});",
+    "var cb=el('button',{textContent:'← Close & Return to Woods Wild News'},document.body);cb.onclick=function(){window.close();};cb.style.cssText='display:block;margin:2rem auto 0;padding:10px 24px;border-radius:99px;background:#333;color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;';",
     // getSummary
     "function getSummary(sn,su,i){var el2=document.getElementById('ai-'+i);if(!el2)return;el2.innerHTML='<em>Generating...</em>';fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+D.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'In 1-2 sentences describe how '+sn+' covers this story. Headline: '+D.headline}]}]})}).then(function(r){return r.json();}).then(function(d){el2.textContent=d.candidates&&d.candidates[0]?d.candidates[0].content.parts[0].text:'Could not generate.';}).catch(function(e){el2.textContent='Error: '+e.message;});}"
   ].join("\n");
