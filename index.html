@@ -1240,7 +1240,7 @@ async function openStoryViewer(idx){
 
   // The popup is pure JS — no HTML string building with quotes
   const script = [
-    "var D="+JSON.stringify(D)+";",
+    "var D="+JSON.stringify(D)+";console.log('[VIEWER] key length:',D.key?D.key.length:0,'has key:',!!(D.key&&D.key.length>5));",
     "document.body.style.cssText='font-family:Verdana,sans-serif;background:'+D.bodyBg+';color:'+D.textColor+';padding:2rem;max-width:960px;margin:0 auto;';",
     "function el(tag,props,parent){var e=document.createElement(tag);Object.assign(e,props||{});if(parent)parent.appendChild(e);return e;}",
     "function sty(e,s){Object.assign(e.style,s);return e;}",
@@ -1285,7 +1285,7 @@ async function openStoryViewer(idx){
     // Footer
     "var cb=el('button',{textContent:'← Close & Return to Woods Wild News'},document.body);cb.onclick=function(){window.close();};cb.style.cssText='display:block;margin:2rem auto 0;padding:10px 24px;border-radius:99px;background:#333;color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;';",
     // getSummary
-    "function getSummary(sn,su,i){var el2=document.getElementById('ai-'+i);if(!el2)return;el2.innerHTML='<em>Generating...</em>';fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+D.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'In 1-2 sentences describe how '+sn+' covers this story. Headline: '+D.headline}]}]})}).then(function(r){return r.json();}).then(function(d){el2.textContent=d.candidates&&d.candidates[0]?d.candidates[0].content.parts[0].text:'Could not generate.';}).catch(function(e){el2.textContent='Error: '+e.message;});}"
+    "function getSummary(sn,su,i){var el2=document.getElementById('ai-'+i);if(!el2)return;el2.innerHTML='<em>Generating...</em>';el2.style.fontStyle='normal';fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+D.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'In 1-2 sentences, describe how '+sn+' covers this story and what perspective or angle they bring. Story: '+D.headline+'. Be neutral and factual.'}]}]})}).then(function(r){return r.json();}).then(function(d){var t=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]?d.candidates[0].content.parts[0].text:'';el2.textContent=t||'No summary returned. Check API key.';el2.style.color='#333';el2.style.fontStyle='normal';}).catch(function(e){el2.textContent='Error: '+e.message;el2.style.color='#c00';});}"
   ].join("\n");
 
   const html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>"+c.headline.replace(/</g,"&lt;")+"</title></head><body><script>"+script+"<\/script></body></html>";
