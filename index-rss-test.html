@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head><title>RSS Test</title></head>
+<body>
+<h2>RSS Proxy Test</h2>
+<div id="out">Testing...</div>
+<script>
+async function test() {
+  const out = document.getElementById('out');
+  const testUrl = 'https://feeds.npr.org/1001/rss.xml';
+  
+  // Test 1: Direct /rss route
+  try {
+    out.innerHTML += '<p>Testing /rss proxy...</p>';
+    const r = await fetch('/rss?url=' + encodeURIComponent(testUrl));
+    out.innerHTML += `<p>Status: ${r.status} ${r.statusText}</p>`;
+    const text = await r.text();
+    out.innerHTML += `<p>Response (first 200 chars): ${text.slice(0,200)}</p>`;
+  } catch(e) {
+    out.innerHTML += `<p style="color:red">Error: ${e.message}</p>`;
+  }
+
+  // Test 2: Google RSS proxy
+  try {
+    out.innerHTML += '<p>Testing Google RSS proxy...</p>';
+    const googleUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(testUrl)}`;
+    const r2 = await fetch(googleUrl);
+    out.innerHTML += `<p>RSS2JSON Status: ${r2.status}</p>`;
+    const data = await r2.json();
+    out.innerHTML += `<p>Items count: ${data.items?.length || 0}</p>`;
+    if(data.items?.length) out.innerHTML += `<p>First title: ${data.items[0].title}</p>`;
+  } catch(e) {
+    out.innerHTML += `<p style="color:red">RSS2JSON Error: ${e.message}</p>`;
+  }
+}
+test();
+</script>
+</body>
+</html>
