@@ -131,16 +131,16 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;}
 .section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);}
 .story-count{font-size:10px;color:var(--text-muted);font-weight:700;}
-.cluster-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;align-items:start;}
+.cluster-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(560px,1fr));gap:16px;align-items:start;}
 .cluster-card{background:#fff !important;border:2px solid #ddd;border-radius:12px;overflow:hidden;transition:border-color .15s;display:flex;flex-direction:column;height:100%;}
 .cluster-card:hover{border-color:#888;}
-.cluster-hero{display:flex;flex-direction:column;align-items:stretch;}
-.cluster-hero-img{width:100%;height:180px;position:relative;overflow:hidden;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);flex-shrink:0;display:block;cursor:pointer;}
+.cluster-hero{display:flex;flex-direction:row;align-items:stretch;}
+.cluster-hero-img{width:180px;height:180px;flex-shrink:0;position:relative;overflow:hidden;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);display:block;cursor:pointer;}
 .cluster-hero-img:hover{opacity:.92;}
 .cluster-headline-link{text-decoration:none;display:block;}
 .cluster-headline-link:hover .cluster-headline{text-decoration:underline;text-decoration-color:var(--accent);}
 .cluster-hero-img img{width:100%;height:100%;object-fit:cover;display:block;}
-.cluster-emoji-fb{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:48px;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);}
+.cluster-emoji-fb{width:180px;height:180px;display:flex;align-items:center;justify-content:center;font-size:48px;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);}
 .cluster-hero-body{flex:1;padding:.75rem 1rem .6rem;display:flex;flex-direction:column;}
 .cluster-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.45rem;}
 .region-badge{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:700;}
@@ -1280,12 +1280,14 @@ async function openStoryViewer(idx){
     "  var air=el('div',{},card);air.style.cssText='border-top:1px solid #eee;padding-top:.65rem;margin-top:.1rem;';",
     "  sty(el('div',{textContent:'Gemini: '+s.name+' angle'},air),{fontSize:'9px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.accent,marginBottom:'.35rem'});",
     "  var ait=el('div',{},air);ait.id='ai-'+i;ait.style.cssText='font-size:12px;line-height:1.65;font-style:italic;color:'+D.mutedColor+';';",
-    "  if(D.key&&D.key.length>5){var ab=el('button',{textContent:'Generate summary'},ait);ab.style.cssText='font-size:11px;font-weight:700;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline;color:'+D.accent+';';(function(sn,su,ii){ab.onclick=function(){getSummary(sn,su,ii);};})(s.name,s.url,i);}else{ait.textContent='Add Gemini key for summaries';}",
+    "  if(D.key&&D.key.length>5){ait.innerHTML='<em style=\"color:#999\">Generating...</em>';}else{ait.textContent='Add Gemini key in settings for summaries';}",
     "});",
+    // Auto-generate summaries for all sources with stagger delay
+    "if(D.key&&D.key.length>5){D.sources.forEach(function(s,i){setTimeout(function(){getSummary(s.name,s.url,i);},i*1500);});}",
     // Footer
     "var cb=el('button',{textContent:'← Close & Return to Woods Wild News'},document.body);cb.onclick=function(){window.close();};cb.style.cssText='display:block;margin:2rem auto 0;padding:10px 24px;border-radius:99px;background:#333;color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;';",
     // getSummary
-    "function getSummary(sn,su,i){var el2=document.getElementById('ai-'+i);if(!el2)return;el2.innerHTML='<em>Generating...</em>';el2.style.fontStyle='normal';fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+D.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'In 1-2 sentences, describe how '+sn+' covers this story and what perspective or angle they bring. Story: '+D.headline+'. Be neutral and factual.'}]}]})}).then(function(r){return r.json();}).then(function(d){var t=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]?d.candidates[0].content.parts[0].text:'';el2.textContent=t||'No summary returned. Check API key.';el2.style.color='#333';el2.style.fontStyle='normal';}).catch(function(e){el2.textContent='Error: '+e.message;el2.style.color='#c00';});}"
+    "function getSummary(sn,su,i){var el2=document.getElementById('ai-'+i);if(!el2)return;el2.innerHTML='<em style=\"color:#999\">Generating...</em>';fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+D.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'In 1-2 sentences, describe how '+sn+' covers this story. What angle or perspective do they bring? Story: '+D.headline+'. Be concise and neutral.'}]}]})}).then(function(r){return r.json();}).then(function(d){if(d.error){el2.textContent='API error: '+d.error.message;el2.style.color='#c00';return;}var t=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]&&d.candidates[0].content.parts[0].text;el2.textContent=t||('Response: '+JSON.stringify(d).slice(0,100));el2.style.color='#333';el2.style.fontStyle='normal';}).catch(function(e){el2.textContent='Network error: '+e.message;el2.style.color='#c00';});}"
   ].join("\n");
 
   const html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>"+c.headline.replace(/</g,"&lt;")+"</title></head><body><script>"+script+"<\/script></body></html>";
