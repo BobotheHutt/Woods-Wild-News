@@ -1110,23 +1110,62 @@ async function getSummary(srcName,srcUrl,idx){
 
 function buildSources(){
   const list=document.getElementById("sources-list");
-  SOURCES.forEach((s,i)=>{
+  if(!list)return;
+  SOURCES.forEach(function(s,i){
     const card=document.createElement("div");
     card.className="card";
-    card.innerHTML=\`
-      <div class="card-top">
-        <div>
-          <div class="sn">\${s.name}</div>
-          <span class="lean \${leanClass(s.lean)}">\${s.lean}</span>
-        </div>
-        <a href="\${s.url}" target="_blank" rel="noopener noreferrer" class="btn">Read →</a>
-      </div>
-      <div class="ai-row">
-        <div class="ai-label">✨ Gemini — \${s.name}'s angle</div>
-        <div class="ai-text" id="ai-\${i}">
-          \${KEY?'<button class="ai-btn" onclick="getSummary(\''+s.name.replace(/'/g,"\\'")+'\',' + JSON.stringify(s.url) + ','+i+')">Generate summary →</button>':'<span style="opacity:.6">Add Gemini key for summaries</span>'}
-        </div>
-      </div>\`;
+
+    const top=document.createElement("div");
+    top.className="card-top";
+
+    const info=document.createElement("div");
+    const name=document.createElement("div");
+    name.className="sn";
+    name.textContent=s.name;
+    const lean=document.createElement("span");
+    lean.className="lean "+leanClass(s.lean);
+    lean.textContent=s.lean;
+    info.appendChild(name);
+    info.appendChild(lean);
+
+    const btn=document.createElement("a");
+    btn.href=s.url;
+    btn.target="_blank";
+    btn.rel="noopener noreferrer";
+    btn.className="btn";
+    btn.textContent="Read →";
+
+    top.appendChild(info);
+    top.appendChild(btn);
+
+    const aiRow=document.createElement("div");
+    aiRow.className="ai-row";
+
+    const aiLabel=document.createElement("div");
+    aiLabel.className="ai-label";
+    aiLabel.textContent="✨ Gemini — "+s.name+"'s angle";
+
+    const aiText=document.createElement("div");
+    aiText.className="ai-text";
+    aiText.id="ai-"+i;
+
+    if(KEY){
+      const aiBtn=document.createElement("button");
+      aiBtn.className="ai-btn";
+      aiBtn.textContent="Generate summary →";
+      aiBtn.onclick=function(){getSummary(s.name,s.url,i);};
+      aiText.appendChild(aiBtn);
+    } else {
+      const noKey=document.createElement("span");
+      noKey.style.opacity="0.6";
+      noKey.textContent="Add Gemini key for summaries";
+      aiText.appendChild(noKey);
+    }
+
+    aiRow.appendChild(aiLabel);
+    aiRow.appendChild(aiText);
+    card.appendChild(top);
+    card.appendChild(aiRow);
     list.appendChild(card);
   });
 }
