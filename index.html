@@ -1356,7 +1356,7 @@ async function loadFeedsDirect(silent=false){
     }
   });
   clusters.sort((a,b)=>b.sources.length-a.sources.length||((b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0)));
-  allClusters=clusters.slice(0,500);
+  allClusters=clusters.slice(0,2000);
 
   if(silent){
     renderDirtyNews();
