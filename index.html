@@ -221,6 +221,147 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
 .tm-remove:hover{color:#c00;}
 .tm-clear-all{width:100%;margin-top:.5rem;padding:5px;border-radius:6px;border:1px solid #ddd;background:#f8f8f8;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
 .tm-clear-all:hover{background:#fee2e2;border-color:#f87171;color:#c00;}
+
+/* ============================================================
+   MOBILE RESPONSIVE — 768px and below
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* Masthead */
+  .masthead {
+    flex-wrap: wrap;
+    padding: 10px 12px 8px;
+    gap: 6px;
+  }
+  .masthead h1 { font-size: 18px; }
+  .mast-right { gap: 8px; }
+  .safe-chip { display: none; }
+
+  /* Topic nav — horizontal scroll, no wrap */
+  .topic-nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 8px;
+  }
+  .topic-nav::-webkit-scrollbar { display: none; }
+  .topic-btn { flex-shrink: 0; font-size: 11px; padding: 8px 12px; }
+
+  /* My tags row */
+  #my-tags-section { padding: 6px 10px; }
+  #my-tags-row { flex-wrap: wrap; gap: 5px; }
+
+  /* Search bar */
+  .search-bar { padding: 6px 10px; gap: 6px; }
+  #search-input { font-size: 13px; }
+
+  /* Cards — single column, thumbnail on top */
+  .cluster-list {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 8px;
+  }
+  .cluster-hero { flex-direction: column; }
+  .cluster-hero-img {
+    width: 100%;
+    height: 200px;
+  }
+  .cluster-emoji-fb {
+    width: 100%;
+    height: 200px;
+  }
+  .cluster-hero-body { padding: 10px 12px 12px; }
+  .cluster-headline { font-size: 15px; }
+  .cluster-excerpt { font-size: 12px; -webkit-line-clamp: 2; }
+
+  /* Section blocks */
+  .section-block { padding: 0; }
+  .section-head { padding: 10px 10px 6px; }
+
+  /* Sidebar panels — full width overlay */
+  .sidebar-panel {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0;
+    border-radius: 0;
+    z-index: 200;
+    overflow-y: auto;
+  }
+
+  /* Settings panel */
+  .settings-panel {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .settings-grid { grid-template-columns: 1fr; }
+
+  /* Theme bar */
+  .theme-bar {
+    padding: 8px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .theme-bar::-webkit-scrollbar { display: none; }
+  .theme-swatch { flex-shrink: 0; }
+  .accent-row { flex-shrink: 0; }
+
+  /* Footer / view all sources button */
+  .cluster-footer {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .view-all-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Bias bar text */
+  .bias-pct { font-size: 9px; }
+
+  /* Tags */
+  .story-tag { font-size: 9px; padding: 2px 7px; }
+
+  /* Dirty news sidebar */
+  #dirty-panel {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100% !important;
+    border-radius: 0;
+    z-index: 200;
+    overflow-y: auto;
+  }
+
+  /* Source rows in card */
+  .cluster-sources-inline { gap: 4px; }
+  .src-row { font-size: 11px; }
+
+  /* Tag manager dropdown */
+  .tag-manager-dropdown {
+    left: 0;
+    right: 0;
+    max-width: none;
+  }
+
+  /* Main content padding */
+  #content { padding: 8px 0; }
+}
+
+/* Extra small phones */
+@media (max-width: 400px) {
+  .masthead h1 { font-size: 15px; }
+  .cluster-headline { font-size: 14px; }
+  .topic-btn { font-size: 10px; padding: 7px 10px; }
+}
 </style>
 </head>
 <body>
