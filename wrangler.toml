@@ -1,5 +1,6 @@
 name = "woods-wild-news"
 compatibility_date = "2026-03-19"
+main = "worker.js"
 
 [assets]
 directory = "."
