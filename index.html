@@ -126,7 +126,7 @@ button.pill.active{background:#111 !important;color:#fff !important;border-color
 button.my-tag{display:inline-flex !important;align-items:center !important;gap:5px !important;padding:5px 10px !important;border-radius:99px !important;border:2px solid var(--accent) !important;font-size:11px !important;font-weight:700 !important;cursor:pointer !important;background:#fff !important;color:#1a56db !important;font-family:inherit !important;white-space:nowrap !important;flex-shrink:0 !important;}
 button.my-tag:hover{background:color-mix(in srgb,var(--accent) 12%,white) !important;}
 button.my-tag.active{background:var(--accent) !important;color:#fff !important;border-color:var(--accent) !important;}
-button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
+
 .section-block{margin-bottom:1.6rem;}
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;}
 .section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);}
@@ -209,6 +209,18 @@ button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
 .bright-val{font-size:10px;font-weight:700;color:var(--text) !important;min-width:34px;}
 .tp-group{display:flex;flex-direction:column;}
 .tp-divider{width:1px;background:var(--card-border);align-self:stretch;margin:0 8px;}
+.my-tags-gear{background:none;border:none;cursor:pointer;font-size:14px;color:#888;padding:2px 6px;border-radius:6px;flex-shrink:0;}
+.my-tags-gear:hover{background:#eee;color:#333;}
+.tag-manager-dropdown{background:#fff;border:2px solid #888;border-radius:10px;padding:.6rem .75rem;min-width:200px;max-width:280px;box-shadow:0 4px 16px rgba(0,0,0,.15);top:calc(100% + 4px);left:0;}
+.tm-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#555;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:1px solid #ddd;}
+.tm-empty{font-size:11px;color:#888;padding:.25rem 0;}
+.tm-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:.3rem 0;border-bottom:1px solid #f0f0f0;}
+.tm-row:last-of-type{border-bottom:none;}
+.tm-tag-name{font-size:12px;font-weight:700;color:#333;}
+.tm-remove{background:none;border:none;cursor:pointer;font-size:16px;color:#aaa;padding:0 2px;line-height:1;}
+.tm-remove:hover{color:#c00;}
+.tm-clear-all{width:100%;margin-top:.5rem;padding:5px;border-radius:6px;border:1px solid #ddd;background:#f8f8f8;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+.tm-clear-all:hover{background:#fee2e2;border-color:#f87171;color:#c00;}
 </style>
 </head>
 <body>
@@ -295,7 +307,7 @@ button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
       <button id="search-btn">Search</button>
     </div>
     <div id="my-tags-section" style="margin-bottom:.75rem;display:none;">
-      <div class="my-tags-label">My Tags <span style="font-size:9px;color:#888;cursor:pointer;font-weight:700;margin-left:6px;" onclick="clearAllTags()">clear all</span></div>
+      <div class="my-tags-label">My Tags</div>
       <div class="my-tags-row" id="my-tags-row"></div>
     </div>
     <div id="content"><div class="loading-state">Loading news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div></div>
@@ -639,7 +651,65 @@ function renderMyTagsRow(){
   const sec=document.getElementById("my-tags-section"),row=document.getElementById("my-tags-row");
   if(myTags.size===0){sec.style.display="none";return;}
   sec.style.display="block";row.innerHTML="";
-  [...myTags].forEach(tag=>{const btn=document.createElement("button");btn.className="my-tag"+(activeTagFilters.has(tag)?" active":"");btn.innerHTML=`${tag}<span class="tag-x" onclick="event.stopPropagation();removeTag('${tag.replace(/'/g,"\\'")}')">×</span>`;btn.onclick=()=>toggleTagFilter(tag);row.appendChild(btn);});
+  [...myTags].forEach(tag=>{
+    const btn=document.createElement("button");
+    btn.className="my-tag"+(activeTagFilters.has(tag)?" active":"");
+    btn.textContent=tag;
+    btn.title="Click to filter";
+    btn.onclick=()=>toggleTagFilter(tag);
+    row.appendChild(btn);
+  });
+  // Add gear icon to open tag manager
+  const gear=document.createElement("button");
+  gear.className="my-tags-gear";
+  gear.innerHTML="⚙";
+  gear.title="Manage saved tags";
+  gear.onclick=(e)=>{e.stopPropagation();toggleTagManager();};
+  row.appendChild(gear);
+}
+
+function toggleTagManager(){
+  let mgr=document.getElementById("tag-manager");
+  if(mgr){mgr.remove();return;}
+  mgr=document.createElement("div");
+  mgr.id="tag-manager";
+  mgr.className="tag-manager-dropdown";
+  mgr.innerHTML="<div class='tm-title'>Saved Tags</div>";
+  if(myTags.size===0){
+    mgr.innerHTML+="<div class='tm-empty'>No saved tags yet.</div>";
+  } else {
+    [...myTags].forEach(tag=>{
+      const row=document.createElement("div");
+      row.className="tm-row";
+      const lbl=document.createElement("span");
+      lbl.className="tm-tag-name";
+      lbl.textContent=tag;
+      const x=document.createElement("button");
+      x.className="tm-remove";
+      x.innerHTML="&times;";
+      x.title="Remove tag";
+      x.onclick=(e)=>{e.stopPropagation();removeTag(tag);toggleTagManager();toggleTagManager();};
+      row.appendChild(lbl);
+      row.appendChild(x);
+      mgr.appendChild(row);
+    });
+  }
+  const clearBtn=document.createElement("button");
+  clearBtn.className="tm-clear-all";
+  clearBtn.textContent="Clear all tags";
+  clearBtn.onclick=()=>{clearAllTags();mgr.remove();};
+  mgr.appendChild(clearBtn);
+  // Position near the gear button
+  const gearEl=document.querySelector(".my-tags-gear");
+  const section=document.getElementById("my-tags-section");
+  section.style.position="relative";
+  mgr.style.position="absolute";
+  mgr.style.zIndex="999";
+  section.appendChild(mgr);
+  // Close on outside click
+  setTimeout(()=>document.addEventListener("click",function close(e){
+    if(!mgr.contains(e.target)){mgr.remove();document.removeEventListener("click",close);}
+  }),10);
 }
 renderMyTagsRow();
 
@@ -995,7 +1065,7 @@ function filterClusters(){
   // Local = US & Americas region (closest approximation without geolocation)
   if(activeFilter==="local") f=f.filter(c=>c.region==="US & Americas");
   if(searchQuery){const q=searchQuery.toLowerCase();f=f.filter(c=>c.headline.toLowerCase().includes(q)||(c.excerpt||"").toLowerCase().includes(q));}
-  if(activeTagFilters.size>0)f=f.filter(c=>[...activeTagFilters].every(t=>(c.tags||[]).includes(t)));
+  if(activeTagFilters.size>0)f=f.filter(c=>[...activeTagFilters].some(t=>(c.tags||[]).includes(t)));
   return f;
 }
 
@@ -1042,7 +1112,7 @@ async function openStoryViewer(idx){
   const safeHeadline=c.headline.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$/g,"\\$");
 
   // Build per-source cards with individual Gemini summary slots
-  const sourcesJSON=JSON.stringify(c.sources.map(s=>({name:s.name,lean:s.lean,url:s.url})));
+  const sourcesJSON=JSON.stringify(c.sources.map(s=>({name:s.name,lean:s.lean,url:s.url}))).replace(/`/g,'\\`').replace(/\$/g,'\\$');
 
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
 <title>${c.headline.replace(/</g,"&lt;")}</title>
@@ -1188,7 +1258,7 @@ function buildSources(){
   });
 }
 
-buildSources();
+document.addEventListener('DOMContentLoaded', function(){ buildSources(); });
 <\/script>
 </body></html>`;
   const blob=new Blob([html],{type:"text/html"});
