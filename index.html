@@ -530,7 +530,7 @@ function ageStr(d){
 async function loadFeeds(silent=false){
   if(!silent)document.getElementById("content").innerHTML='<div class="loading-state">Loading news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div>';
   
-  // Fetch in small batches with delay to avoid rss2json rate limits
+  // Fetch in batches to avoid overwhelming feeds
   const all=[];
   const batchSize=4;
   for(let i=0;i<OUTLETS.length;i+=batchSize){
@@ -544,7 +544,7 @@ async function loadFeeds(silent=false){
   console.log(`Loaded ${all.length} total articles from feeds`);
   
   if(!all.length){
-    document.getElementById("content").innerHTML='<div class="loading-state">Could not load any feeds. rss2json.com may be temporarily unavailable — try refreshing in a moment.</div>';
+    document.getElementById("content").innerHTML='<div class="loading-state">Could not load any feeds. Try refreshing in a moment.</div>';
     return;
   }
   
