@@ -459,7 +459,16 @@ function applyAccent(color,id){
   // Store on root for CSS
   document.documentElement.style.setProperty("--accent",color);
 }
-const setBrightness=v=>{appEl.style.filter=`brightness(${parseInt(v)/100})`;document.getElementById("bright-val").textContent=v+"%";};
+const setBrightness=v=>{
+  // Apply to body NOT #app — applying filter to #app breaks fixed positioning of theme bar
+  const val=parseInt(v)/100;
+  document.body.style.filter=`brightness(${val})`;
+  // Theme bar sits outside #app so we need to match it
+  const tb=document.getElementById("theme-bar-wrap");
+  if(tb)tb.style.filter=`brightness(${1/val})`; // counter-correct the theme bar
+  document.getElementById("bright-val").textContent=v+"%";
+  localStorage.setItem("wwn_brightness",v);
+};
 const toggleThemePanel=()=>{const p=document.getElementById("theme-panel");const o=p.classList.toggle("open");document.getElementById("theme-arrow").textContent=o?"▼":"▲";};
 
 function buildUI(){
@@ -474,6 +483,9 @@ const savedAccent=localStorage.getItem("wwn_accent")||"#1a56db";
 applyTheme(savedTheme);
 const savedAccentId=ACCENTS.find(a=>a.color===savedAccent)?.id||"blue";
 applyAccent(savedAccent,savedAccentId);
+const savedBrightness=localStorage.getItem("wwn_brightness")||"100";
+const bSlider=document.getElementById("bright-slider");
+if(bSlider){bSlider.value=savedBrightness;setBrightness(savedBrightness);}
 
 const addTag=t=>{myTags.add(t);saveTags();renderMyTagsRow();renderContent();};
 const removeTag=t=>{myTags.delete(t);activeTagFilters.delete(t);saveTags();renderMyTagsRow();renderContent();};
