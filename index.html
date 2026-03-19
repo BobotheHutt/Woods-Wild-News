@@ -685,9 +685,16 @@ function reS(q){document.getElementById("search-input").value=q;searchQuery=q;ad
 // ── RSS VIA /rss PROXY ON CLOUDFLARE WORKER ──
 function stripHTML(h){return(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g," ").trim();}
 
-function extractImage(item){
+function extractImage(item, outletName){
   // Get description text — DOMParser auto-strips CDATA wrappers
   const desc = item.querySelector("description,content,summary")?.textContent || "";
+
+  // DEBUG: log first item per outlet to see what we're working with
+  if(outletName && !extractImage._logged) extractImage._logged={};
+  if(outletName && !extractImage._logged[outletName]){
+    extractImage._logged[outletName]=true;
+    console.log("[IMG DEBUG]",outletName,"desc snippet:",desc.slice(0,300));
+  }
 
   // 1. media:content or media:thumbnail (native RSS feeds)
   const media = item.querySelector("content,thumbnail");
@@ -748,7 +755,7 @@ async function fetchRSS(outlet){
       const link=(item.querySelector("link")?.textContent||item.querySelector("link")?.getAttribute("href")||"").trim();
       const desc=stripHTML(item.querySelector("description")?.textContent||item.querySelector("summary")?.textContent||"").slice(0,250);
       const pubDate=item.querySelector("pubDate")?.textContent||item.querySelector("published")?.textContent||item.querySelector("updated")?.textContent||"";
-      const image=extractImage(item);
+      const image=extractImage(item, outlet.name);
       return title&&link?{title,link,desc,pubDate,image,outlet}:null;
     }).filter(Boolean);
   }catch(e){
@@ -866,6 +873,15 @@ async function loadFeeds(silent=false){
   activeOutlets.forEach(o => {
     if(cache[o.name]) all.push(...cache[o.name].articles);
   });
+  // Debug: check how many articles have images
+  const withImg = all.filter(a=>a.image).length;
+  console.log(`[IMG] ${withImg}/${all.length} articles have images`);
+  if(all.length > 0){
+    const sample = all.find(a=>a.image);
+    if(sample) console.log("[IMG] Sample image URL:", sample.image);
+    const noImg = all.find(a=>!a.image);
+    if(noImg) console.log("[IMG] Sample article WITHOUT image - desc:", noImg.desc?.slice(0,200));
+  }
 
   console.log(`Articles: ${all.length} total from ${activeOutlets.length} feeds (${stale.length} refreshed, ${fresh.length} cached) — ${allsidesOnly?'AllSides only':'Full Google News'}`);
 
@@ -1109,7 +1125,9 @@ async function getSummary(srcName,srcUrl,idx){
 
 function buildSources(){
   const list=document.getElementById("sources-list");
-  if(!list)return;
+  console.log("[VIEWER] buildSources called, list el:", list, "SOURCES:", SOURCES);
+  if(!list){console.error("[VIEWER] sources-list element not found!");return;}
+  if(!SOURCES||!SOURCES.length){console.error("[VIEWER] SOURCES is empty!");return;}
   SOURCES.forEach(function(s,i){
     const card=document.createElement("div");
     card.className="card";
