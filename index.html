@@ -646,6 +646,7 @@ const setBrightness=v=>{
 const toggleThemePanel=()=>{const p=document.getElementById("theme-panel");const o=p.classList.toggle("open");document.getElementById("theme-arrow").textContent=o?"▼":"▲";};
 
 function applyTheme(id){
+  const appEl=document.getElementById('app')||document.body;
   const t=THEMES.find(x=>x.id===id)||THEMES[0];
   const cssProps=t.css||(`background-color:${t.bg};`);
   cssProps.split(";").filter(s=>s.trim()).forEach(rule=>{
