@@ -650,32 +650,27 @@ function reS(q){document.getElementById("search-input").value=q;searchQuery=q;ad
 function stripHTML(h){return(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g," ").trim();}
 
 function extractImage(item){
-  // Try multiple places RSS feeds put images
-  // 1. media:content or media:thumbnail
+  // 1. media:content url attribute (NPR, BBC, etc)
   const media=item.querySelector("content,thumbnail");
-  if(media){
-    const url=media.getAttribute("url");
-    if(url&&url.match(/\.(jpg|jpeg|png|webp)/i))return url;
-  }
-  // 2. enclosure tag
+  if(media){const url=media.getAttribute("url");if(url&&url.match(/\.(jpg|jpeg|png|webp|gif)/i))return url;}
+  // 2. enclosure
   const enc=item.querySelector("enclosure");
-  if(enc){
-    const url=enc.getAttribute("url");
-    if(url&&url.match(/\.(jpg|jpeg|png|webp)/i))return url;
-  }
-  // 3. image tag inside item
-  const img=item.querySelector("image url");
-  if(img)return img.textContent.trim();
-  // 4. og:image or first <img> inside description/content
-  const desc=item.querySelector("description,content,summary")?.textContent||"";
-  const imgMatch=desc.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if(imgMatch)return imgMatch[1];
-  // 5. media:group > media:content
+  if(enc){const url=enc.getAttribute("url");if(url&&url.match(/\.(jpg|jpeg|png|webp|gif)/i))return url;}
+  // 3. image url tag
+  const imgTag=item.querySelector("image url");
+  if(imgTag&&imgTag.textContent.trim())return imgTag.textContent.trim();
+  // 4. media:group > media:content
   const mgContent=item.querySelector("group content");
-  if(mgContent){
-    const url=mgContent.getAttribute("url");
-    if(url)return url;
-  }
+  if(mgContent){const url=mgContent.getAttribute("url");if(url)return url;}
+  // 5. Raw description text — try unescaped img src (Google News encodes HTML entities)
+  const rawDesc=item.querySelector("description,content,summary")?.textContent||"";
+  // Try decoded HTML first (Google News wraps content in CDATA with HTML entities)
+  const decoded=rawDesc.replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/&quot;/g,'"');
+  const imgMatch=decoded.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if(imgMatch&&imgMatch[1]&&!imgMatch[1].startsWith("data:"))return imgMatch[1];
+  // 6. Any URL ending in image extension anywhere in the text
+  const urlMatch=rawDesc.match(/https?:\/\/[^\s"'<>]+\.(jpg|jpeg|png|webp)(\?[^\s"'<>]*)?/i);
+  if(urlMatch)return urlMatch[0];
   return null;
 }
 
@@ -856,6 +851,10 @@ async function loadFeeds(silent=false){
         if(!cluster.image&&other.image)cluster.image=other.image;
       }
     });
+    // If no image found yet, scan all sources for any image
+    if(!cluster.image){
+      for(const s of cluster.sources){if(s.image){cluster.image=s.image;break;}}
+    }
     clusters.push(cluster);
   });
 
