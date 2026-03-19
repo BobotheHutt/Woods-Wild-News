@@ -1,29 +1,39 @@
 /**
  * Wood's Wild News — Cloudflare Worker
  * Routes:
- *   GET  /rss?url=... → proxies RSS feeds (bypasses browser CORS)
- *   POST /api         → proxies to Anthropic (optional, for future use)
- *   *                 → serves static assets (index.html etc.)
+ *   GET  /rss?url=... → proxy RSS feeds server-side (bypasses browser CORS)
+ *   POST /api         → proxy to Anthropic (optional, future use)
+ *   *                 → serve static assets (index.html etc.)
  */
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const path = url.pathname;
 
+    // CORS preflight
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: cors() });
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      });
     }
 
-    // RSS proxy — fetches any RSS feed server-side, bypassing CORS
-    if (url.pathname === '/rss' && request.method === 'GET') {
+    // ── GET /rss?url=... ── fetch RSS feed server-side ──
+    if (path === '/rss') {
       const feedUrl = url.searchParams.get('url');
-      if (!feedUrl) return new Response('Missing url param', { status: 400 });
+      if (!feedUrl) {
+        return new Response('Missing ?url= parameter', { status: 400 });
+      }
       try {
         const res = await fetch(feedUrl, {
           headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; WoodsWildNews/1.0; RSS Reader)',
+            'User-Agent': 'Mozilla/5.0 (compatible; WoodsWildNews RSS Reader)',
             'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
           },
-          signal: AbortSignal.timeout(8000),
         });
         const text = await res.text();
         return new Response(text, {
@@ -35,15 +45,15 @@ export default {
           },
         });
       } catch (err) {
-        return new Response(`Feed error: ${err.message}`, {
+        return new Response(`RSS fetch failed: ${err.message}`, {
           status: 502,
           headers: { 'Access-Control-Allow-Origin': '*' },
         });
       }
     }
 
-    // Anthropic proxy (optional, kept for future)
-    if (url.pathname === '/api' && request.method === 'POST') {
+    // ── POST /api ── Anthropic proxy (optional) ──
+    if (path === '/api' && request.method === 'POST') {
       try {
         const body = await request.json();
         const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -58,23 +68,23 @@ export default {
         const data = await res.json();
         return new Response(JSON.stringify(data), {
           status: res.status,
-          headers: { 'Content-Type': 'application/json', ...cors() },
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
         });
       } catch (err) {
         return new Response(JSON.stringify({ error: err.message }), {
           status: 500,
-          headers: { 'Content-Type': 'application/json', ...cors() },
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
         });
       }
     }
 
-    // Static assets
+    // ── Everything else → static assets ──
     return env.ASSETS.fetch(request);
   },
 };
-
-const cors = () => ({
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-});
