@@ -429,6 +429,11 @@ const THEMES=[
 ];
 const ACCENTS=[{id:"blue",color:"#1a56db"},{id:"teal",color:"#0d7a70"},{id:"purple",color:"#6030c0"},{id:"amber",color:"#b07000"},{id:"coral",color:"#b83020"},{id:"pink",color:"#a01858"},{id:"green",color:"#166534"},{id:"red",color:"#a00000"}];
 
+// ── CACHE SETTINGS (declared early so all code can access) ──
+const CACHE_KEY = "wwn_article_cache";
+let CACHE_TTL_MS = 5 * 60 * 1000;        // syncs with auto-refresh interval
+const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // drop articles older than 24h
+
 let allClusters=[],activeFilter="all",searchQuery="";
 let myTags=new Set(),activeTagFilters=new Set();
 let showBias=true,historyEnabled=true;
@@ -716,11 +721,7 @@ function ageStr(d){
   return Math.floor(h/24)+"d ago";
 }
 
-// ── CACHE SETTINGS ──
-const CACHE_KEY = "wwn_article_cache";
-const CACHE_META_KEY = "wwn_cache_meta";
-let CACHE_TTL_MS = 5 * 60 * 1000;        // syncs with auto-refresh interval
-const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // drop articles older than 24h
+// ── CACHE FUNCTIONS ──
 
 function loadCache(){
   try{
