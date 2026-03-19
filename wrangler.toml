@@ -7,3 +7,12 @@ directory = "."
 binding = "ASSETS"
 not_found_handling = "single-page-application"
 run_worker_first = ["/rss", "/api"]
+
+# KV namespace for news cache
+[[kv_namespaces]]
+binding = "WWN_CACHE"
+id = "81e36410225c4056bc9dcf4632925161"
+
+# Cron trigger — refresh feeds every hour
+[triggers]
+crons = ["0 * * * *"]
