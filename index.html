@@ -307,57 +307,84 @@ button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
 <script>
 // ── ALLSIDES-RATED OUTLETS WITH FREE RSS FEEDS ──
 const OUTLETS=[
-  // LEFT
-  {name:"New York Times",     lean:"left",         rss:"https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"},
-  {name:"Washington Post",    lean:"left",         rss:"https://feeds.washingtonpost.com/rss/national"},
-  {name:"The Guardian",       lean:"left",         rss:"https://www.theguardian.com/world/rss"},
-  {name:"HuffPost",           lean:"left",         rss:"https://www.huffpost.com/section/front-page/feed"},
-  {name:"The Atlantic",       lean:"left",         rss:"https://www.theatlantic.com/feed/all/"},
-  {name:"Mother Jones",       lean:"left",         rss:"https://www.motherjones.com/feed/"},
-  {name:"Slate",              lean:"left",         rss:"https://slate.com/feeds/all.rss"},
-  {name:"Vox",                lean:"left",         rss:"https://www.vox.com/rss/index.xml"},
-  {name:"The Nation",         lean:"left",         rss:"https://www.thenation.com/feed/?post_type=article"},
-  {name:"Al Jazeera",         lean:"left",         rss:"https://www.aljazeera.com/xml/rss/all.xml"},
-  // LEFT-CENTER
-  {name:"CNN",                lean:"left-center",  rss:"http://rss.cnn.com/rss/edition.rss"},
-  {name:"NPR",                lean:"left-center",  rss:"https://feeds.npr.org/1001/rss.xml"},
-  {name:"BBC",                lean:"left-center",  rss:"http://feeds.bbci.co.uk/news/rss.xml"},
-  {name:"NBC News",           lean:"left-center",  rss:"http://feeds.nbcnews.com/nbcnews/public/news"},
-  {name:"ABC News",           lean:"left-center",  rss:"https://feeds.abcnews.com/abcnews/topstories"},
-  {name:"CBS News",           lean:"left-center",  rss:"https://www.cbsnews.com/latest/rss/main"},
-  {name:"Politico",           lean:"left-center",  rss:"https://www.politico.com/rss/politicopicks.xml"},
-  {name:"Newsweek",           lean:"left-center",  rss:"https://www.newsweek.com/rss"},
-  {name:"The Hill",           lean:"left-center",  rss:"https://thehill.com/news/feed/"},
-  {name:"Bloomberg",          lean:"left-center",  rss:"https://feeds.bloomberg.com/politics/news.rss"},
-  {name:"Axios",              lean:"left-center",  rss:"https://api.axios.com/feed/"},
-  {name:"PBS NewsHour",       lean:"left-center",  rss:"https://www.pbs.org/newshour/feeds/rss/headlines"},
-  {name:"Time",               lean:"left-center",  rss:"https://time.com/feed/"},
-  {name:"USA Today",          lean:"left-center",  rss:"http://rssfeeds.usatoday.com/usatoday-NewsTopStories"},
-  // CENTER
-  {name:"Reuters",            lean:"center",       rss:"https://feeds.reuters.com/reuters/topNews"},
-  {name:"The Economist",      lean:"center",       rss:"https://www.economist.com/the-world-this-week/rss.xml"},
-  {name:"Financial Times",    lean:"center",       rss:"https://www.ft.com/rss/home/uk"},
-  {name:"Straight Arrow News",lean:"center",       rss:"https://san.com/feed/"},
-  {name:"The Dispatch",       lean:"center",       rss:"https://thedispatch.com/feed/"},
-  {name:"Christian Science Monitor",lean:"center", rss:"https://rss.csmonitor.com/feeds/all"},
-  {name:"Deutsche Welle",     lean:"center",       rss:"https://rss.dw.com/xml/rss-en-all"},
-  {name:"France 24",          lean:"center",       rss:"https://www.france24.com/en/rss"},
-  // RIGHT-CENTER
-  {name:"Wall Street Journal",lean:"right-center", rss:"https://feeds.a.dj.com/rss/RSSWorldNews.xml"},
-  {name:"Washington Examiner",lean:"right-center", rss:"https://www.washingtonexaminer.com/rss/news"},
-  {name:"New York Post",      lean:"right-center", rss:"https://nypost.com/feed/"},
-  {name:"Forbes",             lean:"right-center", rss:"https://www.forbes.com/real-time/feed2/"},
-  {name:"Reason",             lean:"right-center", rss:"https://reason.com/feed/"},
-  {name:"Newsmax",            lean:"right-center", rss:"https://www.newsmax.com/rss/Newsmax-News/1/"},
-  {name:"Washington Times",   lean:"right-center", rss:"https://www.washingtontimes.com/rss/headlines/news/politics/"},
-  // RIGHT
-  {name:"Fox News",           lean:"right",        rss:"https://moxie.foxnews.com/google-publisher/latest.xml"},
-  {name:"Breitbart",          lean:"right",        rss:"https://feeds.feedburner.com/breitbart"},
-  {name:"National Review",    lean:"right",        rss:"https://www.nationalreview.com/feed/"},
-  {name:"The Federalist",     lean:"right",        rss:"https://thefederalist.com/feed/"},
-  {name:"Daily Wire",         lean:"right",        rss:"https://www.dailywire.com/feeds/rss.xml"},
-  {name:"Daily Caller",       lean:"right",        rss:"https://dailycaller.com/feed/"},
-  {name:"Townhall",           lean:"right",        rss:"https://townhall.com/xml/rssfeed/column.xml"},
+  // ── LEFT ──
+  {name:"New York Times",          lean:"left",         rss:"https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"},
+  {name:"Washington Post",         lean:"left",         rss:"https://feeds.washingtonpost.com/rss/national"},
+  {name:"The Guardian",            lean:"left",         rss:"https://www.theguardian.com/world/rss"},
+  {name:"HuffPost",                lean:"left",         rss:"https://www.huffpost.com/section/front-page/feed"},
+  {name:"The Atlantic",            lean:"left",         rss:"https://www.theatlantic.com/feed/all/"},
+  {name:"Mother Jones",            lean:"left",         rss:"https://www.motherjones.com/feed/"},
+  {name:"Slate",                   lean:"left",         rss:"https://slate.com/feeds/all.rss"},
+  {name:"Vox",                     lean:"left",         rss:"https://www.vox.com/rss/index.xml"},
+  {name:"The Nation",              lean:"left",         rss:"https://www.thenation.com/feed/?post_type=article"},
+  {name:"Al Jazeera",              lean:"left",         rss:"https://www.aljazeera.com/xml/rss/all.xml"},
+  {name:"Daily Beast",             lean:"left",         rss:"https://www.thedailybeast.com/rss"},
+  {name:"MSNBC",                   lean:"left",         rss:"http://www.msnbc.com/feeds/latest"},
+  {name:"New Yorker",              lean:"left",         rss:"https://www.newyorker.com/feed/everything"},
+  {name:"Jacobin",                 lean:"left",         rss:"https://jacobin.com/feed/"},
+  {name:"The Intercept",           lean:"left",         rss:"https://theintercept.com/feed/?rss"},
+  {name:"Democracy Now",           lean:"left",         rss:"https://www.democracynow.org/democracynow.rss"},
+  // ── LEFT-CENTER ──
+  {name:"CNN",                     lean:"left-center",  rss:"http://rss.cnn.com/rss/edition.rss"},
+  {name:"NPR",                     lean:"left-center",  rss:"https://feeds.npr.org/1001/rss.xml"},
+  {name:"BBC",                     lean:"left-center",  rss:"http://feeds.bbci.co.uk/news/rss.xml"},
+  {name:"NBC News",                lean:"left-center",  rss:"http://feeds.nbcnews.com/nbcnews/public/news"},
+  {name:"ABC News",                lean:"left-center",  rss:"https://feeds.abcnews.com/abcnews/topstories"},
+  {name:"CBS News",                lean:"left-center",  rss:"https://www.cbsnews.com/latest/rss/main"},
+  {name:"Politico",                lean:"left-center",  rss:"https://www.politico.com/rss/politicopicks.xml"},
+  {name:"Newsweek",                lean:"left-center",  rss:"https://www.newsweek.com/rss"},
+  {name:"The Hill",                lean:"left-center",  rss:"https://thehill.com/news/feed/"},
+  {name:"Bloomberg",               lean:"left-center",  rss:"https://feeds.bloomberg.com/politics/news.rss"},
+  {name:"Axios",                   lean:"left-center",  rss:"https://api.axios.com/feed/"},
+  {name:"PBS NewsHour",            lean:"left-center",  rss:"https://www.pbs.org/newshour/feeds/rss/headlines"},
+  {name:"Time",                    lean:"left-center",  rss:"https://time.com/feed/"},
+  {name:"USA Today",               lean:"left-center",  rss:"http://rssfeeds.usatoday.com/usatoday-NewsTopStories"},
+  {name:"CNBC",                    lean:"left-center",  rss:"https://www.cnbc.com/id/100003114/device/rss/rss.html"},
+  {name:"Business Insider",        lean:"left-center",  rss:"https://feeds2.feedburner.com/businessinsider"},
+  {name:"ProPublica",              lean:"left-center",  rss:"https://www.propublica.org/feeds/propublica/main"},
+  {name:"Foreign Policy",          lean:"left-center",  rss:"https://foreignpolicy.com/feed/"},
+  {name:"Wired",                   lean:"left-center",  rss:"https://www.wired.com/feed/rss"},
+  {name:"Scientific American",     lean:"left-center",  rss:"https://rss.sciam.com/ScientificAmerican-Global"},
+  // ── CENTER ──
+  {name:"Reuters",                 lean:"center",       rss:"https://feeds.reuters.com/reuters/topNews"},
+  {name:"Associated Press",        lean:"center",       rss:"https://rsshub.app/apnews/topics/ap-top-news"},
+  {name:"The Economist",           lean:"center",       rss:"https://www.economist.com/the-world-this-week/rss.xml"},
+  {name:"Financial Times",         lean:"center",       rss:"https://www.ft.com/rss/home/uk"},
+  {name:"Straight Arrow News",     lean:"center",       rss:"https://san.com/feed/"},
+  {name:"The Dispatch",            lean:"center",       rss:"https://thedispatch.com/feed/"},
+  {name:"Christian Science Monitor",lean:"center",      rss:"https://rss.csmonitor.com/feeds/all"},
+  {name:"Deutsche Welle",          lean:"center",       rss:"https://rss.dw.com/xml/rss-en-all"},
+  {name:"France 24",               lean:"center",       rss:"https://www.france24.com/en/rss"},
+  {name:"NewsNation",              lean:"center",       rss:"https://www.newsnationnow.com/feed/"},
+  {name:"RealClearPolitics",       lean:"center",       rss:"https://feeds.realclearpolitics.com/realpolitics/news"},
+  {name:"The Week",                lean:"center",       rss:"https://theweek.com/rss/news"},
+  {name:"Semafor",                 lean:"center",       rss:"https://www.semafor.com/rss"},
+  {name:"Tangle",                  lean:"center",       rss:"https://www.readtangle.com/feed"},
+  // ── RIGHT-CENTER ──
+  {name:"Wall Street Journal",     lean:"right-center", rss:"https://feeds.a.dj.com/rss/RSSWorldNews.xml"},
+  {name:"Washington Examiner",     lean:"right-center", rss:"https://www.washingtonexaminer.com/rss/news"},
+  {name:"New York Post",           lean:"right-center", rss:"https://nypost.com/feed/"},
+  {name:"Forbes",                  lean:"right-center", rss:"https://www.forbes.com/real-time/feed2/"},
+  {name:"Reason",                  lean:"right-center", rss:"https://reason.com/feed/"},
+  {name:"Newsmax",                 lean:"right-center", rss:"https://www.newsmax.com/rss/Newsmax-News/1/"},
+  {name:"Washington Times",        lean:"right-center", rss:"https://www.washingtontimes.com/rss/headlines/news/politics/"},
+  {name:"Epoch Times",             lean:"right-center", rss:"https://www.theepochtimes.com/c-us-politics/feed"},
+  {name:"Daily Mail",              lean:"right-center", rss:"https://www.dailymail.co.uk/articles.rss"},
+  {name:"Just The News",           lean:"right-center", rss:"https://justthenews.com/feed"},
+  {name:"The Free Press",          lean:"right-center", rss:"https://www.thefp.com/feed"},
+  // ── RIGHT ──
+  {name:"Fox News",                lean:"right",        rss:"https://moxie.foxnews.com/google-publisher/latest.xml"},
+  {name:"Breitbart",               lean:"right",        rss:"https://feeds.feedburner.com/breitbart"},
+  {name:"National Review",         lean:"right",        rss:"https://www.nationalreview.com/feed/"},
+  {name:"The Federalist",          lean:"right",        rss:"https://thefederalist.com/feed/"},
+  {name:"Daily Wire",              lean:"right",        rss:"https://www.dailywire.com/feeds/rss.xml"},
+  {name:"Daily Caller",            lean:"right",        rss:"https://dailycaller.com/feed/"},
+  {name:"Townhall",                lean:"right",        rss:"https://townhall.com/xml/rssfeed/column.xml"},
+  {name:"TheBlaze",                lean:"right",        rss:"https://www.theblaze.com/feeds/feed.rss"},
+  {name:"American Conservative",   lean:"right",        rss:"https://www.theamericanconservative.com/feed/"},
+  {name:"American Spectator",      lean:"right",        rss:"https://spectator.org/feed/"},
+  {name:"New York Post Opinion",   lean:"right",        rss:"https://nypost.com/opinion/feed/"},
+  {name:"Mediaite",                lean:"right-center", rss:"https://www.mediaite.com/feed/"},
 ];
 
 const LC={"left":"#1a4eb0","left-center":"#1a4eb0","center":"#166534","right-center":"#c0392b","right":"#c0392b"};
@@ -692,7 +719,7 @@ async function loadFeeds(silent=false){
     used.add(i);
     all.forEach((other,j)=>{
       if(used.has(j)||j===i||other.outlet.name===item.outlet.name)return;
-      if(similarity(item.title,other.title)>=0.38){
+      if(similarity(item.title,other.title)>=0.55){
         cluster.sources.push({name:other.outlet.name,lean:other.outlet.lean,url:other.link,image:other.image||null});
         used.add(j);
         if(!cluster.image&&other.image)cluster.image=other.image;
@@ -703,7 +730,7 @@ async function loadFeeds(silent=false){
   
   // Sort: most sources first, then newest
   clusters.sort((a,b)=>b.sources.length-a.sources.length||((b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0)));
-  allClusters=clusters.slice(0,100);
+  allClusters=clusters.slice(0,200);
   renderContent();
   renderDirtyNews();
 }
@@ -760,11 +787,11 @@ function renderContent(){
   const content=document.getElementById("content");
   const filtered=filterClusters();
   if(!filtered.length){content.innerHTML='<div class="loading-state">No stories match your filters.</div>';return;}
-  const top=filtered.filter(c=>c.sources.length>=3);
+  const top=filtered.filter(c=>c.sources.length>=2);
   const rest=filtered.filter(c=>c.sources.length<3);
   let html="";
   if(top.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">Top Stories</span><span class="story-count">${top.length} stories</span></div><div class="cluster-list">${top.map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
-  if(rest.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">More News</span><span class="story-count">${rest.length} stories</span></div><div class="cluster-list">${rest.slice(0,40).map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
+  if(rest.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">More News</span><span class="story-count">${rest.length} stories</span></div><div class="cluster-list">${rest.slice(0,100).map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
   content.innerHTML=html;
 }
 
