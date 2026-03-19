@@ -466,20 +466,22 @@ function stripHTML(h){return(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&")
 
 async function fetchRSS(outlet){
   try{
-    // rss2json.com: free public API, no CORS issues, no proxy needed
-    const apiUrl=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(outlet.rss)}&count=15`;
-    const res=await fetch(apiUrl,{signal:AbortSignal.timeout(10000)});
+    const res=await fetch(`/rss?url=${encodeURIComponent(outlet.rss)}`,{signal:AbortSignal.timeout(10000)});
     if(!res.ok)return[];
-    const data=await res.json();
-    if(data.status!=="ok"||!data.items)return[];
-    return data.items.map(item=>({
-      title:stripHTML(item.title||""),
-      link:item.link||"",
-      desc:stripHTML(item.description||item.content||"").slice(0,250),
-      pubDate:item.pubDate||"",
-      outlet
-    })).filter(i=>i.title&&i.link);
-  }catch{return[];}
+    const text=await res.text();
+    const doc=new DOMParser().parseFromString(text,"text/xml");
+    const items=[...doc.querySelectorAll("item, entry")];
+    return items.slice(0,15).map(item=>{
+      const title=stripHTML(item.querySelector("title")?.textContent||"");
+      const link=(item.querySelector("link")?.textContent||item.querySelector("link")?.getAttribute("href")||"").trim();
+      const desc=stripHTML(item.querySelector("description")?.textContent||item.querySelector("summary")?.textContent||"").slice(0,250);
+      const pubDate=item.querySelector("pubDate")?.textContent||item.querySelector("published")?.textContent||item.querySelector("updated")?.textContent||"";
+      return title&&link?{title,link,desc,pubDate,outlet}:null;
+    }).filter(Boolean);
+  }catch(e){
+    console.warn(`Feed failed: ${outlet.name}`,e.message);
+    return[];
+  }
 }
 
 function classifyTopic(t){const tl=t.toLowerCase();for(const[k,kw]of Object.entries(TOPIC_KW))if(kw.some(w=>tl.includes(w)))return k;return"General";}
@@ -526,18 +528,23 @@ function ageStr(d){
 }
 
 async function loadFeeds(silent=false){
-  if(!silent)document.getElementById("content").innerHTML='<div class="loading-state">Loading '+ OUTLETS.length +' news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div>';
+  if(!silent)document.getElementById("content").innerHTML='<div class="loading-state">Loading news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div>';
   
-  // Fetch all in parallel batches of 8
+  // Fetch in small batches with delay to avoid rss2json rate limits
   const all=[];
-  for(let i=0;i<OUTLETS.length;i+=8){
-    const batch=OUTLETS.slice(i,i+8);
+  const batchSize=4;
+  for(let i=0;i<OUTLETS.length;i+=batchSize){
+    const batch=OUTLETS.slice(i,i+batchSize);
     const results=await Promise.all(batch.map(o=>fetchRSS(o)));
     results.forEach(r=>all.push(...r));
+    // Small delay between batches to respect rate limits
+    if(i+batchSize<OUTLETS.length) await new Promise(r=>setTimeout(r,300));
   }
   
+  console.log(`Loaded ${all.length} total articles from feeds`);
+  
   if(!all.length){
-    document.getElementById("content").innerHTML='<div class="loading-state">Could not load feeds — make sure the Cloudflare worker is running and has the /rss route.</div>';
+    document.getElementById("content").innerHTML='<div class="loading-state">Could not load any feeds. rss2json.com may be temporarily unavailable — try refreshing in a moment.</div>';
     return;
   }
   
