@@ -466,18 +466,19 @@ function stripHTML(h){return(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&")
 
 async function fetchRSS(outlet){
   try{
-    const res=await fetch(`/rss?url=${encodeURIComponent(outlet.rss)}`,{signal:AbortSignal.timeout(8000)});
+    // rss2json.com: free public API, no CORS issues, no proxy needed
+    const apiUrl=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(outlet.rss)}&count=15`;
+    const res=await fetch(apiUrl,{signal:AbortSignal.timeout(10000)});
     if(!res.ok)return[];
-    const text=await res.text();
-    const doc=new DOMParser().parseFromString(text,"text/xml");
-    const items=[...doc.querySelectorAll("item, entry")];
-    return items.slice(0,12).map(item=>{
-      const title=stripHTML(item.querySelector("title")?.textContent||"");
-      const link=(item.querySelector("link")?.textContent||item.querySelector("link")?.getAttribute("href")||"").trim();
-      const desc=stripHTML(item.querySelector("description")?.textContent||item.querySelector("summary")?.textContent||"").slice(0,250);
-      const pubDate=item.querySelector("pubDate")?.textContent||item.querySelector("published")?.textContent||item.querySelector("updated")?.textContent||"";
-      return title&&link?{title,link,desc,pubDate,outlet}:null;
-    }).filter(Boolean);
+    const data=await res.json();
+    if(data.status!=="ok"||!data.items)return[];
+    return data.items.map(item=>({
+      title:stripHTML(item.title||""),
+      link:item.link||"",
+      desc:stripHTML(item.description||item.content||"").slice(0,250),
+      pubDate:item.pubDate||"",
+      outlet
+    })).filter(i=>i.title&&i.link);
   }catch{return[];}
 }
 
