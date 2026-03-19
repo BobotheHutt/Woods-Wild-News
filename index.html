@@ -244,6 +244,10 @@ button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
       <div class="setting-info"><span class="setting-name">Search history</span><span class="setting-desc">Save past searches</span></div>
       <button class="tog on" id="history-toggle"></button>
     </div>
+    <div class="setting-row">
+      <div class="setting-info"><span class="setting-name">AllSides sources only</span><span class="setting-desc">Off = full Google News (way more articles)</span></div>
+      <button class="tog on" id="allsides-toggle"></button>
+    </div>
     <div class="safe-perm-row">
       <div><div class="safe-perm-name">SafeSearch — always on</div><div class="safe-perm-desc">Only AllSides-rated reputable outlets</div></div>
       <span style="font-size:16px">🔒</span>
@@ -349,7 +353,20 @@ const THEMES=[
 ];
 
 const OUTLETS=[
-  // ── LEFT ──
+  // ── BROAD GOOGLE NEWS TOPIC FEEDS (used when AllSides toggle is off) ──
+const GOOGLE_NEWS_FEEDS=[
+  {name:"Google News — Top Stories",   lean:"center", rss:"https://news.google.com/rss?ceid=US:en&hl=en-US&gl=US"},
+  {name:"Google News — World",         lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/WORLD?ceid=US:en&hl=en-US&gl=US"},
+  {name:"Google News — U.S.",          lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/NATION?ceid=US:en&hl=en-US&gl=US"},
+  {name:"Google News — Business",      lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/BUSINESS?ceid=US:en&hl=en-US&gl=US"},
+  {name:"Google News — Technology",    lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?ceid=US:en&hl=en-US&gl=US"},
+  {name:"Google News — Science",       lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/SCIENCE?ceid=US:en&hl=en-US&gl=US"},
+  {name:"Google News — Health",        lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/HEALTH?ceid=US:en&hl=en-US&gl=US"},
+  {name:"Google News — Entertainment", lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?ceid=US:en&hl=en-US&gl=US"},
+  {name:"Google News — Sports",        lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/SPORTS?ceid=US:en&hl=en-US&gl=US"},
+];
+
+// ── LEFT ──
   {name:"New York Times",           lean:"left",         rss:"https://news.google.com/rss/search?q=when:24h+allinurl:nytimes.com&ceid=US:en&hl=en-US&gl=US"},
   {name:"Washington Post",          lean:"left",         rss:"https://news.google.com/rss/search?q=when:24h+allinurl:washingtonpost.com&ceid=US:en&hl=en-US&gl=US"},
   {name:"The Guardian",             lean:"left",         rss:"https://news.google.com/rss/search?q=when:24h+allinurl:theguardian.com&ceid=US:en&hl=en-US&gl=US"},
@@ -447,7 +464,7 @@ let CACHE_TTL_MS = 5 * 60 * 1000;        // syncs with auto-refresh interval
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // drop articles older than 24h
 const arL=s=>s<60?s+"s":s<3600?(s/60)+"min":(s/3600)+"h";
 
-let allClusters=[],activeFilter="all",searchQuery="";
+let allClusters=[],activeFilter="all",searchQuery="",allsidesOnly=true;
 let myTags=new Set(),activeTagFilters=new Set();
 let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
@@ -629,6 +646,13 @@ renderMyTagsRow();
 document.getElementById("gear-btn").addEventListener("click",function(){const o=document.getElementById("settings-panel").classList.toggle("open");this.className=o?"icon-btn active-gear":"icon-btn";if(o)updateCacheStatus();});
 document.getElementById("bias-toggle").addEventListener("click",function(){showBias=!showBias;this.className=showBias?"tog on":"tog";document.querySelectorAll(".cluster-bias").forEach(e=>e.style.display=showBias?"block":"none");});
 document.getElementById("history-toggle").addEventListener("click",function(){historyEnabled=!historyEnabled;this.className=historyEnabled?"tog on":"tog";});
+document.getElementById("allsides-toggle").addEventListener("click",function(){
+  allsidesOnly=!allsidesOnly;
+  this.className=allsidesOnly?"tog on":"tog";
+  // Clear cache so new feeds get loaded
+  try{localStorage.removeItem(CACHE_KEY);}catch{}
+  loadFeeds(false);
+});
 document.getElementById("ar-toggle").addEventListener("click",()=>{autoRefresh=!autoRefresh;document.getElementById("ar-toggle").className=autoRefresh?"tog on-green":"tog";autoRefresh?startAR():stopAR();});
 function onARSlider(v){
   arIntervalSec=AR_STEPS[parseInt(v)];
@@ -663,32 +687,41 @@ function reS(q){document.getElementById("search-input").value=q;searchQuery=q;ad
 function stripHTML(h){return(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g," ").trim();}
 
 function extractImage(item){
-  // 1. media:content url attribute (NPR, BBC, etc)
-  const media=item.querySelector("content,thumbnail");
-  if(media){const url=media.getAttribute("url");if(url&&url.length>10)return url;}
-  // 2. enclosure
-  const enc=item.querySelector("enclosure");
-  if(enc){const url=enc.getAttribute("url");if(url&&url.length>10)return url;}
-  // 3. image url tag
-  const imgTag=item.querySelector("image url");
-  if(imgTag&&imgTag.textContent.trim())return imgTag.textContent.trim();
-  // 4. media:group > media:content
-  const mgContent=item.querySelector("group content");
-  if(mgContent){const url=mgContent.getAttribute("url");if(url)return url;}
-  // 5. Parse description for <img src> — works for Google News (CDATA with HTML inside)
-  // Google News images are proxied through googleusercontent.com with no file extension
-  const rawDesc=item.querySelector("description,content,summary")?.textContent||"";
-  // Try as-is first (CDATA is auto-stripped by DOMParser)
-  let imgMatch=rawDesc.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if(imgMatch&&imgMatch[1]&&!imgMatch[1].startsWith("data:"))return imgMatch[1];
-  // Try after HTML entity decode (some feeds double-encode)
-  const decoded=rawDesc.replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/&quot;/g,'"');
-  imgMatch=decoded.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if(imgMatch&&imgMatch[1]&&!imgMatch[1].startsWith("data:"))return imgMatch[1];
-  // 6. Any https URL that looks like an image (with OR without extension)
-  // Catches googleusercontent.com/proxy URLs and other CDN URLs
-  const urlMatch=rawDesc.match(/https?:\/\/(?:lh\d\.googleusercontent\.com|[^\s"'<>]+\.(?:jpg|jpeg|png|webp|gif))(?:[^\s"'<>]*)/i);
-  if(urlMatch)return urlMatch[0];
+  // Get description text — DOMParser auto-strips CDATA wrappers
+  const desc = item.querySelector("description,content,summary")?.textContent || "";
+
+  // 1. media:content or media:thumbnail (native RSS feeds)
+  const media = item.querySelector("content,thumbnail");
+  if(media){ const u=media.getAttribute("url"); if(u&&u.startsWith("http"))return u; }
+
+  // 2. enclosure tag
+  const enc = item.querySelector("enclosure");
+  if(enc){ const u=enc.getAttribute("url"); if(u&&u.startsWith("http"))return u; }
+
+  // 3. media:group > media:content
+  const mgc = item.querySelector("group content");
+  if(mgc){ const u=mgc.getAttribute("url"); if(u&&u.startsWith("http"))return u; }
+
+  // 4. <img src> directly in description (Google News CDATA contains raw HTML)
+  const m1 = desc.match(/<img[^>]+src="(https?:[^"]+)"/i);
+  if(m1) return m1[1];
+
+  const m2 = desc.match(/<img[^>]+src='(https?:[^']+)'/i);
+  if(m2) return m2[1];
+
+  // 5. After entity decode (some feeds double-encode the HTML)
+  const decoded = desc.replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+  const m3 = decoded.match(/<img[^>]+src="(https?:[^"]+)"/i);
+  if(m3) return m3[1];
+
+  // 6. Any googleusercontent proxy URL (no extension, but valid image)
+  const m4 = desc.match(/(https?:\/\/(?:lh\d+\.googleusercontent\.com|encrypted-tbn\d+\.gstatic\.com)[^\s"'<>]*)/i);
+  if(m4) return m4[1];
+
+  // 7. Any URL with an image extension as last resort
+  const m5 = desc.match(/(https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s"'<>]*)?)/i);
+  if(m5) return m5[1];
+
   return null;
 }
 
@@ -796,14 +829,15 @@ function cacheAge(outlet, cache){
 
 async function loadFeeds(silent=false){
   const cache = loadCache();
-  const stale = OUTLETS.filter(o => cacheAge(o, cache) > CACHE_TTL_MS);
-  const fresh = OUTLETS.filter(o => cacheAge(o, cache) <= CACHE_TTL_MS);
+  const activeOutlets = allsidesOnly ? OUTLETS : [...OUTLETS, ...GOOGLE_NEWS_FEEDS];
+  const stale = activeOutlets.filter(o => cacheAge(o, cache) > CACHE_TTL_MS);
+  const fresh = activeOutlets.filter(o => cacheAge(o, cache) <= CACHE_TTL_MS);
 
   if(!silent){
-    if(fresh.length > 0 && stale.length < OUTLETS.length){
+    if(fresh.length > 0 && stale.length < activeOutlets.length){
       document.getElementById("content").innerHTML=`<div class="loading-state">Refreshing ${stale.length} feeds, ${fresh.length} from cache<div class="dot-pulse"><span></span><span></span><span></span></div></div>`;
     } else {
-      document.getElementById("content").innerHTML=`<div class="loading-state">Loading ${OUTLETS.length} news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div>`;
+      document.getElementById("content").innerHTML=`<div class="loading-state">Loading ${activeOutlets.length} news feeds ${allsidesOnly?'(AllSides sources)':'(Full Google News)'}<div class="dot-pulse"><span></span><span></span><span></span></div></div>`;
     }
   }
 
@@ -830,11 +864,11 @@ async function loadFeeds(silent=false){
 
   // Combine all articles from cache
   const all = [];
-  OUTLETS.forEach(o => {
+  activeOutlets.forEach(o => {
     if(cache[o.name]) all.push(...cache[o.name].articles);
   });
 
-  console.log(`Articles: ${all.length} total (${stale.length} feeds refreshed, ${fresh.length} from cache)`);
+  console.log(`Articles: ${all.length} total from ${activeOutlets.length} feeds (${stale.length} refreshed, ${fresh.length} cached) — ${allsidesOnly?'AllSides only':'Full Google News'}`);
 
   if(!all.length){
     document.getElementById("content").innerHTML='<div class="loading-state">Could not load any feeds. Try refreshing in a moment.</div>';
