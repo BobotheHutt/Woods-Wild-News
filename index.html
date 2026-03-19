@@ -280,16 +280,20 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
   .section-block { padding: 0; }
   .section-head { padding: 10px 10px 6px; }
 
-  /* Sidebar panels — full width overlay */
+  /* Sidebar panels — slide in from right, 85% width max */
   .sidebar-panel {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100% !important;
-    max-width: 100% !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: auto;
+    width: 85vw !important;
+    max-width: 340px !important;
     margin: 0;
-    border-radius: 0;
-    z-index: 200;
+    border-radius: 12px 0 0 12px;
+    z-index: 500;
     overflow-y: auto;
+    box-shadow: -4px 0 24px rgba(0,0,0,.3);
   }
 
   /* Settings panel */
@@ -334,11 +338,16 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
   /* Dirty news sidebar */
   #dirty-panel {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100% !important;
-    border-radius: 0;
-    z-index: 200;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: auto;
+    width: 85vw !important;
+    max-width: 340px !important;
+    border-radius: 12px 0 0 12px;
+    z-index: 500;
     overflow-y: auto;
+    box-shadow: -4px 0 24px rgba(0,0,0,.3);
   }
 
   /* Source rows in card */
