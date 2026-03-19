@@ -132,13 +132,13 @@ button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
 .section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#111 !important;}
 .story-count{font-size:10px;color:#777;font-weight:700;}
 .cluster-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;align-items:start;}
-.cluster-card{background:#fff !important;border:2px solid #aaa;border-radius:12px;overflow:hidden;transition:border-color .15s;}
+.cluster-card{background:#fff !important;border:2px solid #aaa;border-radius:12px;overflow:hidden;transition:border-color .15s;display:flex;flex-direction:column;height:100%;}
 .cluster-card:hover{border-color:#555;}
 .cluster-hero{display:flex;flex-direction:column;align-items:stretch;}
 .cluster-hero-img{width:100%;height:180px;position:relative;overflow:hidden;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);flex-shrink:0;}
 .cluster-hero-img img{width:100%;height:100%;object-fit:cover;display:block;}
 .cluster-emoji-fb{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:48px;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);}
-.cluster-hero-body{flex:1;padding:.75rem 1rem .6rem;}
+.cluster-hero-body{flex:1;padding:.75rem 1rem .6rem;display:flex;flex-direction:column;}
 .cluster-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.45rem;}
 .region-badge{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:700;}
 .topic-badge{font-size:10px;font-weight:700;color:#555 !important;}
@@ -159,13 +159,14 @@ button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
 .src-name-sub{font-size:11px;color:#555 !important;}
 .src-name-sub:hover{color:var(--accent) !important;}
 .src-extra{font-size:10px;color:#888;font-weight:700;margin-top:1px;}
+.src-row-empty{visibility:hidden;}
 .cluster-tags{border-top:1px solid #ddd;padding:.45rem 1rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#f5f5f5;}
 .story-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:99px;border:1.5px solid #bbb;background:#fff;font-size:10px;font-weight:700;color:#333 !important;cursor:pointer;white-space:nowrap;transition:all .15s;}
 .story-tag:hover{border-color:var(--accent);color:var(--accent) !important;background:color-mix(in srgb,var(--accent) 8%,white);}
 .story-tag.in-my-tags{border-color:var(--accent);color:var(--accent) !important;background:color-mix(in srgb,var(--accent) 12%,white);}
 .story-tag.in-my-tags::before{content:'✓ ';font-size:9px;}
 .story-tag .tag-plus{font-size:11px;opacity:.6;}
-.cluster-footer{padding:.55rem 1rem;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;background:#f5f5f5;gap:8px;}
+.cluster-footer{padding:.55rem 1rem;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;background:#f5f5f5;gap:8px;margin-top:auto;}
 .footer-bias-wrap{display:flex;flex-direction:column;gap:2px;min-width:140px;}
 .footer-bias-labels{display:flex;justify-content:space-between;}
 :root{--accent:#1a56db;}
@@ -539,13 +540,19 @@ function applyAccent(color,id){
   document.documentElement.style.setProperty("--accent",color);
 }
 const setBrightness=v=>{
-  // Apply to body NOT #app — applying filter to #app breaks fixed positioning of theme bar
+  // Apply only to #app contents, NOT body or fixed elements
+  // We target individual children of #app rather than #app itself
+  // to avoid breaking fixed positioning of the theme bar
   const val=parseInt(v)/100;
-  document.body.style.filter=`brightness(${val})`;
-  // Theme bar sits outside #app so we need to match it
-  const tb=document.getElementById("theme-bar-wrap");
-  if(tb)tb.style.filter=`brightness(${1/val})`; // counter-correct the theme bar
-  document.getElementById("bright-val").textContent=v+"%";
+  const app=document.getElementById("app");
+  if(app){
+    // Apply filter to app's direct children except fixed elements
+    [...app.children].forEach(el=>{
+      el.style.filter=val===1?"":(`brightness(${val})`);
+    });
+  }
+  const bv=document.getElementById("bright-val");
+  if(bv)bv.textContent=v+"%";
   localStorage.setItem("wwn_brightness",v);
 };
 const toggleThemePanel=()=>{const p=document.getElementById("theme-panel");const o=p.classList.toggle("open");document.getElementById("theme-arrow").textContent=o?"▼":"▲";};
@@ -875,9 +882,13 @@ function clusterHTML(c,idx){
   const tags=c.tags||[];
   const tagsHTML=tags.map(tag=>{const inMT=myTags.has(tag);return`<span class="story-tag${inMT?" in-my-tags":""}" onclick="handleTagClick('${tag.replace(/'/g,"\\'")}',this)">${tag}${inMT?"":' <span class="tag-plus">+</span>'}</span>`;}).join("");
 
-  // Source rows: lead + next 2, each with bias pill
+  // Source rows: always render exactly 3 rows to keep card heights consistent
   const leadRow=`<div class="src-row"><a class="src-name" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${lead.name} →</a>${biasPill(lead.lean)}</div>`;
-  const subRows=sub.map(s=>`<div class="src-row src-row-sub"><a class="src-name src-name-sub" href="${s.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${s.name} →</a>${biasPill(s.lean)}</div>`).join("");
+  const allSub=[c.sources[1],c.sources[2]]; // always 2 slots (may be undefined)
+  const subRows=allSub.map(s=>s
+    ?`<div class="src-row src-row-sub"><a class="src-name src-name-sub" href="${s.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${s.name} →</a>${biasPill(s.lean)}</div>`
+    :`<div class="src-row src-row-sub src-row-empty">&nbsp;</div>`
+  ).join("");
 
   return`<div class="cluster-card">
 <div class="cluster-hero">
@@ -1022,7 +1033,7 @@ ${c.sources.map(s=>`<div class="card"><div><div class="sn">${s.name}</div><span 
 }
 
 document.getElementById("topic-nav").addEventListener("click",e=>{
-  const pill=e.target.closest(".pill");if(!pill)return;
+  const pill=e.target.closest(".tnav");if(!pill||pill.classList.contains("tnav-divider"))return;
   activeFilter=pill.dataset.filter;
   document.querySelectorAll("#topic-nav .tnav").forEach(p=>{const a=p===pill;p.classList.toggle("active",a);p.style.background=a?"#111":"transparent";p.style.color=a?"#fff":"#555";});
   renderContent();
