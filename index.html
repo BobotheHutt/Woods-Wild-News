@@ -8,8 +8,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#cccccc;margin:0;padding:0;}
 #app{font-family:Verdana,Geneva,Tahoma,sans-serif;max-width:1100px;margin:0 auto;padding:1rem 1rem 90px;min-height:100vh;background-color:#cccccc;}
-
-/* MASTHEAD */
 .masthead{border-bottom:3px solid #111;padding-bottom:.75rem;margin-bottom:1.1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .masthead h1{font-family:Georgia,serif;font-size:26px;font-weight:700;color:#111 !important;}
 .mast-right{display:flex;align-items:center;gap:10px;}
@@ -24,8 +22,16 @@ body{background:#cccccc;margin:0;padding:0;}
 .tog.on-green{background:#16a34a !important;border-color:#16a34a !important;}.tog.on-green::after{left:20px;}
 .tog-group{display:flex;align-items:center;gap:6px;}
 .tog-label{font-size:11px;font-weight:700;color:#111 !important;}
-
-/* SETTINGS */
+.gemini-banner{background:#e8f0fe;border:2px solid #4285f4;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;}
+.gemini-banner h3{font-size:13px;font-weight:700;color:#1a56db;margin-bottom:.4rem;}
+.gemini-banner p{font-size:11px;color:#333;margin-bottom:.75rem;line-height:1.5;}
+.gemini-key-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.gki{flex:1;min-width:200px;padding:7px 12px;border-radius:7px;border:2px solid #4285f4;background:#fff;color:#111;font-size:12px;outline:none;font-family:inherit;}
+.gks{padding:7px 16px;border-radius:7px;border:none;background:#1a56db;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.gks:hover{background:#1440a8;}
+.gskip{font-size:11px;color:#666;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:inherit;}
+.gnote{font-size:10px;color:#555;margin-top:.4rem;}
+.gnote a{color:#1a56db;}
 .settings-panel{background:#fff;border:2px solid #555;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:none;}
 .settings-panel.open{display:block;}
 .settings-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #aaa;}
@@ -34,31 +40,29 @@ body{background:#cccccc;margin:0;padding:0;}
 .setting-name{font-size:12px;font-weight:700;color:#111 !important;}
 .setting-desc{font-size:10px;color:#555 !important;line-height:1.4;}
 .setting-info{display:flex;flex-direction:column;gap:2px;}
+.safe-perm-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:.6rem .85rem;background:#dcfce7;border-radius:8px;border:2px solid #16a34a;}
+.safe-perm-name{font-size:12px;font-weight:700;color:#14532d !important;}
+.safe-perm-desc{font-size:10px;color:#166634 !important;}
 .settings-divider{margin:.8rem 0 .5rem;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;}
 .ar-row{display:flex;align-items:center;gap:10px;padding:.6rem .85rem;background:#e8e8e8;border-radius:8px;border:1px solid #aaa;flex-wrap:wrap;}
 .ar-row label{font-size:11px;font-weight:700;color:#111 !important;white-space:nowrap;}
 .ar-row input[type=range]{flex:1;min-width:80px;}
 .ar-val{font-size:11px;font-weight:700;color:#111 !important;min-width:50px;}
 .ar-countdown{font-size:10px;color:#555 !important;}
-.safe-perm-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:.6rem .85rem;background:#dcfce7;border-radius:8px;border:2px solid #16a34a;}
-.safe-perm-name{font-size:12px;font-weight:700;color:#14532d !important;}
-.safe-perm-desc{font-size:10px;color:#166634 !important;}
-.setting-note{font-size:10px;color:#333;margin-top:.5rem;padding:.5rem .75rem;background:#e8e8e8;border-radius:6px;line-height:1.5;border-left:3px solid #1a56db;}
-
-/* LAYOUT */
+.key-setting-row{display:flex;align-items:center;gap:6px;padding:.6rem .85rem;background:#e8e8e8;border-radius:8px;border:1px solid #aaa;flex-wrap:wrap;grid-column:1/-1;}
+.key-setting-row span{font-size:12px;font-weight:700;color:#111;white-space:nowrap;}
+.key-setting-row input{flex:1;min-width:150px;padding:4px 8px;border-radius:5px;border:1.5px solid #aaa;background:#fff;color:#111;font-size:11px;font-family:inherit;outline:none;}
+.key-setting-row button{padding:4px 10px;border-radius:5px;border:none;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .body-layout{display:flex;gap:14px;align-items:flex-start;}
 .main-col{flex:1;min-width:0;}
 .sidebar{width:280px;flex-shrink:0;}
-
-/* SIDEBAR */
 .sidebar-tab-row{display:flex;border:2px solid #555;border-radius:8px;overflow:hidden;margin-bottom:8px;background:#cccccc;}
 .stab-btn{flex:1;padding:8px 2px;border:none;background:transparent !important;color:#222 !important;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-right:2px solid #555;}
 .stab-btn:last-child{border-right:none;}
 .stab-btn:hover{background:#aaa !important;color:#000 !important;}
 .stab-btn.active{background:#111 !important;color:#fff !important;}
 .stab-btn.dirty-active{background:linear-gradient(135deg,#1a56db,#c0392b) !important;color:#fff !important;}
-.stab-icon{font-size:14px;line-height:1;}
-.stab-label{font-size:9px;white-space:nowrap;}
+.stab-icon{font-size:14px;line-height:1;}.stab-label{font-size:9px;white-space:nowrap;}
 .stab-badge{font-size:9px;background:#888;color:#fff !important;border-radius:99px;padding:1px 5px;font-weight:700;}
 .stab-btn.active .stab-badge,.stab-btn.dirty-active .stab-badge{background:rgba(255,255,255,.3);}
 .sidebar-panel{background:#fff;border:2px solid #aaa;border-radius:10px;padding:.85rem;}
@@ -74,11 +78,8 @@ body{background:#cccccc;margin:0;padding:0;}
 .hist-meta{font-size:9px;color:#555 !important;}
 .hist-go{font-size:9px;color:#1a56db;cursor:pointer;background:none;border:none;padding:0;font-weight:700;}
 .hist-del{font-size:9px;color:#555;cursor:pointer;background:none;border:none;padding:0;margin-left:4px;}
-.hist-search-wrap{margin-bottom:6px;}
-#hist-search{width:100%;padding:5px 9px;border-radius:6px;border:2px solid #555;background:#e8e8e8;color:#111 !important;font-size:10px;outline:none;font-family:inherit;}
-.hist-clear-btn{width:100%;margin-top:5px;padding:4px;border-radius:6px;border:2px solid #555;background:#e8e8e8;color:#111 !important;font-size:9px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;font-family:inherit;}
-
-/* DIRTY NEWS */
+#hist-search{width:100%;padding:5px 9px;border-radius:6px;border:2px solid #555;background:#e8e8e8;color:#111 !important;font-size:10px;outline:none;font-family:inherit;margin-bottom:6px;}
+.hist-clear-btn{width:100%;margin-top:5px;padding:4px;border-radius:6px;border:2px solid #555;background:#e8e8e8;color:#111 !important;font-size:9px;font-weight:700;cursor:pointer;text-transform:uppercase;font-family:inherit;}
 .dirty-intro{font-size:11px;color:#222 !important;line-height:1.6;margin-bottom:.7rem;padding:.6rem .65rem;background:#e8e8e8;border-radius:7px;border:1px solid #aaa;}
 .dirty-intro strong{color:#111 !important;}
 .dirty-section{margin-bottom:.8rem;}
@@ -86,30 +87,22 @@ body{background:#cccccc;margin:0;padding:0;}
 .dirty-left-lbl{color:#00288a !important;}.dirty-right-lbl{color:#8a0000 !important;}
 .dirty-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .dirty-card{border-radius:7px;padding:.6rem .65rem;margin-bottom:5px;cursor:pointer;border:2px solid transparent;}
-.dirty-card-left{background:#b8ccff;border-color:#4466cc;}
-.dirty-card-right{background:#ffb8b8;border-color:#cc4444;}
+.dirty-card-left{background:#b8ccff;border-color:#4466cc;}.dirty-card-right{background:#ffb8b8;border-color:#cc4444;}
 .dirty-card:hover{opacity:.82;}
 .dirty-hl{font-size:11px;font-weight:700;line-height:1.3;margin-bottom:4px;}
-.dirty-card-left .dirty-hl{color:#001060 !important;}
-.dirty-card-right .dirty-hl{color:#600000 !important;}
+.dirty-card-left .dirty-hl{color:#001060 !important;}.dirty-card-right .dirty-hl{color:#600000 !important;}
 .dirty-bar-wrap{display:flex;align-items:center;gap:5px;}
 .dirty-bar-bg{flex:1;height:5px;border-radius:3px;overflow:hidden;background:rgba(0,0,0,.2);}
-.dirty-fill-left{background:#1a4eb0;height:100%;border-radius:3px;}
-.dirty-fill-right{background:#c0392b;height:100%;border-radius:3px;}
+.dirty-fill-left{background:#1a4eb0;height:100%;border-radius:3px;}.dirty-fill-right{background:#c0392b;height:100%;border-radius:3px;}
 .dirty-pct{font-size:10px;font-weight:700;}
 .dirty-pct-left{color:#001060 !important;}.dirty-pct-right{color:#600000 !important;}
-.dirty-source{font-size:10px;font-weight:700;margin-top:2px;}
-.dirty-source-left{color:#1a4eb0 !important;}.dirty-source-right{color:#c0392b !important;}
+.dirty-source{font-size:10px;color:#555;margin-top:2px;}
 .dirty-loading{text-align:center;padding:1.5rem .5rem;color:#444 !important;font-size:11px;}
-
-/* SEARCH */
 .search-row{display:flex;gap:8px;margin-bottom:.75rem;}
 #search-input{flex:1;padding:10px 14px;border-radius:8px;border:2px solid #555;background:#fff !important;color:#111 !important;font-size:13px;outline:none;font-family:inherit;}
 #search-input::placeholder{color:#888 !important;}
 #search-btn{padding:10px 20px;border-radius:8px;border:2px solid #111 !important;background:#111 !important;color:#fff !important;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;text-transform:uppercase;letter-spacing:.06em;}
 #search-btn:hover{background:#333 !important;}
-
-/* FILTERS */
 .filter-section{margin-bottom:1rem;}
 .filter-row{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin;}
 .filter-row::-webkit-scrollbar{height:3px;}
@@ -118,71 +111,59 @@ body{background:#cccccc;margin:0;padding:0;}
 button.pill{padding:5px 13px !important;border-radius:99px !important;border:2px solid #444 !important;font-size:11px !important;font-weight:700 !important;cursor:pointer !important;background:#fff !important;color:#111 !important;font-family:inherit !important;white-space:nowrap !important;flex-shrink:0 !important;}
 button.pill:hover{background:#ddd !important;}
 button.pill.active{background:#111 !important;color:#fff !important;border-color:#111 !important;}
-
-/* MY TAGS */
 .my-tags-row{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;align-items:center;min-height:34px;scrollbar-width:thin;}
-.my-tags-row::-webkit-scrollbar{height:3px;}
-.my-tags-row::-webkit-scrollbar-thumb{background:#aaa;border-radius:99px;}
-button.my-tag{display:inline-flex !important;align-items:center !important;gap:5px !important;padding:5px 10px !important;border-radius:99px !important;border:2px solid #1a56db !important;font-size:11px !important;font-weight:700 !important;cursor:pointer !important;background:#fff !important;color:#1a56db !important;font-family:inherit !important;white-space:nowrap !important;flex-shrink:0 !important;transition:all .15s !important;}
+button.my-tag{display:inline-flex !important;align-items:center !important;gap:5px !important;padding:5px 10px !important;border-radius:99px !important;border:2px solid #1a56db !important;font-size:11px !important;font-weight:700 !important;cursor:pointer !important;background:#fff !important;color:#1a56db !important;font-family:inherit !important;white-space:nowrap !important;flex-shrink:0 !important;}
 button.my-tag:hover{background:#e8eeff !important;}
 button.my-tag.active{background:#1a56db !important;color:#fff !important;}
 button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
-button.my-tag:hover .tag-x{opacity:1;}
-
-/* SECTION TITLES */
 .section-block{margin-bottom:1.6rem;}
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;}
 .section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#111 !important;}
-
-/* CLUSTER CARDS */
+.story-count{font-size:10px;color:#777;font-weight:700;}
 .cluster-list{display:flex;flex-direction:column;gap:14px;}
 .cluster-card{background:#fff !important;border:2px solid #aaa;border-radius:12px;overflow:hidden;transition:border-color .15s;}
 .cluster-card:hover{border-color:#555;}
 .cluster-hero{display:flex;align-items:stretch;}
-.cluster-hero-img{width:150px;flex-shrink:0;min-height:130px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e0e0e0,#c8c8c8);font-size:36px;}
-.cluster-hero-body{flex:1;padding:.9rem 1rem .75rem;}
-.cluster-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.5rem;}
+.cluster-emoji{width:110px;flex-shrink:0;min-height:120px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8e8e8,#d0d0d0);font-size:38px;}
+.cluster-hero-body{flex:1;padding:.85rem 1rem .75rem;}
+.cluster-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.45rem;}
 .region-badge{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:700;}
 .topic-badge{font-size:10px;font-weight:700;color:#555 !important;}
 .coverage-count{font-size:10px;font-weight:700;color:#777;margin-left:auto;}
-.cluster-headline{font-family:Georgia,serif;font-size:15px;font-weight:700;line-height:1.4;color:#111 !important;margin-bottom:.4rem;}
-.cluster-summary{font-size:11px;color:#333 !important;line-height:1.55;margin-bottom:.55rem;}
-.cluster-lead-source{font-size:11px;font-weight:700;color:#1a4eb0 !important;text-decoration:none;display:inline-block;}
-.cluster-lead-source:hover{text-decoration:underline;}
-.cluster-bias{margin-top:.5rem;}
+.cluster-headline{font-family:Georgia,serif;font-size:15px;font-weight:700;line-height:1.4;color:#111 !important;margin-bottom:.35rem;}
+.cluster-excerpt{font-size:11px;color:#444 !important;line-height:1.5;margin-bottom:.45rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.cluster-lead-link{font-size:11px;font-weight:700;color:#1a4eb0 !important;text-decoration:none;}
+.cluster-lead-link:hover{text-decoration:underline;}
+.cluster-bias{margin-top:.45rem;}
 .cluster-bias-row{display:flex;justify-content:space-between;margin-bottom:3px;}
 .blbl{font-size:9px;font-weight:700;}
 .blbl-l{color:#1a4eb0 !important;}.blbl-c{color:#166534 !important;}.blbl-r{color:#c0392b !important;}
 .bias-track{height:7px;border-radius:3px;overflow:hidden;display:flex;background:#ccc;}
 .seg-l{background:#1a4eb0;}.seg-c{background:#16a34a;}.seg-r{background:#c0392b;}
-.cluster-sources{border-top:1px solid #ddd;padding:.55rem 1rem;display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:#f8f8f8;}
+.cluster-sources{border-top:1px solid #ddd;padding:.5rem 1rem;display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:#f8f8f8;}
 .sub-source-pill{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;border:1.5px solid #ccc;background:#fff;font-size:10px;font-weight:700;color:#222 !important;text-decoration:none;white-space:nowrap;transition:border-color .15s,background .15s;}
 .sub-source-pill:hover{border-color:#555;background:#eee;}
 .sub-source-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.cluster-more-sources{font-size:10px;color:#777;font-weight:700;margin-left:auto;}
-.cluster-tags{border-top:1px solid #ddd;padding:.5rem 1rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#f5f5f5;}
+.cluster-more{font-size:10px;color:#777;font-weight:700;margin-left:auto;}
+.cluster-tags{border-top:1px solid #ddd;padding:.45rem 1rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#f5f5f5;}
 .story-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:99px;border:1.5px solid #bbb;background:#fff;font-size:10px;font-weight:700;color:#333 !important;cursor:pointer;white-space:nowrap;transition:all .15s;}
 .story-tag:hover{border-color:#1a56db;color:#1a56db !important;background:#f0f4ff;}
 .story-tag.in-my-tags{border-color:#1a56db;color:#1a56db !important;background:#e8eeff;}
 .story-tag.in-my-tags::before{content:'✓ ';font-size:9px;}
-.story-tag .tag-plus{font-size:11px;opacity:.6;margin-left:1px;}
-.cluster-footer{padding:.6rem 1rem;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;background:#f5f5f5;}
+.story-tag .tag-plus{font-size:11px;opacity:.6;}
+.cluster-footer{padding:.55rem 1rem;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;background:#f5f5f5;}
 .view-story-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:99px;border:2px solid #111;background:#111;color:#fff !important;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;text-transform:uppercase;}
 .view-story-btn:hover{background:#333;}
 .bmark-btn-cluster{background:none;border:none;cursor:pointer;font-size:16px;color:#bbb;padding:0;}
 .bmark-btn-cluster:hover{color:#777;}
 .bmark-btn-cluster.saved{color:#cc8800 !important;}
 .cluster-age{font-size:10px;color:#777;font-weight:700;}
-
-/* LOADING */
 .loading-state{text-align:center;padding:2.5rem 1rem;color:#333 !important;font-size:13px;font-weight:700;}
 .dot-pulse{display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle;}
 .dot-pulse span{width:6px;height:6px;border-radius:50%;background:#333;animation:pulse 1.2s infinite;}
 .dot-pulse span:nth-child(2){animation-delay:.2s;}.dot-pulse span:nth-child(3){animation-delay:.4s;}
 @keyframes pulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
 .empty-state{text-align:center;padding:1.5rem .5rem;color:#555 !important;font-size:11px;font-weight:700;}
-
-/* THEME BAR */
 #theme-bar-wrap{position:fixed;bottom:0;left:0;right:0;z-index:200;pointer-events:none;}
 .theme-toggle-btn{pointer-events:all;display:flex;align-items:center;gap:6px;padding:6px 18px;background:#ddd !important;border:2px solid #555;border-bottom:none;border-radius:8px 8px 0 0;font-size:11px;font-weight:700;color:#111 !important;cursor:pointer;margin-left:1rem;width:fit-content;font-family:inherit;}
 .theme-toggle-btn:hover{background:#bbb !important;}
@@ -208,100 +189,96 @@ button.my-tag:hover .tag-x{opacity:1;}
 </head>
 <body>
 <div id="app">
-
 <div class="masthead">
   <h1>Wood's Wild News!</h1>
   <div class="mast-right">
     <div class="safe-chip"><div class="safe-chip-dot"></div>Protected by SafeSearch</div>
-    <div class="tog-group">
-      <span class="tog-label">Auto-refresh</span>
-      <button class="tog" id="ar-toggle"></button>
-    </div>
+    <div class="tog-group"><span class="tog-label">Auto-refresh</span><button class="tog" id="ar-toggle"></button></div>
     <button class="icon-btn" id="gear-btn">⚙</button>
   </div>
+</div>
+
+<div class="gemini-banner" id="gemini-banner" style="display:none">
+  <h3>✨ Optional: Add a free Gemini API key for AI summaries</h3>
+  <p>When you click "View all sources" on any story, Gemini generates a free neutral 2-3 sentence summary. The news feed works fine without it.</p>
+  <div class="gemini-key-row">
+    <input class="gki" type="password" id="gemini-key-input" placeholder="AIza... (from aistudio.google.com)">
+    <button class="gks" onclick="saveGeminiKey()">Save Key</button>
+    <button class="gskip" onclick="dismissGemini()">Skip for now</button>
+  </div>
+  <p class="gnote">Free at <a href="https://aistudio.google.com" target="_blank" rel="noopener">aistudio.google.com</a> → Get API key → 1,500 free requests/day, no credit card needed.</p>
 </div>
 
 <div class="settings-panel" id="settings-panel">
   <div class="settings-title">Settings</div>
   <div class="settings-grid">
     <div class="setting-row">
-      <div class="setting-info"><span class="setting-name">Bias bars</span><span class="setting-desc">Show left/center/right coverage</span></div>
+      <div class="setting-info"><span class="setting-name">Bias bars</span><span class="setting-desc">Left/center/right coverage</span></div>
       <button class="tog on" id="bias-toggle"></button>
     </div>
     <div class="setting-row">
       <div class="setting-info"><span class="setting-name">Search history</span><span class="setting-desc">Save past searches</span></div>
       <button class="tog on" id="history-toggle"></button>
     </div>
-    <div class="setting-row">
-      <div class="setting-info"><span class="setting-name">AllSides only</span><span class="setting-desc">Filter to rated outlets</span></div>
-      <button class="tog" id="allsides-toggle"></button>
-    </div>
     <div class="safe-perm-row">
-      <div><div class="safe-perm-name">SafeSearch — always on</div><div class="safe-perm-desc">Scam &amp; unverified sites permanently blocked</div></div>
+      <div><div class="safe-perm-name">SafeSearch — always on</div><div class="safe-perm-desc">Only AllSides-rated reputable outlets</div></div>
       <span style="font-size:16px">🔒</span>
+    </div>
+    <div class="key-setting-row">
+      <span class="setting-name">Gemini Key:</span>
+      <input type="password" id="gemini-key-setting" placeholder="AIza... (optional, for AI summaries)">
+      <button onclick="saveGeminiKeySetting()" style="background:#1a56db">Save</button>
+      <button onclick="clearGeminiKey()" style="background:#c00">Clear</button>
     </div>
   </div>
   <div class="settings-divider">Auto-refresh interval</div>
   <div class="ar-row">
     <label>Refresh every:</label>
-    <input type="range" id="ar-slider" min="0" max="9" step="1" value="5" oninput="onARSlider(this.value)">
-    <span class="ar-val" id="ar-val">5 min</span>
+    <input type="range" id="ar-slider" min="0" max="9" step="1" value="3" oninput="onARSlider(this.value)">
+    <span class="ar-val" id="ar-val">1 min</span>
     <span class="ar-countdown" id="ar-countdown"></span>
   </div>
-  <div class="setting-note" id="allsides-note" style="display:none">AllSides filter active.</div>
 </div>
 
 <div class="body-layout">
   <div class="main-col">
     <div class="search-row">
-      <input id="search-input" type="text" placeholder="Search a topic, region, or event..."/>
+      <input id="search-input" type="text" placeholder="Filter stories by keyword..."/>
       <button id="search-btn">Search</button>
     </div>
     <div class="filter-section">
       <div class="filter-row-label">Region</div>
       <div class="filter-row" id="region-filters">
         <button class="pill active" data-filter="all">All</button>
-        <button class="pill" data-filter="World">World</button>
         <button class="pill" data-filter="US & Americas">Americas</button>
+        <button class="pill" data-filter="World">World</button>
         <button class="pill" data-filter="Europe">Europe</button>
         <button class="pill" data-filter="Asia">Asia</button>
         <button class="pill" data-filter="Middle East">Middle East</button>
         <button class="pill" data-filter="Africa">Africa</button>
       </div>
       <div id="my-tags-section" style="margin-top:8px;display:none;">
-        <div class="filter-row-label">My Tags
-          <span style="font-size:9px;color:#888;cursor:pointer;font-weight:700;margin-left:6px;" onclick="clearAllTags()">clear all</span>
-        </div>
+        <div class="filter-row-label">My Tags <span style="font-size:9px;color:#888;cursor:pointer;font-weight:700;margin-left:6px;" onclick="clearAllTags()">clear all</span></div>
         <div class="my-tags-row" id="my-tags-row"></div>
       </div>
     </div>
-    <div id="content"></div>
+    <div id="content"><div class="loading-state">Loading news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div></div>
   </div>
-
   <div class="sidebar">
     <div class="sidebar-tab-row">
-      <button class="stab-btn dirty-active" onclick="setSidebar('dirty',this)">
-        <span class="stab-icon">🔥</span><span class="stab-label">Dirty News</span>
-      </button>
-      <button class="stab-btn" onclick="setSidebar('bookmarks',this)">
-        <span class="stab-icon">★</span><span class="stab-label">Bookmarks</span><span class="stab-badge" id="bmark-count">0</span>
-      </button>
-      <button class="stab-btn" onclick="setSidebar('history',this)">
-        <span class="stab-icon">◷</span><span class="stab-label">History</span><span class="stab-badge" id="hist-count">0</span>
-      </button>
+      <button class="stab-btn dirty-active" onclick="setSidebar('dirty',this)"><span class="stab-icon">🔥</span><span class="stab-label">Dirty News</span></button>
+      <button class="stab-btn" onclick="setSidebar('bookmarks',this)"><span class="stab-icon">★</span><span class="stab-label">Bookmarks</span><span class="stab-badge" id="bmark-count">0</span></button>
+      <button class="stab-btn" onclick="setSidebar('history',this)"><span class="stab-icon">◷</span><span class="stab-label">History</span><span class="stab-badge" id="hist-count">0</span></button>
     </div>
     <div class="sidebar-panel">
       <div id="dirty-panel">
         <div class="dirty-intro">Stories covered heavily by <strong>one side only</strong> — your media blindspots.</div>
-        <div id="dirty-content"><div class="dirty-loading">Loading blindspots<div class="dot-pulse"><span></span><span></span><span></span></div></div></div>
+        <div id="dirty-content"><div class="dirty-loading">Loads after news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div></div>
       </div>
-      <div id="bookmarks-panel" style="display:none">
-        <div class="sidebar-panel-title">Bookmarks</div>
-        <div id="bmarks-content"><div class="empty-state">No bookmarks yet.</div></div>
-      </div>
+      <div id="bookmarks-panel" style="display:none"><div class="sidebar-panel-title">Bookmarks</div><div id="bmarks-content"><div class="empty-state">No bookmarks yet.</div></div></div>
       <div id="history-panel" style="display:none">
         <div class="sidebar-panel-title">Search history</div>
-        <div class="hist-search-wrap"><input id="hist-search" type="text" placeholder="Filter history..." oninput="renderHist()"></div>
+        <input id="hist-search" type="text" placeholder="Filter history..." oninput="renderHist()">
         <div id="hist-content"><div class="empty-state">No history yet.</div></div>
         <button class="hist-clear-btn" onclick="clearHistory()">Clear all</button>
       </div>
@@ -312,34 +289,76 @@ button.my-tag:hover .tag-x{opacity:1;}
 <div id="theme-bar-wrap">
   <button class="theme-toggle-btn" onclick="toggleThemePanel()">Theme <span id="theme-arrow">▲</span></button>
   <div class="theme-panel" id="theme-panel">
-    <div class="tp-group">
-      <div class="theme-section-label">Main Theme</div>
-      <div class="theme-swatches" id="theme-swatches"></div>
-    </div>
+    <div class="tp-group"><div class="theme-section-label">Main Theme</div><div class="theme-swatches" id="theme-swatches"></div></div>
     <div class="tp-divider"></div>
-    <div class="tp-group">
-      <div class="theme-section-label">Accent</div>
-      <div class="accent-dots" id="accent-dots"></div>
-    </div>
+    <div class="tp-group"><div class="theme-section-label">Accent</div><div class="accent-dots" id="accent-dots"></div></div>
     <div class="tp-divider"></div>
-    <div class="tp-group">
-      <div class="theme-section-label">Brightness</div>
-      <div class="bright-row">
-        <input type="range" id="bright-slider" min="50" max="120" step="5" value="100" oninput="setBrightness(this.value)">
-        <span class="bright-val" id="bright-val">100%</span>
-      </div>
-    </div>
+    <div class="tp-group"><div class="theme-section-label">Brightness</div><div class="bright-row"><input type="range" id="bright-slider" min="50" max="120" step="5" value="100" oninput="setBrightness(this.value)"><span class="bright-val" id="bright-val">100%</span></div></div>
   </div>
 </div>
-
-</div><!-- #app -->
+</div>
 
 <script>
-const RC={"World":{bg:"#b8ccff",color:"#001060"},"US & Americas":{bg:"#b0e8c0",color:"#003018"},"Europe":{bg:"#d8c8ff",color:"#200860"},"Asia":{bg:"#ffe8a0",color:"#502800"},"Middle East":{bg:"#ffb8b8",color:"#500000"},"Africa":{bg:"#ffb8d8",color:"#500020"}};
+// ── ALLSIDES-RATED OUTLETS WITH FREE RSS FEEDS ──
+const OUTLETS=[
+  // LEFT
+  {name:"New York Times",     lean:"left",         rss:"https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"},
+  {name:"Washington Post",    lean:"left",         rss:"https://feeds.washingtonpost.com/rss/national"},
+  {name:"The Guardian",       lean:"left",         rss:"https://www.theguardian.com/world/rss"},
+  {name:"HuffPost",           lean:"left",         rss:"https://www.huffpost.com/section/front-page/feed"},
+  {name:"The Atlantic",       lean:"left",         rss:"https://www.theatlantic.com/feed/all/"},
+  {name:"Mother Jones",       lean:"left",         rss:"https://www.motherjones.com/feed/"},
+  {name:"Slate",              lean:"left",         rss:"https://slate.com/feeds/all.rss"},
+  {name:"Vox",                lean:"left",         rss:"https://www.vox.com/rss/index.xml"},
+  {name:"The Nation",         lean:"left",         rss:"https://www.thenation.com/feed/?post_type=article"},
+  {name:"Al Jazeera",         lean:"left",         rss:"https://www.aljazeera.com/xml/rss/all.xml"},
+  // LEFT-CENTER
+  {name:"CNN",                lean:"left-center",  rss:"http://rss.cnn.com/rss/edition.rss"},
+  {name:"NPR",                lean:"left-center",  rss:"https://feeds.npr.org/1001/rss.xml"},
+  {name:"BBC",                lean:"left-center",  rss:"http://feeds.bbci.co.uk/news/rss.xml"},
+  {name:"NBC News",           lean:"left-center",  rss:"http://feeds.nbcnews.com/nbcnews/public/news"},
+  {name:"ABC News",           lean:"left-center",  rss:"https://feeds.abcnews.com/abcnews/topstories"},
+  {name:"CBS News",           lean:"left-center",  rss:"https://www.cbsnews.com/latest/rss/main"},
+  {name:"Politico",           lean:"left-center",  rss:"https://www.politico.com/rss/politicopicks.xml"},
+  {name:"Newsweek",           lean:"left-center",  rss:"https://www.newsweek.com/rss"},
+  {name:"The Hill",           lean:"left-center",  rss:"https://thehill.com/news/feed/"},
+  {name:"Bloomberg",          lean:"left-center",  rss:"https://feeds.bloomberg.com/politics/news.rss"},
+  {name:"Axios",              lean:"left-center",  rss:"https://api.axios.com/feed/"},
+  {name:"PBS NewsHour",       lean:"left-center",  rss:"https://www.pbs.org/newshour/feeds/rss/headlines"},
+  {name:"Time",               lean:"left-center",  rss:"https://time.com/feed/"},
+  {name:"USA Today",          lean:"left-center",  rss:"http://rssfeeds.usatoday.com/usatoday-NewsTopStories"},
+  // CENTER
+  {name:"Reuters",            lean:"center",       rss:"https://feeds.reuters.com/reuters/topNews"},
+  {name:"The Economist",      lean:"center",       rss:"https://www.economist.com/the-world-this-week/rss.xml"},
+  {name:"Financial Times",    lean:"center",       rss:"https://www.ft.com/rss/home/uk"},
+  {name:"Straight Arrow News",lean:"center",       rss:"https://san.com/feed/"},
+  {name:"The Dispatch",       lean:"center",       rss:"https://thedispatch.com/feed/"},
+  {name:"Christian Science Monitor",lean:"center", rss:"https://rss.csmonitor.com/feeds/all"},
+  {name:"Deutsche Welle",     lean:"center",       rss:"https://rss.dw.com/xml/rss-en-all"},
+  {name:"France 24",          lean:"center",       rss:"https://www.france24.com/en/rss"},
+  // RIGHT-CENTER
+  {name:"Wall Street Journal",lean:"right-center", rss:"https://feeds.a.dj.com/rss/RSSWorldNews.xml"},
+  {name:"Washington Examiner",lean:"right-center", rss:"https://www.washingtonexaminer.com/rss/news"},
+  {name:"New York Post",      lean:"right-center", rss:"https://nypost.com/feed/"},
+  {name:"Forbes",             lean:"right-center", rss:"https://www.forbes.com/real-time/feed2/"},
+  {name:"Reason",             lean:"right-center", rss:"https://reason.com/feed/"},
+  {name:"Newsmax",            lean:"right-center", rss:"https://www.newsmax.com/rss/Newsmax-News/1/"},
+  {name:"Washington Times",   lean:"right-center", rss:"https://www.washingtontimes.com/rss/headlines/news/politics/"},
+  // RIGHT
+  {name:"Fox News",           lean:"right",        rss:"https://moxie.foxnews.com/google-publisher/latest.xml"},
+  {name:"Breitbart",          lean:"right",        rss:"https://feeds.feedburner.com/breitbart"},
+  {name:"National Review",    lean:"right",        rss:"https://www.nationalreview.com/feed/"},
+  {name:"The Federalist",     lean:"right",        rss:"https://thefederalist.com/feed/"},
+  {name:"Daily Wire",         lean:"right",        rss:"https://www.dailywire.com/feeds/rss.xml"},
+  {name:"Daily Caller",       lean:"right",        rss:"https://dailycaller.com/feed/"},
+  {name:"Townhall",           lean:"right",        rss:"https://townhall.com/xml/rssfeed/column.xml"},
+];
+
 const LC={"left":"#1a4eb0","left-center":"#1a4eb0","center":"#166534","right-center":"#c0392b","right":"#c0392b"};
-const AO=["New York Times","Washington Post","MSNBC","The Guardian","The Atlantic","CNN","NPR","BBC","NBC News","ABC News","CBS News","Newsweek","Politico","Time","Reuters","AP","Associated Press","PBS","The Hill","Bloomberg","Axios","The Economist","Financial Times","USA Today","Wall Street Journal","The Wall Street Journal","Washington Examiner","Fox News","New York Post","Breitbart","The Federalist","Daily Wire","National Review","Epoch Times"];
-const AS={"New York Times":"left","Washington Post":"left","MSNBC":"left","The Guardian":"left","The Atlantic":"left","CNN":"left-center","NPR":"left-center","BBC":"left-center","NBC News":"left-center","ABC News":"left-center","CBS News":"left-center","Newsweek":"left-center","Politico":"left-center","Time":"left-center","Reuters":"center","AP":"center","Associated Press":"center","PBS":"center","The Hill":"center","Bloomberg":"center","Axios":"center","The Economist":"center","Financial Times":"center","USA Today":"center","Wall Street Journal":"right-center","The Wall Street Journal":"right-center","Washington Examiner":"right-center","Fox News":"right","New York Post":"right","Breitbart":"right","The Federalist":"right","Daily Wire":"right","National Review":"right","Epoch Times":"right"};
-const SAFE="CRITICAL: Only use established reputable news organizations. Never use unknown blogs, misinformation sites, or clickbait farms.";
+const RC={"World":{bg:"#b8ccff",color:"#001060"},"US & Americas":{bg:"#b0e8c0",color:"#003018"},"Europe":{bg:"#d8c8ff",color:"#200860"},"Asia":{bg:"#ffe8a0",color:"#502800"},"Middle East":{bg:"#ffb8b8",color:"#500000"},"Africa":{bg:"#ffb8d8",color:"#500020"}};
+const TOPIC_KW={Politics:["trump","biden","congress","senate","election","democrat","republican","president","white house","vote","campaign","supreme court","gop","legislation","governor","mayor","political"],Economy:["economy","market","stock","inflation","fed","interest rate","gdp","recession","jobs","unemployment","trade","tariff","budget","debt","bank","financial","wall street","dollar","oil"],Conflict:["war","attack","military","troops","missile","bomb","explosion","killed","dead","casualties","fighting","ceasefire","invasion","battle","terrorist","nato","defense","drone"],Climate:["climate","environment","weather","hurricane","flood","wildfire","earthquake","storm","emissions","carbon","green","renewable","temperature","drought","tornado"],Tech:["ai","artificial intelligence","technology","cyber","hack","data","silicon valley","apple","google","microsoft","meta","twitter","social media","software","robot","privacy","chip"],Health:["health","covid","virus","vaccine","cancer","drug","fda","cdc","hospital","medicine","disease","outbreak","mental health","opioid"],Science:["science","nasa","space","research","study","discovery","biology","physics","gene","dna","planet","species"]};
+const REGION_KW={Europe:["europe","uk","britain","france","germany","russia","ukraine","eu","nato","poland","spain","italy","greece","brussels","london","paris","berlin"],Asia:["china","japan","korea","india","pakistan","taiwan","hong kong","southeast asia","vietnam","thailand","indonesia","philippines","beijing","tokyo"],Middle_East:["israel","gaza","iran","iraq","syria","saudi","yemen","lebanon","jordan","palestine","hamas","hezbollah","middle east","tehran"],Africa:["africa","nigeria","kenya","ethiopia","south africa","libya","somalia","congo","sudan","ghana","tanzania","morocco"]};
+const TOPIC_EMOJI={Politics:"🏛️",Economy:"📈",Conflict:"⚔️",Climate:"🌍",Tech:"💻",Health:"🏥",Science:"🔬",General:"📰"};
 
 const THEMES=[
   {id:"white",label:"White",t1:"#cccccc",t2:"#ffffff",bg:"#cccccc"},
@@ -357,29 +376,37 @@ const THEMES=[
   {id:"volcano",label:"Volcano",t1:"#080000",t2:"#900800",bg:"#080000"},
   {id:"tornado",label:"Tornado",t1:"#100e04",t2:"#706830",bg:"#100e04"},
 ];
-const ACCENTS=[
-  {id:"blue",color:"#1a56db"},{id:"teal",color:"#0d7a70"},
-  {id:"purple",color:"#6030c0"},{id:"amber",color:"#b07000"},
-  {id:"coral",color:"#b83020"},{id:"pink",color:"#a01858"},
-  {id:"green",color:"#166534"},{id:"red",color:"#a00000"},
-];
+const ACCENTS=[{id:"blue",color:"#1a56db"},{id:"teal",color:"#0d7a70"},{id:"purple",color:"#6030c0"},{id:"amber",color:"#b07000"},{id:"coral",color:"#b83020"},{id:"pink",color:"#a01858"},{id:"green",color:"#166534"},{id:"red",color:"#a00000"}];
 
-let allClusters=[],activeRegion="all";
+let allClusters=[],activeRegion="all",searchQuery="";
 let myTags=new Set(),activeTagFilters=new Set();
-let showBias=true,allSidesOnly=false,historyEnabled=true;
+let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
-let autoRefresh=false,arIntervalSec=300,arTimer=null,arRemaining=0;
-const AR_STEPS=[5,10,15,30,60,120,180,300,600,900];
+let autoRefresh=false,arIntervalSec=60,arTimer=null,arRemaining=0;
+const AR_STEPS=[30,60,120,300,600,900,1800,3600,7200,14400];
+let geminiKey="";
 
-function lg(l){if(!l)return"center";if(l.includes("left"))return"left";if(l.includes("right"))return"right";return"center";}
 try{bookmarks=JSON.parse(localStorage.getItem("wp_bm")||"[]");}catch{}
 try{searchHistory=JSON.parse(localStorage.getItem("wp_sh")||"[]");}catch{}
 try{myTags=new Set(JSON.parse(localStorage.getItem("wp_tags")||"[]"));}catch{}
+try{geminiKey=localStorage.getItem("gemini_key")||"";}catch{}
+
 const saveB=()=>{try{localStorage.setItem("wp_bm",JSON.stringify(bookmarks));}catch{}};
 const saveH=()=>{try{localStorage.setItem("wp_sh",JSON.stringify(searchHistory));}catch{}};
 const saveTags=()=>{try{localStorage.setItem("wp_tags",JSON.stringify([...myTags]));}catch{}};
 const upCounts=()=>{document.getElementById("bmark-count").textContent=bookmarks.length;document.getElementById("hist-count").textContent=searchHistory.length;};
 upCounts();
+
+if(!geminiKey&&!localStorage.getItem("gemini_dismissed")){
+  document.getElementById("gemini-banner").style.display="block";
+}
+if(geminiKey)document.getElementById("gemini-key-setting").value="";
+
+function saveGeminiKey(){const k=document.getElementById("gemini-key-input").value.trim();if(!k)return;geminiKey=k;localStorage.setItem("gemini_key",k);document.getElementById("gemini-banner").style.display="none";showToast("✨ Gemini key saved! AI summaries enabled.");}
+function saveGeminiKeySetting(){const k=document.getElementById("gemini-key-setting").value.trim();if(!k)return;geminiKey=k;localStorage.setItem("gemini_key",k);document.getElementById("gemini-banner").style.display="none";document.getElementById("gemini-key-setting").value="";showToast("✨ Gemini key saved!");}
+function clearGeminiKey(){geminiKey="";localStorage.removeItem("gemini_key");document.getElementById("gemini-key-setting").value="";showToast("Gemini key cleared.");}
+function dismissGemini(){localStorage.setItem("gemini_dismissed","1");document.getElementById("gemini-banner").style.display="none";}
+function showToast(msg){let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;z-index:9999;font-family:Verdana,sans-serif;pointer-events:none;";document.body.appendChild(t);}t.textContent=msg;t.style.opacity="1";setTimeout(()=>t.style.opacity="0",2500);}
 
 const appEl=document.getElementById("app");
 const applyTheme=id=>{const t=THEMES.find(x=>x.id===id)||THEMES[0];appEl.style.backgroundColor=t.bg;document.body.style.backgroundColor=t.bg;document.querySelectorAll(".swatch-thumb").forEach(e=>e.classList.remove("active"));const sw=document.getElementById("sw-"+id);if(sw)sw.classList.add("active");};
@@ -389,24 +416,11 @@ const toggleThemePanel=()=>{const p=document.getElementById("theme-panel");const
 
 function buildUI(){
   const sw=document.getElementById("theme-swatches");
-  THEMES.forEach(t=>{
-    const wrap=document.createElement("div");wrap.className="theme-swatch";
-    const thumb=document.createElement("div");thumb.className="swatch-thumb"+(t.id==="white"?" active":"");
-    thumb.id="sw-"+t.id;thumb.style.background=`linear-gradient(135deg,${t.t1} 50%,${t.t2} 50%)`;
-    thumb.onclick=()=>applyTheme(t.id);
-    const lbl=document.createElement("div");lbl.className="swatch-label";lbl.textContent=t.label;
-    wrap.appendChild(thumb);wrap.appendChild(lbl);sw.appendChild(wrap);
-  });
-  const ad=document.getElementById("accent-dots");
-  ACCENTS.forEach(a=>{
-    const btn=document.createElement("button");btn.className="acc-dot"+(a.id==="blue"?" active":"");
-    btn.id="acc-"+a.id;btn.style.background=a.color;btn.onclick=()=>applyAccent(a.color,a.id);
-    ad.appendChild(btn);
-  });
+  THEMES.forEach(t=>{const wrap=document.createElement("div");wrap.className="theme-swatch";const thumb=document.createElement("div");thumb.className="swatch-thumb"+(t.id==="white"?" active":"");thumb.id="sw-"+t.id;thumb.style.background=`linear-gradient(135deg,${t.t1} 50%,${t.t2} 50%)`;thumb.onclick=()=>applyTheme(t.id);const lbl=document.createElement("div");lbl.className="swatch-label";lbl.textContent=t.label;wrap.appendChild(thumb);wrap.appendChild(lbl);sw.appendChild(wrap);});
+  ACCENTS.forEach(a=>{const btn=document.createElement("button");btn.className="acc-dot"+(a.id==="blue"?" active":"");btn.id="acc-"+a.id;btn.style.background=a.color;btn.onclick=()=>applyAccent(a.color,a.id);document.getElementById("accent-dots").appendChild(btn);});
 }
 buildUI();
 
-/* TAGS */
 const addTag=t=>{myTags.add(t);saveTags();renderMyTagsRow();renderContent();};
 const removeTag=t=>{myTags.delete(t);activeTagFilters.delete(t);saveTags();renderMyTagsRow();renderContent();};
 const toggleTagFilter=t=>{activeTagFilters.has(t)?activeTagFilters.delete(t):activeTagFilters.add(t);renderMyTagsRow();renderContent();};
@@ -416,25 +430,19 @@ function renderMyTagsRow(){
   const sec=document.getElementById("my-tags-section"),row=document.getElementById("my-tags-row");
   if(myTags.size===0){sec.style.display="none";return;}
   sec.style.display="block";row.innerHTML="";
-  [...myTags].forEach(tag=>{
-    const btn=document.createElement("button");btn.className="my-tag"+(activeTagFilters.has(tag)?" active":"");
-    btn.innerHTML=`${tag}<span class="tag-x" onclick="event.stopPropagation();removeTag('${tag.replace(/'/g,"\\'")}')">×</span>`;
-    btn.onclick=()=>toggleTagFilter(tag);row.appendChild(btn);
-  });
+  [...myTags].forEach(tag=>{const btn=document.createElement("button");btn.className="my-tag"+(activeTagFilters.has(tag)?" active":"");btn.innerHTML=`${tag}<span class="tag-x" onclick="event.stopPropagation();removeTag('${tag.replace(/'/g,"\\'")}')">×</span>`;btn.onclick=()=>toggleTagFilter(tag);row.appendChild(btn);});
 }
 renderMyTagsRow();
 
-/* SETTINGS */
 document.getElementById("gear-btn").addEventListener("click",function(){const o=document.getElementById("settings-panel").classList.toggle("open");this.className=o?"icon-btn active-gear":"icon-btn";});
 document.getElementById("bias-toggle").addEventListener("click",function(){showBias=!showBias;this.className=showBias?"tog on":"tog";document.querySelectorAll(".cluster-bias").forEach(e=>e.style.display=showBias?"block":"none");});
 document.getElementById("history-toggle").addEventListener("click",function(){historyEnabled=!historyEnabled;this.className=historyEnabled?"tog on":"tog";});
-document.getElementById("allsides-toggle").addEventListener("click",function(){allSidesOnly=!allSidesOnly;this.className=allSidesOnly?"tog on":"tog";document.getElementById("allsides-note").style.display=allSidesOnly?"block":"none";fetchNews(document.getElementById("search-input").value.trim());});
 document.getElementById("ar-toggle").addEventListener("click",()=>{autoRefresh=!autoRefresh;document.getElementById("ar-toggle").className=autoRefresh?"tog on-green":"tog";autoRefresh?startAR():stopAR();});
 function onARSlider(v){arIntervalSec=AR_STEPS[parseInt(v)];document.getElementById("ar-val").textContent=arL(arIntervalSec);if(autoRefresh){stopAR();startAR();}}
-const arL=s=>s<60?s+"s":(s/60)+"min";
-function startAR(){stopAR();arRemaining=arIntervalSec;updCD();arTimer=setInterval(()=>{arRemaining--;updCD();if(arRemaining<=0){arRemaining=arIntervalSec;fetchNews(document.getElementById("search-input").value.trim(),true);}},1000);}
+const arL=s=>s<60?s+"s":s<3600?(s/60)+"min":(s/3600)+"h";
+function startAR(){stopAR();arRemaining=arIntervalSec;updCD();arTimer=setInterval(()=>{arRemaining--;updCD();if(arRemaining<=0){arRemaining=arIntervalSec;loadFeeds(true);}},1000);}
 function stopAR(){clearInterval(arTimer);arTimer=null;document.getElementById("ar-countdown").textContent="";}
-function updCD(){const e=document.getElementById("ar-countdown");if(e)e.textContent=autoRefresh?`Next: ${arRemaining}s`:"";}
+function updCD(){const e=document.getElementById("ar-countdown");if(e)e.textContent=autoRefresh?`Next: ${arL(arRemaining)}`:"";} 
 
 function setSidebar(panel,btn){
   document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active","dirty-active"));
@@ -442,115 +450,169 @@ function setSidebar(panel,btn){
   ["dirty","bookmarks","history"].forEach(p=>document.getElementById(p+"-panel").style.display=p===panel?"":"none");
   if(panel==="bookmarks")renderBM();if(panel==="history")renderHist();
 }
-
-/* BOOKMARKS */
 const isBM=h=>bookmarks.some(b=>b.headline===h);
 function toggleBM(idx,el){const c=allClusters[idx];if(!c)return;const i=bookmarks.findIndex(b=>b.headline===c.headline);i===-1?bookmarks.unshift({...c,savedAt:new Date().toISOString()}):bookmarks.splice(i,1);saveB();upCounts();if(el)el.className=isBM(c.headline)?"bmark-btn-cluster saved":"bmark-btn-cluster";}
-function renderBM(){const el=document.getElementById("bmarks-content");if(!bookmarks.length){el.innerHTML='<div class="empty-state">No bookmarks yet.</div>';return;}el.innerHTML=bookmarks.map((c,i)=>`<div class="bmark-card"><div class="bmark-hl">${c.headline}</div><div class="bmark-meta"><span>${c.leadSource||""} · ${ago(c.savedAt)}</span><button class="bmark-del" onclick="rmBM(${i})">✕</button></div></div>`).join("");}
+function renderBM(){const el=document.getElementById("bmarks-content");if(!bookmarks.length){el.innerHTML='<div class="empty-state">No bookmarks yet.</div>';return;}el.innerHTML=bookmarks.map((c,i)=>`<div class="bmark-card"><div class="bmark-hl">${c.headline}</div><div class="bmark-meta"><span>${c.sources[0]?c.sources[0].name:""} · ${ago(c.savedAt)}</span><button class="bmark-del" onclick="rmBM(${i})">✕</button></div></div>`).join("");}
 function rmBM(i){bookmarks.splice(i,1);saveB();upCounts();renderBM();}
-
-/* HISTORY */
 function addH(q){if(!q||!historyEnabled)return;const p=searchHistory.find(h=>h.q===q);searchHistory=searchHistory.filter(h=>h.q!==q);searchHistory.unshift({q,at:new Date().toISOString(),count:(p?p.count:0)+1});if(searchHistory.length>100)searchHistory=searchHistory.slice(0,100);saveH();upCounts();}
 function clearHistory(){searchHistory=[];saveH();upCounts();renderHist();}
 function delH(q){searchHistory=searchHistory.filter(h=>h.q!==q);saveH();upCounts();renderHist();}
 function ago(iso){const d=Math.floor((Date.now()-new Date(iso))/1000);if(d<60)return"just now";if(d<3600)return Math.floor(d/60)+"m ago";if(d<86400)return Math.floor(d/3600)+"h ago";return Math.floor(d/86400)+"d ago";}
 function renderHist(){const el=document.getElementById("hist-content");const q=(document.getElementById("hist-search")||{}).value||"";const f=q?searchHistory.filter(h=>h.q.toLowerCase().includes(q.toLowerCase())):searchHistory;if(!f.length){el.innerHTML=`<div class="empty-state">${q?"No matches.":"No history yet."}</div>`;return;}el.innerHTML=f.map(h=>`<div class="hist-card"><div class="hist-q">${h.q}</div><div class="hist-row"><span class="hist-meta">${ago(h.at)}${h.count>1?` · ${h.count}×`:""}</span><div><button class="hist-go" onclick="reS('${h.q.replace(/'/g,"\\'")}')">Go →</button><button class="hist-del" onclick="delH('${h.q.replace(/'/g,"\\'")}')">✕</button></div></div></div>`).join("");}
-const reS=q=>{document.getElementById("search-input").value=q;fetchNews(q);};
+function reS(q){document.getElementById("search-input").value=q;searchQuery=q;addH(q);renderContent();}
 
-/* ── API — calls /api (the Cloudflare Worker) — no key in browser ── */
-async function apiCall(prompt,useSearch){
-  const body={model:"claude-sonnet-4-20250514",max_tokens:1800,messages:[{role:"user",content:prompt}]};
-  if(useSearch)body.tools=[{type:"web_search_20250305",name:"web_search"}];
-  const res=await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||"API error");}
-  const data=await res.json();
-  return data.content.filter(b=>b.type==="text").map(b=>b.text).join("\n");
+// ── RSS VIA /rss PROXY ON CLOUDFLARE WORKER ──
+function stripHTML(h){return(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g," ").trim();}
+
+async function fetchRSS(outlet){
+  try{
+    const res=await fetch(`/rss?url=${encodeURIComponent(outlet.rss)}`,{signal:AbortSignal.timeout(8000)});
+    if(!res.ok)return[];
+    const text=await res.text();
+    const doc=new DOMParser().parseFromString(text,"text/xml");
+    const items=[...doc.querySelectorAll("item, entry")];
+    return items.slice(0,12).map(item=>{
+      const title=stripHTML(item.querySelector("title")?.textContent||"");
+      const link=(item.querySelector("link")?.textContent||item.querySelector("link")?.getAttribute("href")||"").trim();
+      const desc=stripHTML(item.querySelector("description")?.textContent||item.querySelector("summary")?.textContent||"").slice(0,250);
+      const pubDate=item.querySelector("pubDate")?.textContent||item.querySelector("published")?.textContent||item.querySelector("updated")?.textContent||"";
+      return title&&link?{title,link,desc,pubDate,outlet}:null;
+    }).filter(Boolean);
+  }catch{return[];}
+}
+
+function classifyTopic(t){const tl=t.toLowerCase();for(const[k,kw]of Object.entries(TOPIC_KW))if(kw.some(w=>tl.includes(w)))return k;return"General";}
+function classifyRegion(t){const tl=t.toLowerCase();for(const[k,kw]of Object.entries(REGION_KW))if(kw.some(w=>tl.includes(w)))return k==="Middle_East"?"Middle East":k;return null;}
+
+function getKeywords(h){
+  const stop=new Set(["the","a","an","in","on","at","to","for","of","and","or","but","is","are","was","were","has","have","had","that","this","with","from","by","as","it","its","says","said","new","over","after","before","into","about","its","their","who","what","how","than","more","will","been"]);
+  return h.toLowerCase().replace(/[^\w\s]/g,"").split(/\s+/).filter(w=>w.length>3&&!stop.has(w));
+}
+function similarity(h1,h2){
+  const k1=new Set(getKeywords(h1)),k2=new Set(getKeywords(h2));
+  if(!k1.size||!k2.size)return 0;
+  let n=0;k1.forEach(k=>{if(k2.has(k))n++;});
+  return n/Math.min(k1.size,k2.size);
+}
+
+function extractTags(text){
+  const stop=new Set(["the","a","an","in","on","at","to","for","of","and","or","but","is","are","was","were","has","have","had","that","this","with","from","by","as","it","its","says","said","after","before","over"]);
+  const tags=new Set();
+  const re=/([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,2})/g;
+  let m;
+  while((m=re.exec(text))!==null){
+    const p=m[1].trim();
+    if(p.split(" ").every(w=>!stop.has(w.toLowerCase()))&&p.length>3&&p.length<28){tags.add(p);}
+    if(tags.size>=4)break;
+  }
+  const topic=classifyTopic(text);
+  if(topic!=="General")tags.add(topic);
+  return[...tags].slice(0,4);
 }
 
 function calcBias(sources){
   let l=0,c=0,r=0;
-  (sources||[]).forEach(s=>{const g=lg(AS[s.name]||s.lean||"center");if(g==="left")l++;else if(g==="right")r++;else c++;});
-  const t=l+c+r||1;
-  return{left:Math.round(l/t*100),center:Math.round(c/t*100),right:Math.round(r/t*100)};
+  sources.forEach(s=>{const g=s.lean.includes("left")?"left":s.lean.includes("right")?"right":"center";if(g==="left")l++;else if(g==="right")r++;else c++;});
+  const t=l+c+r||1;return{left:Math.round(l/t*100),center:Math.round(c/t*100),right:Math.round(r/t*100)};
 }
 
-function openStoryViewer(idx){
-  const c=allClusters[idx];if(!c)return;
-  const sources=c.sources||[],bias=calcBias(sources),col=RC[c.region]||{bg:"#ddd",color:"#111"};
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${c.headline.replace(/</g,"&lt;")}</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Verdana,Geneva,sans-serif;background:#f0f0f0;padding:2rem;max-width:900px;margin:0 auto;}h1{font-family:Georgia,serif;font-size:22px;font-weight:700;color:#111;margin-bottom:.75rem;line-height:1.35;}.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1rem;}.rb{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;background:${col.bg};color:${col.color};}.tags{display:flex;gap:5px;flex-wrap:wrap;margin:.5rem 0 1rem;}.tag{padding:2px 8px;border-radius:99px;border:1px solid #bbb;background:#fff;font-size:10px;font-weight:700;color:#333;}.sum{font-size:14px;color:#333;line-height:1.7;margin-bottom:1.5rem;padding:1rem;background:#fff;border-radius:8px;border-left:4px solid #1a56db;}.bs{background:#fff;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;border:1px solid #ccc;}.bst{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#555;margin-bottom:.6rem;}.bsr{display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;font-weight:700;}.bt{height:10px;border-radius:5px;overflow:hidden;display:flex;background:#ddd;}.sl{background:#1a4eb0;}.sc{background:#16a34a;}.sr{background:#c0392b;}.st{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#333;margin-bottom:1rem;}.card{background:#fff;border:1px solid #ccc;border-radius:10px;padding:.85rem 1rem;margin-bottom:.75rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}.sn{font-size:14px;font-weight:700;color:#111;margin-bottom:3px;}.lean{display:inline-flex;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;}.left,.left-center{background:#dbeafe;color:#1e3a8a;}.center{background:#dcfce7;color:#14532d;}.right,.right-center{background:#fee2e2;color:#7f1d1d;}.angle{font-size:12px;color:#555;margin-top:5px;line-height:1.4;}.btn{display:inline-block;padding:7px 16px;border-radius:99px;background:#111;color:#fff;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;text-transform:uppercase;}.btn:hover{background:#333;}.note{font-size:11px;color:#777;margin-top:2rem;text-align:center;}</style>
-</head><body>
-<div class="meta"><span class="rb">${c.region}</span><span style="font-size:11px;font-weight:700;color:#555">${c.topic||""}</span><span style="margin-left:auto;font-size:11px;color:#777;font-weight:700">${sources.length} sources</span></div>
-<h1>${c.headline}</h1>
-${c.tags&&c.tags.length?`<div class="tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>`:""}
-<p class="sum">${c.summary}</p>
-<div class="bs">
-  <div class="bst">Coverage bias — AllSides ratings</div>
-  <div class="bsr"><span style="color:#1a4eb0">Left ${bias.left}%</span><span style="color:#166534">Center ${bias.center}%</span><span style="color:#c0392b">Right ${bias.right}%</span></div>
-  <div class="bt"><div class="sl" style="width:${bias.left}%"></div><div class="sc" style="width:${bias.center}%"></div><div class="sr" style="width:${bias.right}%"></div></div>
-</div>
-<div class="st">All sources covering this story</div>
-${sources.map(s=>{const lean=AS[s.name]||s.lean||"center";const url=`https://www.google.com/search?q=${encodeURIComponent(s.name+" "+c.headline)}`;return`<div class="card"><div style="flex:1"><div class="sn">${s.name}</div><span class="lean ${lean}">${lean}</span>${s.angle?`<div class="angle">${s.angle}</div>`:""}</div><a href="${url}" target="_blank" rel="noopener noreferrer" class="btn">Read →</a></div>`;}).join("")}
-<p class="note">Close this tab to return to Wood's Wild News</p>
-</body></html>`;
-  const blob=new Blob([html],{type:"text/html"});
-  const url=URL.createObjectURL(blob);
-  window.open(url,"_blank");
-  setTimeout(()=>URL.revokeObjectURL(url),60000);
+function ageStr(d){
+  if(!d)return"";
+  const mins=Math.floor((Date.now()-new Date(d))/60000);
+  if(mins<1)return"just now";if(mins<60)return mins+"m ago";
+  const h=Math.floor(mins/60);if(h<24)return h+"h ago";
+  return Math.floor(h/24)+"d ago";
 }
 
-const ageL=h=>!h&&h!==0?"":h<1?"<1h ago":h<24?Math.round(h)+"h ago":Math.round(h/24)+"d ago";
+async function loadFeeds(silent=false){
+  if(!silent)document.getElementById("content").innerHTML='<div class="loading-state">Loading '+ OUTLETS.length +' news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div>';
+  
+  // Fetch all in parallel batches of 8
+  const all=[];
+  for(let i=0;i<OUTLETS.length;i+=8){
+    const batch=OUTLETS.slice(i,i+8);
+    const results=await Promise.all(batch.map(o=>fetchRSS(o)));
+    results.forEach(r=>all.push(...r));
+  }
+  
+  if(!all.length){
+    document.getElementById("content").innerHTML='<div class="loading-state">Could not load feeds — make sure the Cloudflare worker is running and has the /rss route.</div>';
+    return;
+  }
+  
+  // Sort by date, newest first
+  all.sort((a,b)=>(b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0));
+  
+  // Cluster similar headlines
+  const clusters=[],used=new Set();
+  all.forEach((item,i)=>{
+    if(used.has(i))return;
+    const text=item.title+" "+item.desc;
+    const region=classifyRegion(text)||item.outlet.region||"US & Americas";
+    const cluster={
+      headline:item.title,
+      excerpt:item.desc,
+      topic:classifyTopic(text),
+      region,
+      tags:extractTags(item.title),
+      pubDate:item.pubDate,
+      sources:[{name:item.outlet.name,lean:item.outlet.lean,url:item.link}]
+    };
+    used.add(i);
+    all.forEach((other,j)=>{
+      if(used.has(j)||j===i||other.outlet.name===item.outlet.name)return;
+      if(similarity(item.title,other.title)>=0.38){
+        cluster.sources.push({name:other.outlet.name,lean:other.outlet.lean,url:other.link});
+        used.add(j);
+      }
+    });
+    clusters.push(cluster);
+  });
+  
+  // Sort: most sources first, then newest
+  clusters.sort((a,b)=>b.sources.length-a.sources.length||((b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0)));
+  allClusters=clusters.slice(0,100);
+  renderContent();
+  renderDirtyNews();
+}
 
 function clusterHTML(c,idx){
   const col=RC[c.region]||{bg:"#ccc",color:"#111"};
-  const sources=c.sources||[],bias=calcBias(sources);
-  const sub=sources.slice(1,4),extra=Math.max(0,sources.length-4);
-  const age=ageL(c.hoursAgo),tags=c.tags||[];
-
-  const subHTML=sub.map(s=>{
-    const lean=AS[s.name]||s.lean||"center";
-    const url=`https://www.google.com/search?q=${encodeURIComponent(s.name+" "+c.headline)}`;
-    return`<a class="sub-source-pill" href="${url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><span class="sub-source-dot" style="background:${LC[lean]||"#888"}"></span>${s.name}</a>`;
-  }).join("");
-
-  const tagsHTML=tags.map(tag=>{
-    const inMT=myTags.has(tag);
-    return`<span class="story-tag${inMT?" in-my-tags":""}" onclick="handleTagClick('${tag.replace(/'/g,"\\'")}',this)">${tag}${inMT?"":' <span class="tag-plus">+</span>'}</span>`;
-  }).join("");
-
+  const bias=calcBias(c.sources);
+  const emoji=TOPIC_EMOJI[c.topic]||"📰";
+  const lead=c.sources[0];
+  const sub=c.sources.slice(1,4);
+  const extra=Math.max(0,c.sources.length-4);
+  const tags=c.tags||[];
+  const subHTML=sub.map(s=>`<a class="sub-source-pill" href="${s.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><span class="sub-source-dot" style="background:${LC[s.lean]||"#888"}"></span>${s.name}</a>`).join("");
+  const tagsHTML=tags.map(tag=>{const inMT=myTags.has(tag);return`<span class="story-tag${inMT?" in-my-tags":""}" onclick="handleTagClick('${tag.replace(/'/g,"\\'")}',this)">${tag}${inMT?"":' <span class="tag-plus">+</span>'}</span>`;}).join("");
   return`<div class="cluster-card">
-  <div class="cluster-hero">
-    <div class="cluster-hero-img">${c.emoji||"📰"}</div>
-    <div class="cluster-hero-body">
-      <div class="cluster-meta">
-        <span class="region-badge" style="background:${col.bg};color:${col.color}">${c.region}</span>
-        <span class="topic-badge">${c.topic||""}</span>
-        <span class="coverage-count">${sources.length} sources</span>
-      </div>
-      <div class="cluster-headline">${c.headline}</div>
-      <div class="cluster-summary">${c.summary}</div>
-      <a class="cluster-lead-source" href="https://www.google.com/search?q=${encodeURIComponent((c.leadSource||"")+" "+c.headline)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${c.leadSource||""}</a>
-      <div class="cluster-bias" style="display:${showBias?"block":"none"};margin-top:.5rem;">
-        <div class="cluster-bias-row"><span class="blbl blbl-l">L ${bias.left}%</span><span class="blbl blbl-c">C ${bias.center}%</span><span class="blbl blbl-r">R ${bias.right}%</span></div>
-        <div class="bias-track"><div class="seg-l" style="width:${bias.left}%"></div><div class="seg-c" style="width:${bias.center}%"></div><div class="seg-r" style="width:${bias.right}%"></div></div>
-      </div>
+<div class="cluster-hero">
+  <div class="cluster-emoji">${emoji}</div>
+  <div class="cluster-hero-body">
+    <div class="cluster-meta"><span class="region-badge" style="background:${col.bg};color:${col.color}">${c.region}</span><span class="topic-badge">${c.topic}</span><span class="coverage-count">${c.sources.length} source${c.sources.length>1?"s":""}</span></div>
+    <div class="cluster-headline">${c.headline}</div>
+    ${c.excerpt?`<div class="cluster-excerpt">${c.excerpt}</div>`:""}
+    <a class="cluster-lead-link" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${lead.name} →</a>
+    <div class="cluster-bias" style="display:${showBias?"block":"none"};margin-top:.45rem;">
+      <div class="cluster-bias-row"><span class="blbl blbl-l">L ${bias.left}%</span><span class="blbl blbl-c">C ${bias.center}%</span><span class="blbl blbl-r">R ${bias.right}%</span></div>
+      <div class="bias-track"><div class="seg-l" style="width:${bias.left}%"></div><div class="seg-c" style="width:${bias.center}%"></div><div class="seg-r" style="width:${bias.right}%"></div></div>
     </div>
   </div>
-  ${sub.length?`<div class="cluster-sources">${subHTML}${extra>0?`<span class="cluster-more-sources">+${extra} more</span>`:""}</div>`:""}
-  ${tagsHTML?`<div class="cluster-tags">${tagsHTML}</div>`:""}
-  <div class="cluster-footer">
-    <button class="view-story-btn" onclick="openStoryViewer(${idx})">View all sources →</button>
-    <div style="display:flex;align-items:center;gap:10px;">
-      ${age?`<span class="cluster-age">${age}</span>`:""}
-      <button class="bmark-btn-cluster${isBM(c.headline)?" saved":""}" onclick="toggleBM(${idx},this)">★</button>
-    </div>
-  </div>
+</div>
+${sub.length?`<div class="cluster-sources">${subHTML}${extra>0?`<span class="cluster-more">+${extra} more</span>`:""}</div>`:""}
+${tagsHTML?`<div class="cluster-tags">${tagsHTML}</div>`:""}
+<div class="cluster-footer">
+  <button class="view-story-btn" onclick="openStoryViewer(${idx})">View all sources →</button>
+  <div style="display:flex;align-items:center;gap:10px;"><span class="cluster-age">${ageStr(c.pubDate)}</span><button class="bmark-btn-cluster${isBM(c.headline)?" saved":""}" onclick="toggleBM(${idx},this)">★</button></div>
+</div>
 </div>`;
 }
 
 function filterClusters(){
   let f=allClusters;
   if(activeRegion!=="all")f=f.filter(c=>c.region===activeRegion);
+  if(searchQuery){const q=searchQuery.toLowerCase();f=f.filter(c=>c.headline.toLowerCase().includes(q)||(c.excerpt||"").toLowerCase().includes(q));}
   if(activeTagFilters.size>0)f=f.filter(c=>[...activeTagFilters].every(t=>(c.tags||[]).includes(t)));
   return f;
 }
@@ -558,80 +620,118 @@ function filterClusters(){
 function renderContent(){
   const content=document.getElementById("content");
   const filtered=filterClusters();
-  if(!filtered.length){content.innerHTML='<div class="loading-state">No stories match your current filters.</div>';return;}
-  const trending=filtered.filter(c=>c.trending),recent=filtered.filter(c=>!c.trending);
+  if(!filtered.length){content.innerHTML='<div class="loading-state">No stories match your filters.</div>';return;}
+  const top=filtered.filter(c=>c.sources.length>=3);
+  const rest=filtered.filter(c=>c.sources.length<3);
   let html="";
-  if(trending.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">Trending Stories</span></div><div class="cluster-list">${trending.map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
-  if(recent.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">Recent Stories</span></div><div class="cluster-list">${recent.map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
+  if(top.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">Top Stories</span><span class="story-count">${top.length} stories</span></div><div class="cluster-list">${top.map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
+  if(rest.length)html+=`<div class="section-block"><div class="section-head"><span class="section-title">More News</span><span class="story-count">${rest.length} stories</span></div><div class="cluster-list">${rest.slice(0,40).map(c=>clusterHTML(c,allClusters.indexOf(c))).join("")}</div></div>`;
   content.innerHTML=html;
 }
 
-async function fetchNews(query,silent){
-  const content=document.getElementById("content");
-  if(!silent)content.innerHTML='<div class="loading-state">Scanning global headlines<div class="dot-pulse"><span></span><span></span><span></span></div></div>';
-  if(query)addH(query);
-  const prompt=`You are a world news editor. ${query?`Search for news about: "${query}".`:"Find today's top global breaking news."}
-${SAFE}
-Search the web and return 8 story clusters (4 trending:true, 4 trending:false). Raw JSON only:
-{"stories":[{"headline":"...","summary":"2-3 sentences","region":"World|US & Americas|Europe|Asia|Middle East|Africa","topic":"Politics|Economy|Climate|Tech|Conflict|Health|Science","emoji":"single emoji","hoursAgo":2,"trending":true,"leadSource":"outlet name","tags":["Specific Tag","Person Name","Org Name"],"sources":[{"name":"outlet name","lean":"left|left-center|center|right-center|right","angle":"their specific angle on this story"}]}]}
-Tags must be specific — people, organizations, places, concepts. Not generic words like "News". 4-6 sources per story. Diverse regions. Real current stories only.`;
-  try{
-    const raw=await apiCall(prompt,true);
-    const m=raw.match(/\{[\s\S]*\}/);if(!m)throw new Error("No JSON");
-    allClusters=JSON.parse(m[0]).stories||[];
-    renderContent();
-  }catch(e){
-    if(!silent)content.innerHTML=`<div class="loading-state">Could not load news — ${e.message||"try again"}.</div>`;
-  }
-}
-
-async function loadDirtyNews(){
+function renderDirtyNews(){
   const el=document.getElementById("dirty-content");
-  el.innerHTML='<div class="dirty-loading">Loading blindspots<div class="dot-pulse"><span></span><span></span><span></span></div></div>';
-  try{
-    const raw=await apiCall(`Find current news covered heavily by ONLY one political side. 3 left-dominant stories, 3 right-dominant stories. Left outlets: NYT, WaPo, CNN, NPR, MSNBC. Right outlets: Fox News, Breitbart, Daily Wire, NY Post, National Review. Return ONLY raw JSON: {"left_blindspots":[{"headline":"...","summary":"1 sentence","source":"outlet","leftPct":85,"rightPct":15}],"right_blindspots":[{"headline":"...","summary":"1 sentence","source":"outlet","leftPct":12,"rightPct":88}]}`,true);
-    const m=raw.match(/\{[\s\S]*\}/);if(!m)throw new Error();
-    const data=JSON.parse(m[0]);
-    let html="";
-    if((data.left_blindspots||[]).length){
-      html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#1a4eb0"></div><span class="dirty-left-lbl">Left Blindspots</span></div>`;
-      html+=data.left_blindspots.map(s=>`<div class="dirty-card dirty-card-left" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(s.headline)}','_blank')"><div class="dirty-hl">${s.headline}</div><div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-left" style="width:${Math.round(s.leftPct||80)}%"></div></div><span class="dirty-pct dirty-pct-left">${Math.round(s.leftPct||80)}%</span></div><div class="dirty-source dirty-source-left">${s.source||""}</div></div>`).join("");
-      html+=`</div>`;
-    }
-    if((data.right_blindspots||[]).length){
-      html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#c0392b"></div><span class="dirty-right-lbl">Right Blindspots</span></div>`;
-      html+=data.right_blindspots.map(s=>`<div class="dirty-card dirty-card-right" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(s.headline)}','_blank')"><div class="dirty-hl">${s.headline}</div><div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-right" style="width:${Math.round(s.rightPct||80)}%"></div></div><span class="dirty-pct dirty-pct-right">${Math.round(s.rightPct||80)}%</span></div><div class="dirty-source dirty-source-right">${s.source||""}</div></div>`).join("");
-      html+=`</div>`;
-    }
-    el.innerHTML=html||'<div class="empty-state">No strong blindspots found.</div>';
-  }catch{
-    el.innerHTML='<div class="empty-state">Couldn\'t load. Try refreshing.</div>';
-  }
+  const leftOnly=[],rightOnly=[];
+  allClusters.forEach(c=>{
+    if(c.sources.length<2)return;
+    const lc=c.sources.filter(s=>s.lean.includes("left")).length;
+    const rc=c.sources.filter(s=>s.lean.includes("right")).length;
+    const tot=c.sources.length;
+    if(lc>=2&&rc===0)leftOnly.push({...c,lpct:Math.min(95,Math.round(lc/tot*100+20))});
+    else if(rc>=2&&lc===0)rightOnly.push({...c,rpct:Math.min(95,Math.round(rc/tot*100+20))});
+  });
+  let html="";
+  if(leftOnly.length){html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#1a4eb0"></div><span class="dirty-left-lbl">Left Blindspots</span></div>`;html+=leftOnly.slice(0,5).map(c=>`<div class="dirty-card dirty-card-left" onclick="window.open('${c.sources[0].url}','_blank')"><div class="dirty-hl">${c.headline}</div><div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-left" style="width:${c.lpct}%"></div></div><span class="dirty-pct dirty-pct-left">${c.lpct}%</span></div><div class="dirty-source">${c.sources.map(s=>s.name).join(", ")}</div></div>`).join("");html+=`</div>`;}
+  if(rightOnly.length){html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#c0392b"></div><span class="dirty-right-lbl">Right Blindspots</span></div>`;html+=rightOnly.slice(0,5).map(c=>`<div class="dirty-card dirty-card-right" onclick="window.open('${c.sources[0].url}','_blank')"><div class="dirty-hl">${c.headline}</div><div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-right" style="width:${c.rpct}%"></div></div><span class="dirty-pct dirty-pct-right">${c.rpct}%</span></div><div class="dirty-source">${c.sources.map(s=>s.name).join(", ")}</div></div>`).join("");html+=`</div>`;}
+  el.innerHTML=html||'<div class="empty-state">No clear blindspots found yet.</div>';
 }
 
-/* FILTER CLICKS */
+async function openStoryViewer(idx){
+  const c=allClusters[idx];if(!c)return;
+  const bias=calcBias(c.sources);
+  const col=RC[c.region]||{bg:"#ddd",color:"#111"};
+  const key=geminiKey;
+  const safeHeadline=c.headline.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$/g,"\\$");
+  const safeExcerpt=(c.excerpt||"").replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$/g,"\\$");
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${c.headline.replace(/</g,"&lt;")}</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Verdana,Geneva,sans-serif;background:#f0f0f0;padding:2rem;max-width:900px;margin:0 auto;color:#111;}
+h1{font-family:Georgia,serif;font-size:22px;font-weight:700;margin-bottom:.75rem;line-height:1.35;}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1rem;}
+.rb{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;background:${col.bg};color:${col.color};}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin:.5rem 0 1.25rem;}
+.tag{padding:2px 8px;border-radius:99px;border:1px solid #bbb;background:#fff;font-size:10px;font-weight:700;color:#333;}
+.ai-box{background:#e8f0fe;border:2px solid #4285f4;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;}
+.ai-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#1a56db;margin-bottom:.6rem;}
+.ai-text{font-size:13px;color:#222;line-height:1.7;}
+.ai-skip{font-size:11px;color:#666;margin-top:.4rem;font-style:italic;}
+.bs{background:#fff;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;border:1px solid #ccc;}
+.bst{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#555;margin-bottom:.6rem;}
+.bsr{display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;font-weight:700;}
+.bt{height:10px;border-radius:5px;overflow:hidden;display:flex;background:#ddd;}
+.sl{background:#1a4eb0;}.sc{background:#16a34a;}.sr{background:#c0392b;}
+.st{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#333;margin-bottom:1rem;}
+.card{background:#fff;border:1px solid #ccc;border-radius:10px;padding:.85rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.sn{font-size:14px;font-weight:700;margin-bottom:3px;}
+.lean{display:inline-flex;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;}
+.left,.left-center{background:#dbeafe;color:#1e3a8a;}.center{background:#dcfce7;color:#14532d;}.right,.right-center{background:#fee2e2;color:#7f1d1d;}
+.btn{display:inline-block;padding:7px 16px;border-radius:99px;background:#111;color:#fff;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;text-transform:uppercase;}
+.btn:hover{background:#333;}
+.note{font-size:11px;color:#777;margin-top:2rem;text-align:center;}
+</style></head><body>
+<div class="meta"><span class="rb">${c.region}</span><span style="font-size:11px;font-weight:700;color:#555">${c.topic}</span><span style="margin-left:auto;font-size:11px;color:#777;font-weight:700">${c.sources.length} sources</span></div>
+<h1>${c.headline}</h1>
+${c.tags&&c.tags.length?`<div class="tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>`:""}
+<div class="ai-box">
+  <div class="ai-title">✨ Gemini AI — Neutral Summary</div>
+  <div class="ai-text" id="ai-text"><em style="color:#1a56db">Generating summary...</em></div>
+</div>
+<div class="bs">
+  <div class="bst">Coverage bias — AllSides ratings</div>
+  <div class="bsr"><span style="color:#1a4eb0">Left ${bias.left}%</span><span style="color:#166534">Center ${bias.center}%</span><span style="color:#c0392b">Right ${bias.right}%</span></div>
+  <div class="bt"><div class="sl" style="width:${bias.left}%"></div><div class="sc" style="width:${bias.center}%"></div><div class="sr" style="width:${bias.right}%"></div></div>
+</div>
+<div class="st">All sources (${c.sources.length})</div>
+${c.sources.map(s=>`<div class="card"><div><div class="sn">${s.name}</div><span class="lean ${s.lean.replace("-","_")}">${s.lean}</span></div><a href="${s.url}" target="_blank" rel="noopener noreferrer" class="btn">Read →</a></div>`).join("")}
+<p class="note">Close this tab to return to Wood's Wild News</p>
+<script>
+(async()=>{
+  const key=${JSON.stringify(key)};
+  const el=document.getElementById("ai-text");
+  if(!key){el.innerHTML='<span style="color:#666">No Gemini key set. Add one in Settings to enable free AI summaries.</span>';return;}
+  try{
+    const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+key,{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({contents:[{parts:[{text:"Write a concise, neutral 2-3 sentence summary of this news story. Be factual and balanced — do not favor any political perspective. Story: ${safeHeadline}. Additional context: ${safeExcerpt}"}]}]})
+    });
+    const d=await r.json();
+    const t=d.candidates?.[0]?.content?.parts?.[0]?.text;
+    el.textContent=t||"Could not generate summary.";
+  }catch(e){el.innerHTML="<span style='color:#c00'>Summary unavailable: "+e.message+"</span>";}
+})();
+<\/script>
+</body></html>`;
+  const blob=new Blob([html],{type:"text/html"});
+  const url=URL.createObjectURL(blob);
+  window.open(url,"_blank");
+  setTimeout(()=>URL.revokeObjectURL(url),120000);
+}
+
 document.getElementById("region-filters").addEventListener("click",e=>{
   const pill=e.target.closest(".pill");if(!pill)return;
   activeRegion=pill.dataset.filter;
-  document.querySelectorAll("#region-filters .pill").forEach(p=>{
-    const a=p===pill;p.classList.toggle("active",a);
-    p.style.background=a?"#111":"#fff";p.style.color=a?"#fff":"#111";p.style.borderColor=a?"#111":"#444";
-  });
+  document.querySelectorAll("#region-filters .pill").forEach(p=>{const a=p===pill;p.classList.toggle("active",a);p.style.background=a?"#111":"#fff";p.style.color=a?"#fff":"#111";p.style.borderColor=a?"#111":"#444";});
   renderContent();
 });
-
 document.getElementById("search-btn").onclick=()=>{
+  searchQuery=document.getElementById("search-input").value.trim();
+  if(searchQuery)addH(searchQuery);
   activeRegion="all";activeTagFilters.clear();renderMyTagsRow();
-  document.querySelectorAll("#region-filters .pill").forEach((p,i)=>{
-    p.classList.toggle("active",i===0);
-    p.style.background=i===0?"#111":"#fff";p.style.color=i===0?"#fff":"#111";p.style.borderColor=i===0?"#111":"#444";
-  });
-  fetchNews(document.getElementById("search-input").value.trim());
+  document.querySelectorAll("#region-filters .pill").forEach((p,i)=>{p.classList.toggle("active",i===0);p.style.background=i===0?"#111":"#fff";p.style.color=i===0?"#fff":"#111";p.style.borderColor=i===0?"#111":"#444";});
+  renderContent();
 };
 document.getElementById("search-input").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("search-btn").click();});
 
-fetchNews("");
-loadDirtyNews();
+loadFeeds();
 </script>
 </body>
 </html>
