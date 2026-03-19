@@ -347,12 +347,12 @@ const THEMES=[
   {id:"white",    label:"White",    bg:"#d0d0d0",css:`background-color:#d0d0d0;background-image:radial-gradient(#b0b0b0 1px,transparent 1px);background-size:20px 20px;`},
   {id:"dark",     label:"Dark",     bg:"#141414",css:`background-color:#141414;background-image:radial-gradient(#2a2a2a 1px,transparent 1px);background-size:20px 20px;`},
   {id:"slate",    label:"Slate",    bg:"#1e293b",css:`background-color:#1e293b;background-image:linear-gradient(rgba(148,163,184,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,.07) 1px,transparent 1px);background-size:32px 32px;`},
-  {id:"spring",   label:"Spring",   bg:"#2d5a3d",css:`background-color:#2d5a3d;background-image:radial-gradient(rgba(255,255,255,.12) 1px,transparent 1px);background-size:16px 16px;`},
-  {id:"summer",   label:"Summer",   bg:"#78520a",css:`background-color:#78520a;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0px,rgba(255,255,255,.04) 1px,transparent 1px,transparent 50%);background-size:14px 14px;`},
-  {id:"autumn",   label:"Autumn",   bg:"#5c1e04",css:`background-color:#5c1e04;background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.05) 0px,rgba(255,255,255,.05) 1px,transparent 1px,transparent 8px),repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0px,rgba(255,255,255,.05) 1px,transparent 1px,transparent 8px);`},
-  {id:"winter",   label:"Winter",   bg:"#0f2240",css:`background-color:#0f2240;background-image:linear-gradient(rgba(147,197,253,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(147,197,253,.08) 1px,transparent 1px);background-size:24px 24px;`},
+  {id:"spring",   label:"Spring",   bg:"#d4ead9",css:`background-color:#d4ead9;background-image:radial-gradient(#b8d9bf 1.5px,transparent 1.5px);background-size:20px 20px;`},
+  {id:"summer",   label:"Summer",   bg:"#fef3c7",css:`background-color:#fef3c7;background-image:repeating-linear-gradient(45deg,rgba(251,191,36,.12) 0px,rgba(251,191,36,.12) 1px,transparent 1px,transparent 14px);background-size:14px 14px;`},
+  {id:"autumn",   label:"Autumn",   bg:"#fde8d8",css:`background-color:#fde8d8;background-image:repeating-linear-gradient(-45deg,rgba(234,88,12,.08) 0px,rgba(234,88,12,.08) 1px,transparent 1px,transparent 8px),repeating-linear-gradient(45deg,rgba(234,88,12,.08) 0px,rgba(234,88,12,.08) 1px,transparent 1px,transparent 8px);`},
+  {id:"winter",   label:"Winter",   bg:"#dbeafe",css:`background-color:#dbeafe;background-image:linear-gradient(rgba(147,197,253,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(147,197,253,.35) 1px,transparent 1px);background-size:24px 24px;`},
   {id:"storm",    label:"Storm",    bg:"#050810",css:`background-color:#050810;background-image:repeating-linear-gradient(135deg,rgba(99,120,180,.08) 0px,rgba(99,120,180,.08) 1px,transparent 1px,transparent 12px);`},
-  {id:"fog",      label:"Fog",      bg:"#4a4a4a",css:`background-color:#4a4a4a;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0px,rgba(255,255,255,.04) 1px,transparent 1px,transparent 18px);`},
+  {id:"fog",      label:"Fog",      bg:"#ece9e4",css:`background-color:#ece9e4;background-image:repeating-linear-gradient(0deg,rgba(180,170,160,.18) 0px,rgba(180,170,160,.18) 1px,transparent 1px,transparent 18px);`},
   {id:"blizzard", label:"Blizzard", bg:"#1a2e50",css:`background-color:#1a2e50;background-image:radial-gradient(rgba(219,234,254,.15) 1px,transparent 1px),radial-gradient(rgba(219,234,254,.08) 1px,transparent 1px);background-size:24px 24px,12px 12px;background-position:0 0,6px 6px;`},
   {id:"heatwave", label:"Heat",     bg:"#4a1400",css:`background-color:#4a1400;background-image:repeating-linear-gradient(60deg,rgba(255,120,0,.06) 0px,rgba(255,120,0,.06) 1px,transparent 1px,transparent 10px),repeating-linear-gradient(-60deg,rgba(255,120,0,.06) 0px,rgba(255,120,0,.06) 1px,transparent 1px,transparent 10px);`},
   {id:"wildfire", label:"Wildfire", bg:"#0a0000",css:`background-color:#0a0000;background-image:radial-gradient(rgba(180,20,0,.2) 1px,transparent 1px);background-size:18px 18px;`},
@@ -654,7 +654,7 @@ function applyTheme(id){
       appEl.style[camel]=val;
     }
   });
-  const isDark=["dark","slate","storm","wildfire","flood","volcano","tornado","winter","blizzard","heatwave","autumn"].includes(id);
+  const isDark=["dark","slate","storm","wildfire","flood","volcano","tornado","blizzard","heatwave"].includes(id);
   document.documentElement.style.setProperty("--text",isDark?"#f0f0f0":"#111111");
   document.documentElement.style.setProperty("--text-muted",isDark?"#aaaaaa":"#666666");
   document.querySelectorAll(".swatch-thumb").forEach(e=>e.classList.remove("active"));
