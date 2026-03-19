@@ -1108,18 +1108,13 @@ async function openStoryViewer(idx){
   const c=allClusters[idx];if(!c)return;
   const bias=calcBias(c.sources);
   const col=RC[c.region]||{bg:"#ddd",color:"#111"};
-  const key=geminiKey;
-  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#1a56db";
-  const bodyBg=document.body.style.backgroundColor||"#e0e0e0";
-  const textColor=getComputedStyle(document.documentElement).getPropertyValue("--text").trim()||"#111";
-  const mutedColor=getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim()||"#666";
-  const borderColor="rgba(128,128,128,0.25)";
-  const cardBg="#ffffff";
 
-  // Safely encode all dynamic data as JSON - no template literal escaping needed
-  const dataJSON=JSON.stringify({
-    key:key,
+  // Collect all theme vars from parent page
+  const cs=getComputedStyle(document.documentElement);
+  const D={
+    key:geminiKey,
     headline:c.headline,
+    excerpt:c.excerpt||"",
     region:c.region,
     topic:c.topic,
     tags:c.tags||[],
@@ -1127,95 +1122,63 @@ async function openStoryViewer(idx){
     bias:bias,
     regionBg:col.bg,
     regionColor:col.color,
-    accent:accent,
-    bodyBg:bodyBg,
-    textColor:textColor,
-    mutedColor:mutedColor,
-    borderColor:borderColor,
-    cardBg:cardBg
-  });
+    accent:cs.getPropertyValue("--accent").trim()||"#1a56db",
+    bodyBg:document.body.style.backgroundColor||"#e0e0e0",
+    textColor:cs.getPropertyValue("--text").trim()||"#111",
+    mutedColor:cs.getPropertyValue("--text-muted").trim()||"#666"
+  };
 
-  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+c.headline.replace(/</g,'&lt;')+'</title>'
-  +'<script type="application/json" id="wwn-data">'+dataJSON+'<'+'/script>'
-  +'<style>'
-  +'*{box-sizing:border-box;margin:0;padding:0;}'
-  +'body{font-family:Verdana,Geneva,sans-serif;padding:2rem;max-width:960px;margin:0 auto;}'
-  +'h1{font-family:Georgia,serif;font-size:24px;font-weight:700;margin-bottom:.75rem;line-height:1.35;}'
-  +'.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.75rem;}'
-  +'.rb{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}'
-  +'.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1.25rem;}'
-  +'.tag{padding:3px 10px;border-radius:99px;border:1px solid #ccc;font-size:10px;font-weight:700;}'
-  +'.bs{border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;border:1px solid #ccc;}'
-  +'.bst{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;}'
-  +'.bsr{display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;font-weight:700;}'
-  +'.bt{height:8px;border-radius:4px;overflow:hidden;display:flex;background:rgba(128,128,128,.2);}'
-  +'.sl{background:#1a4eb0;}.sc{background:#16a34a;}.sr{background:#c0392b;}'
-  +'.st{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;}'
-  +'.card{border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;border:1px solid #ccc;background:#fff;}'
-  +'.card-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.65rem;}'
-  +'.sn{font-size:15px;font-weight:700;margin-bottom:3px;}'
-  +'.lean{display:inline-flex;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;}'
-  +'.left,.left_center{background:#dbeafe;color:#1e3a8a;}'
-  +'.center{background:#dcfce7;color:#14532d;}'
-  +'.right,.right_center{background:#fee2e2;color:#7f1d1d;}'
-  +'.btn{display:inline-block;padding:7px 18px;border-radius:99px;color:#fff;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;text-transform:uppercase;flex-shrink:0;}'
-  +'.btn:hover{opacity:.85;}'
-  +'.ai-row{border-top:1px solid #eee;padding-top:.65rem;margin-top:.1rem;}'
-  +'.ai-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem;}'
-  +'.ai-text{font-size:12px;line-height:1.65;font-style:italic;}'
-  +'.ai-btn{font-size:11px;font-weight:700;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline;}'
-  +'.note{font-size:11px;color:#777;margin-top:2rem;text-align:center;}'
-  +'</style></head><body>'
-  +'<div id="sources-list"></div>'
-  +'<p class="note">Close this tab to return to Woods Wild News</p>'
-  +'<script>'
-  +'(function(){'
-  +'var D=JSON.parse(document.getElementById("wwn-data").textContent);'
-  +'document.body.style.background=D.bodyBg;'
-  +'document.body.style.color=D.textColor;'
-  // Build header
-  +'var hdr=document.createElement("div");'
-  +'hdr.innerHTML='<div class="meta"><span class="rb" style="background:'+D.regionBg+';color:'+D.regionColor+'">'+D.region+'</span><span style="font-size:11px;font-weight:700;color:'+D.mutedColor+'">'+D.topic+'</span><span style="margin-left:auto;font-size:11px;color:'+D.mutedColor+';font-weight:700">'+D.sources.length+' sources</span></div>';'
-  +'var h1=document.createElement("h1");h1.textContent=D.headline;h1.style.color=D.textColor;hdr.appendChild(h1);'
-  // Tags
-  +'if(D.tags&&D.tags.length){var trow=document.createElement("div");trow.className="tags";D.tags.forEach(function(t){var s=document.createElement("span");s.className="tag";s.textContent=t;s.style.color=D.mutedColor;trow.appendChild(s);});hdr.appendChild(trow);}'
-  // Bias bar
-  +'var bs=document.createElement("div");bs.className="bs";bs.style.background=D.cardBg;bs.style.borderColor=D.borderColor;'
-  +'bs.innerHTML='<div class="bst" style="color:'+D.mutedColor+'">Coverage Bias — AllSides Ratings</div><div class="bsr"><span style="color:#1a4eb0">Left '+D.bias.left+'%</span><span style="color:#16a34a">Center '+D.bias.center+'%</span><span style="color:#c0392b">Right '+D.bias.right+'%</span></div><div class="bt"><div class="sl" style="width:'+D.bias.left+'%"></div><div class="sc" style="width:'+D.bias.center+'%"></div><div class="sr" style="width:'+D.bias.right+'%"></div></div>';'
-  +'hdr.appendChild(bs);'
-  // Section title
-  +'var st=document.createElement("div");st.className="st";st.style.color=D.accent;st.textContent="All Sources ("+D.sources.length+")";hdr.appendChild(st);'
-  +'var list=document.getElementById("sources-list");'
-  +'list.parentNode.insertBefore(hdr,list);'
-  // Source cards
-  +'D.sources.forEach(function(s,i){'
-  +'var card=document.createElement("div");card.className="card";card.style.background=D.cardBg;card.style.borderColor=D.borderColor;'
-  +'var top=document.createElement("div");top.className="card-top";'
-  +'var info=document.createElement("div");'
-  +'var nm=document.createElement("div");nm.className="sn";nm.textContent=s.name;nm.style.color=D.textColor;'
-  +'var lc=s.lean.replace(/-/g,"_");'
-  +'var ln=document.createElement("span");ln.className="lean "+lc;ln.textContent=s.lean;'
-  +'info.appendChild(nm);info.appendChild(ln);'
-  +'var btn=document.createElement("a");btn.href=s.url;btn.target="_blank";btn.rel="noopener noreferrer";btn.className="btn";btn.textContent="Read →";btn.style.background=D.accent;'
-  +'top.appendChild(info);top.appendChild(btn);'
-  +'var air=document.createElement("div");air.className="ai-row";'
-  +'var ail=document.createElement("div");ail.className="ai-label";ail.textContent="✨ Gemini — "+s.name+"'s angle";ail.style.color=D.accent;'
-  +'var ait=document.createElement("div");ait.className="ai-text";ait.id="ai-"+i;ait.style.color=D.mutedColor;'
-  +'if(D.key){var ab=document.createElement("button");ab.className="ai-btn";ab.textContent="Generate summary →";ab.style.color=D.accent;(function(sn,su,ii){ab.onclick=function(){getSummary(sn,su,ii);};})(s.name,s.url,i);ait.appendChild(ab);}else{ait.textContent="Add Gemini key for summaries";}'
-  +'air.appendChild(ail);air.appendChild(ait);'
-  +'card.appendChild(top);card.appendChild(air);list.appendChild(card);'
-  +'});'
-  // getSummary function
-  +'function getSummary(sn,su,i){'
-  +'var el=document.getElementById("ai-"+i);if(!el)return;'
-  +'el.innerHTML="<em>Generating...</em>";'
-  +'fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+D.key,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:"In 1-2 sentences describe how "+sn+" covers this story and what angle they bring. Headline: "+D.headline+". Be neutral."}]}]})'
-  +').then(function(r){return r.json();}).then(function(d){el.textContent=d.candidates&&d.candidates[0]&&d.candidates[0].content.parts[0].text||"Could not generate.";}).catch(function(e){el.textContent="Failed: "+e.message;});'
-  +'}'
-  +'})();'
-  +'<'+'/script>'
-  +'</body></html>';
+  // The popup is pure JS — no HTML string building with quotes
+  const script = [
+    "var D="+JSON.stringify(D)+";",
+    "document.body.style.cssText='font-family:Verdana,sans-serif;background:'+D.bodyBg+';color:'+D.textColor+';padding:2rem;max-width:960px;margin:0 auto;';",
+    "function el(tag,props,parent){var e=document.createElement(tag);Object.assign(e,props||{});if(parent)parent.appendChild(e);return e;}",
+    "function sty(e,s){Object.assign(e.style,s);return e;}",
+    // Meta row
+    "var meta=el('div',{},document.body);meta.style.cssText='display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.75rem;';",
+    "sty(el('span',{textContent:D.region},meta),{padding:'3px 10px',borderRadius:'99px',fontSize:'11px',fontWeight:'700',background:D.regionBg,color:D.regionColor});",
+    "sty(el('span',{textContent:D.topic},meta),{fontSize:'11px',fontWeight:'700',color:D.mutedColor,marginLeft:'4px'});",
+    "sty(el('span',{textContent:D.sources.length+' sources'},meta),{fontSize:'11px',color:D.mutedColor,fontWeight:'700',marginLeft:'auto'});",
+    // Headline
+    "var h1=el('h1',{textContent:D.headline},document.body);h1.style.cssText='font-family:Georgia,serif;font-size:24px;font-weight:700;margin-bottom:.75rem;line-height:1.35;color:'+D.textColor+';';",
+    // Tags
+    "if(D.tags.length){var tr=el('div',{},document.body);tr.style.cssText='display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem;';D.tags.forEach(function(t){var s=el('span',{textContent:t},tr);s.style.cssText='padding:3px 10px;border-radius:99px;border:1px solid #ccc;font-size:10px;font-weight:700;color:'+D.mutedColor+';';});}",
+    // Bias box
+    "var bs=el('div',{},document.body);bs.style.cssText='background:#fff;border:1px solid #ddd;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;';",
+    "sty(el('div',{textContent:'Coverage Bias — AllSides Ratings'},bs),{fontSize:'10px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.mutedColor,marginBottom:'.5rem'});",
+    "var bsr=el('div',{},bs);bsr.style.cssText='display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;font-weight:700;';",
+    "el('span',{textContent:'Left '+D.bias.left+'%'},bsr).style.color='#1a4eb0';",
+    "el('span',{textContent:'Center '+D.bias.center+'%'},bsr).style.color='#16a34a';",
+    "el('span',{textContent:'Right '+D.bias.right+'%'},bsr).style.color='#c0392b';",
+    "var bt=el('div',{},bs);bt.style.cssText='height:8px;border-radius:4px;overflow:hidden;display:flex;background:rgba(128,128,128,.2);';",
+    "sty(el('div',{},bt),{width:D.bias.left+'%',background:'#1a4eb0',height:'100%'});",
+    "sty(el('div',{},bt),{width:D.bias.center+'%',background:'#16a34a',height:'100%'});",
+    "sty(el('div',{},bt),{width:D.bias.right+'%',background:'#c0392b',height:'100%'});",
+    // Section title
+    "sty(el('div',{textContent:'All Sources ('+D.sources.length+')'},document.body),{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.accent,marginBottom:'1rem'});",
+    // Source cards
+    "D.sources.forEach(function(s,i){",
+    "  var card=el('div',{},document.body);card.style.cssText='background:#fff;border:1px solid #ddd;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;';",
+    "  var top=el('div',{},card);top.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.65rem;';",
+    "  var info=el('div',{},top);",
+    "  sty(el('div',{textContent:s.name},info),{fontSize:'15px',fontWeight:'700',marginBottom:'3px',color:D.textColor});",
+    "  var lc=s.lean.replace(/-/g,'_');",
+    "  var lnColors={left:'#dbeafe::#1e3a8a',left_center:'#dbeafe::#1e3a8a',center:'#dcfce7::#14532d',right_center:'#fee2e2::#7f1d1d',right:'#fee2e2::#7f1d1d'};",
+    "  var lnc=(lnColors[lc]||'#eee::#333').split('::');",
+    "  sty(el('span',{textContent:s.lean},info),{fontSize:'10px',fontWeight:'700',padding:'2px 8px',borderRadius:'99px',background:lnc[0],color:lnc[1]});",
+    "  var btn=el('a',{textContent:'Read →',href:s.url,target:'_blank'},top);btn.style.cssText='padding:7px 18px;border-radius:99px;background:'+D.accent+';color:#fff;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;text-transform:uppercase;flex-shrink:0;';",
+    "  var air=el('div',{},card);air.style.cssText='border-top:1px solid #eee;padding-top:.65rem;margin-top:.1rem;';",
+    "  sty(el('div',{textContent:'Gemini: '+s.name+' angle'},air),{fontSize:'9px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.accent,marginBottom:'.35rem'});",
+    "  var ait=el('div',{},air);ait.id='ai-'+i;ait.style.cssText='font-size:12px;line-height:1.65;font-style:italic;color:'+D.mutedColor+';';",
+    "  if(D.key){var ab=el('button',{textContent:'Generate summary'},ait);ab.style.cssText='font-size:11px;font-weight:700;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline;color:'+D.accent+';';(function(sn,su,ii){ab.onclick=function(){getSummary(sn,su,ii);};})(s.name,s.url,i);}else{ait.textContent='Add Gemini key for summaries';}",
+    "});",
+    // Footer
+    "sty(el('p',{textContent:'Close this tab to return to Woods Wild News'},document.body),{fontSize:'11px',color:'#999',marginTop:'2rem',textAlign:'center'});",
+    // getSummary
+    "function getSummary(sn,su,i){var el2=document.getElementById('ai-'+i);if(!el2)return;el2.innerHTML='<em>Generating...</em>';fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+D.key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'In 1-2 sentences describe how '+sn+' covers this story. Headline: '+D.headline}]}]})}).then(function(r){return r.json();}).then(function(d){el2.textContent=d.candidates&&d.candidates[0]?d.candidates[0].content.parts[0].text:'Could not generate.';}).catch(function(e){el2.textContent='Error: '+e.message;});}"
+  ].join("\n");
 
+  const html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>"+c.headline.replace(/</g,"&lt;")+"</title></head><body><script>"+script+"<\/script></body></html>";
   const blob=new Blob([html],{type:"text/html"});
   const url=URL.createObjectURL(blob);
   window.open(url,"_blank");
