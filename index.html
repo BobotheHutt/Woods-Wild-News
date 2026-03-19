@@ -596,6 +596,35 @@ const setBrightness=v=>{
 };
 const toggleThemePanel=()=>{const p=document.getElementById("theme-panel");const o=p.classList.toggle("open");document.getElementById("theme-arrow").textContent=o?"▼":"▲";};
 
+function applyTheme(id){
+  const t=THEMES.find(x=>x.id===id)||THEMES[0];
+  const cssProps=t.css||(`background-color:${t.bg};`);
+  cssProps.split(";").filter(s=>s.trim()).forEach(rule=>{
+    const [prop,...rest]=rule.split(":");
+    const val=rest.join(":").trim();
+    if(prop&&val){
+      const camel=prop.trim().replace(/-([a-z])/g,(_,c)=>c.toUpperCase());
+      document.body.style[camel]=val;
+      appEl.style[camel]=val;
+    }
+  });
+  const isDark=["dark","slate","storm","wildfire","flood","volcano","tornado","winter","blizzard","heatwave","autumn"].includes(id);
+  document.documentElement.style.setProperty("--text",isDark?"#f0f0f0":"#111111");
+  document.documentElement.style.setProperty("--text-muted",isDark?"#aaaaaa":"#666666");
+  document.querySelectorAll(".swatch-thumb").forEach(e=>e.classList.remove("active"));
+  const sw=document.getElementById("sw-"+id);if(sw)sw.classList.add("active");
+  localStorage.setItem("wwn_theme",id);
+}
+
+function applyAccent(color,id){
+  currentAccent=color;
+  localStorage.setItem("wwn_accent",color);
+  document.documentElement.style.setProperty("--accent",color);
+  document.querySelectorAll(".acc-dot").forEach(e=>e.classList.remove("active"));
+  const d=document.getElementById("acc-"+id);if(d)d.classList.add("active");
+  document.querySelectorAll(".tog.on,.tog.on-green").forEach(t=>{t.style.background=color;t.style.borderColor=color;});
+}
+
 function buildUI(){
   // Inject theme bar into body via JS so we never have DOM timing issues
   if(!document.getElementById("theme-bar-wrap")){
