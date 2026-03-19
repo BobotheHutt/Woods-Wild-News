@@ -244,6 +244,12 @@ button.my-tag .tag-x{font-size:12px;font-weight:700;margin-left:2px;opacity:.7;}
       <button onclick="saveGeminiKeySetting()" style="background:#1a56db">Save</button>
       <button onclick="clearGeminiKey()" style="background:#c00">Clear</button>
     </div>
+    <div class="key-setting-row" style="grid-column:1/-1">
+      <span class="setting-name">Article Cache:</span>
+      <span id="cache-status" style="font-size:11px;color:#555;flex:1">Calculating...</span>
+      <button onclick="clearArticleCache()" style="background:#c00">Clear Cache</button>
+      <button onclick="forceRefresh()" style="background:#166534">Force Refresh</button>
+    </div>
   </div>
   <div class="settings-divider">Auto-refresh interval</div>
   <div class="ar-row">
@@ -450,6 +456,32 @@ if(geminiKey)document.getElementById("gemini-key-setting").value="";
 function saveGeminiKey(){const k=document.getElementById("gemini-key-input").value.trim();if(!k)return;geminiKey=k;localStorage.setItem("gemini_key",k);document.getElementById("gemini-banner").style.display="none";showToast("✨ Gemini key saved! AI summaries enabled.");}
 function saveGeminiKeySetting(){const k=document.getElementById("gemini-key-setting").value.trim();if(!k)return;geminiKey=k;localStorage.setItem("gemini_key",k);document.getElementById("gemini-banner").style.display="none";document.getElementById("gemini-key-setting").value="";showToast("✨ Gemini key saved!");}
 function clearGeminiKey(){geminiKey="";localStorage.removeItem("gemini_key");document.getElementById("gemini-key-setting").value="";showToast("Gemini key cleared.");}
+function clearArticleCache(){
+  try{localStorage.removeItem(CACHE_KEY);}catch{}
+  showToast("Cache cleared — reloading feeds...");
+  setTimeout(()=>loadFeeds(false),500);
+}
+function forceRefresh(){
+  // Clear cache timestamps so all feeds get re-fetched
+  try{
+    const cache=loadCache();
+    Object.keys(cache).forEach(k=>{cache[k].fetchedAt=0;});
+    localStorage.setItem(CACHE_KEY,JSON.stringify(cache));
+  }catch{}
+  showToast("Force refreshing all feeds...");
+  loadFeeds(true);
+}
+function updateCacheStatus(){
+  try{
+    const cache=loadCache();
+    const keys=Object.keys(cache);
+    const totalArticles=keys.reduce((n,k)=>n+(cache[k].articles?.length||0),0);
+    const oldest=keys.reduce((min,k)=>Math.min(min,cache[k].fetchedAt||Date.now()),Date.now());
+    const ageMin=Math.round((Date.now()-oldest)/60000);
+    const el=document.getElementById("cache-status");
+    if(el)el.textContent=keys.length?`${totalArticles} articles from ${keys.length} feeds · oldest ${ageMin}m ago`:"Empty";
+  }catch{}
+}
 function dismissGemini(){localStorage.setItem("gemini_dismissed","1");document.getElementById("gemini-banner").style.display="none";}
 function showToast(msg){let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:700;z-index:9999;font-family:Verdana,sans-serif;pointer-events:none;";document.body.appendChild(t);}t.textContent=msg;t.style.opacity="1";setTimeout(()=>t.style.opacity="0",2500);}
 
@@ -510,6 +542,16 @@ function buildUI(){
 }
 buildUI();
 // Restore saved theme and accent
+// Restore auto-refresh interval and sync cache TTL
+const savedARInterval=parseInt(localStorage.getItem("wwn_ar_interval")||"60");
+arIntervalSec=savedARInterval;
+CACHE_TTL_MS=savedARInterval*1000;
+const arSlider=document.getElementById("ar-slider");
+if(arSlider){
+  const arIdx=AR_STEPS.indexOf(savedARInterval);
+  if(arIdx>=0)arSlider.value=arIdx;
+  document.getElementById("ar-val").textContent=arL(savedARInterval);
+}
 const savedTheme=localStorage.getItem("wwn_theme")||"white";
 const savedAccent=localStorage.getItem("wwn_accent")||"#1a56db";
 applyTheme(savedTheme);
@@ -532,11 +574,18 @@ function renderMyTagsRow(){
 }
 renderMyTagsRow();
 
-document.getElementById("gear-btn").addEventListener("click",function(){const o=document.getElementById("settings-panel").classList.toggle("open");this.className=o?"icon-btn active-gear":"icon-btn";});
+document.getElementById("gear-btn").addEventListener("click",function(){const o=document.getElementById("settings-panel").classList.toggle("open");this.className=o?"icon-btn active-gear":"icon-btn";if(o)updateCacheStatus();});
 document.getElementById("bias-toggle").addEventListener("click",function(){showBias=!showBias;this.className=showBias?"tog on":"tog";document.querySelectorAll(".cluster-bias").forEach(e=>e.style.display=showBias?"block":"none");});
 document.getElementById("history-toggle").addEventListener("click",function(){historyEnabled=!historyEnabled;this.className=historyEnabled?"tog on":"tog";});
 document.getElementById("ar-toggle").addEventListener("click",()=>{autoRefresh=!autoRefresh;document.getElementById("ar-toggle").className=autoRefresh?"tog on-green":"tog";autoRefresh?startAR():stopAR();});
-function onARSlider(v){arIntervalSec=AR_STEPS[parseInt(v)];document.getElementById("ar-val").textContent=arL(arIntervalSec);if(autoRefresh){stopAR();startAR();}}
+function onARSlider(v){
+  arIntervalSec=AR_STEPS[parseInt(v)];
+  document.getElementById("ar-val").textContent=arL(arIntervalSec);
+  // Sync cache TTL to match auto-refresh interval so they work together
+  CACHE_TTL_MS=arIntervalSec*1000;
+  localStorage.setItem("wwn_ar_interval",arIntervalSec);
+  if(autoRefresh){stopAR();startAR();}
+}
 const arL=s=>s<60?s+"s":s<3600?(s/60)+"min":(s/3600)+"h";
 function startAR(){stopAR();arRemaining=arIntervalSec;updCD();arTimer=setInterval(()=>{arRemaining--;updCD();if(arRemaining<=0){arRemaining=arIntervalSec;loadFeeds(true);}},1000);}
 function stopAR(){clearInterval(arTimer);arTimer=null;document.getElementById("ar-countdown").textContent="";}
@@ -668,38 +717,86 @@ function ageStr(d){
   return Math.floor(h/24)+"d ago";
 }
 
-async function loadFeeds(silent=false){
-  if(!silent)document.getElementById("content").innerHTML='<div class="loading-state">Loading news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div>';
-  
-  // Test /rss route first
-  console.log("Testing /rss route...");
-  try{
-    const test=await fetch(`/rss?url=${encodeURIComponent("https://feeds.npr.org/1001/rss.xml")}`);
-    console.log("/rss test status:", test.status, test.statusText);
-    const testText=await test.text();
-    console.log("/rss test response (first 100 chars):", testText.slice(0,100));
-  }catch(e){console.error("/rss test failed:",e.message);}
+// ── CACHE SETTINGS ──
+const CACHE_KEY = "wwn_article_cache";
+const CACHE_META_KEY = "wwn_cache_meta";
+let CACHE_TTL_MS = 5 * 60 * 1000;        // syncs with auto-refresh interval
+const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // drop articles older than 24h
 
-  // Fetch in batches
-  const all=[];
-  const batchSize=4;
-  for(let i=0;i<OUTLETS.length;i+=batchSize){
-    const batch=OUTLETS.slice(i,i+batchSize);
-    const results=await Promise.all(batch.map(o=>fetchRSS(o)));
-    results.forEach(r=>all.push(...r));
-    if(i+batchSize<OUTLETS.length) await new Promise(r=>setTimeout(r,200));
+function loadCache(){
+  try{
+    const raw = localStorage.getItem(CACHE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch{return {};}
+}
+function saveCache(cache){
+  try{
+    // Prune articles older than 24h before saving
+    const cutoff = Date.now() - CACHE_MAX_AGE_MS;
+    for(const key of Object.keys(cache)){
+      cache[key].articles = cache[key].articles.filter(a => !a.pubDate || new Date(a.pubDate) > cutoff);
+      if(!cache[key].articles.length) delete cache[key];
+    }
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  }catch(e){
+    // localStorage might be full — clear and try again
+    try{localStorage.removeItem(CACHE_KEY);}catch{}
   }
-  
-  console.log(`Loaded ${all.length} total articles from ${OUTLETS.length} feeds`);
-  
+}
+function cacheAge(outlet, cache){
+  return cache[outlet.name] ? Date.now() - cache[outlet.name].fetchedAt : Infinity;
+}
+
+async function loadFeeds(silent=false){
+  const cache = loadCache();
+  const stale = OUTLETS.filter(o => cacheAge(o, cache) > CACHE_TTL_MS);
+  const fresh = OUTLETS.filter(o => cacheAge(o, cache) <= CACHE_TTL_MS);
+
+  if(!silent){
+    if(fresh.length > 0 && stale.length < OUTLETS.length){
+      document.getElementById("content").innerHTML=`<div class="loading-state">Refreshing ${stale.length} feeds, ${fresh.length} from cache<div class="dot-pulse"><span></span><span></span><span></span></div></div>`;
+    } else {
+      document.getElementById("content").innerHTML=`<div class="loading-state">Loading ${OUTLETS.length} news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div>`;
+    }
+  }
+
+  // Fetch only stale outlets in batches
+  if(stale.length > 0){
+    const batchSize = 6;
+    for(let i = 0; i < stale.length; i += batchSize){
+      const batch = stale.slice(i, i + batchSize);
+      const results = await Promise.all(batch.map(o => fetchRSS(o)));
+      batch.forEach((outlet, j) => {
+        if(results[j].length > 0){
+          cache[outlet.name] = { fetchedAt: Date.now(), articles: results[j] };
+        } else if(!cache[outlet.name]) {
+          cache[outlet.name] = { fetchedAt: Date.now(), articles: [] };
+        } else {
+          // Keep old articles but update fetchedAt so we don't hammer a failing feed
+          cache[outlet.name].fetchedAt = Date.now();
+        }
+      });
+      if(i + batchSize < stale.length) await new Promise(r => setTimeout(r, 150));
+    }
+    saveCache(cache);
+  }
+
+  // Combine all articles from cache
+  const all = [];
+  OUTLETS.forEach(o => {
+    if(cache[o.name]) all.push(...cache[o.name].articles);
+  });
+
+  console.log(`Articles: ${all.length} total (${stale.length} feeds refreshed, ${fresh.length} from cache)`);
+
   if(!all.length){
     document.getElementById("content").innerHTML='<div class="loading-state">Could not load any feeds. Try refreshing in a moment.</div>';
     return;
   }
-  
-  // Sort by date, newest first
+
+  // Sort by date newest first
   all.sort((a,b)=>(b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0));
-  
+
   // Cluster similar headlines
   const clusters=[],used=new Set();
   all.forEach((item,i)=>{
@@ -727,13 +824,13 @@ async function loadFeeds(silent=false){
     });
     clusters.push(cluster);
   });
-  
-  // Sort: most sources first, then newest
+
   clusters.sort((a,b)=>b.sources.length-a.sources.length||((b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0)));
   allClusters=clusters.slice(0,200);
   renderContent();
   renderDirtyNews();
 }
+
 
 function clusterHTML(c,idx){
   const col=RC[c.region]||{bg:"#ccc",color:"#111"};
@@ -876,16 +973,7 @@ ${c.sources.map(s=>`<div class="card"><div><div class="sn">${s.name}</div><span 
 })();
 <\/script>
 
-<div id="theme-bar-wrap">
-  <button class="theme-toggle-btn" onclick="toggleThemePanel()">Theme <span id="theme-arrow">▲</span></button>
-  <div class="theme-panel" id="theme-panel">
-    <div class="tp-group"><div class="theme-section-label">Main Theme</div><div class="theme-swatches" id="theme-swatches"></div></div>
-    <div class="tp-divider"></div>
-    <div class="tp-group"><div class="theme-section-label">Accent</div><div class="accent-dots" id="accent-dots"></div></div>
-    <div class="tp-divider"></div>
-    <div class="tp-group"><div class="theme-section-label">Brightness</div><div class="bright-row"><input type="range" id="bright-slider" min="50" max="120" step="5" value="100" oninput="setBrightness(this.value)"><span class="bright-val" id="bright-val">100%</span></div></div>
-  </div>
-</div>
+
 </body></html>`;
   const blob=new Blob([html],{type:"text/html"});
   const url=URL.createObjectURL(blob);
