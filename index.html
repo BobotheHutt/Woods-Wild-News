@@ -1104,163 +1104,112 @@ async function openStoryViewer(idx){
   const col=RC[c.region]||{bg:"#ddd",color:"#111"};
   const key=geminiKey;
   const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#1a56db";
-  const bgColor=getComputedStyle(document.documentElement).getPropertyValue("--card-bg").trim()||"#ffffff";
-  const textColor=getComputedStyle(document.documentElement).getPropertyValue("--text").trim()||"#111111";
-  const mutedColor=getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim()||"#666666";
-  const borderColor=getComputedStyle(document.documentElement).getPropertyValue("--card-border").trim()||"#cccccc";
   const bodyBg=document.body.style.backgroundColor||"#e0e0e0";
-  const safeHeadline=c.headline.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$/g,"\\$");
+  const textColor=getComputedStyle(document.documentElement).getPropertyValue("--text").trim()||"#111";
+  const mutedColor=getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim()||"#666";
+  const borderColor="rgba(128,128,128,0.25)";
+  const cardBg="#ffffff";
 
-  // Build per-source cards with individual Gemini summary slots
-  const sourcesJSON=JSON.stringify(c.sources.map(s=>({name:s.name,lean:s.lean,url:s.url}))).replace(/`/g,'\\`').replace(/\$/g,'\\$');
-
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
-<title>${c.headline.replace(/</g,"&lt;")}</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Verdana,Geneva,sans-serif;background:${bodyBg};padding:2rem;max-width:960px;margin:0 auto;color:${textColor};}
-h1{font-family:Georgia,serif;font-size:24px;font-weight:700;margin-bottom:.75rem;line-height:1.35;color:${textColor};}
-.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.75rem;}
-.rb{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;background:${col.bg};color:${col.color};}
-.topic{font-size:11px;font-weight:700;color:${mutedColor};}
-.src-count{margin-left:auto;font-size:11px;color:${mutedColor};font-weight:700;}
-.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1.25rem;}
-.tag{padding:3px 10px;border-radius:99px;border:1px solid ${borderColor};background:${bgColor};font-size:10px;font-weight:700;color:${textColor};}
-.bs{background:${bgColor};border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;border:1px solid ${borderColor};}
-.bst{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${mutedColor};margin-bottom:.5rem;}
-.bsr{display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;font-weight:700;}
-.bt{height:8px;border-radius:4px;overflow:hidden;display:flex;background:rgba(128,128,128,.2);}
-.sl{background:#1a4eb0;}.sc{background:#16a34a;}.sr{background:#c0392b;}
-.st{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${accent};margin-bottom:1rem;}
-.card{background:${bgColor};border:1px solid ${borderColor};border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;}
-.card-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.65rem;}
-.sn{font-size:15px;font-weight:700;color:${textColor};}
-.lean{display:inline-flex;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:3px;}
-.left,.left-center{background:#dbeafe;color:#1e3a8a;}
-.center{background:#dcfce7;color:#14532d;}
-.right,.right-center{background:#fee2e2;color:#7f1d1d;}
-.btn{display:inline-block;padding:7px 18px;border-radius:99px;background:${accent};color:#fff;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;text-transform:uppercase;flex-shrink:0;}
-.btn:hover{opacity:.85;}
-.ai-row{border-top:1px solid ${borderColor};padding-top:.65rem;margin-top:.1rem;}
-.ai-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${accent};margin-bottom:.35rem;display:flex;align-items:center;gap:5px;}
-.ai-text{font-size:12px;color:${mutedColor};line-height:1.65;font-style:italic;}
-.ai-btn{font-size:10px;font-weight:700;color:${accent};background:none;border:none;cursor:pointer;padding:0;font-family:inherit;}
-.ai-btn:hover{text-decoration:underline;}
-.note{font-size:11px;color:${mutedColor};margin-top:2rem;text-align:center;}
-</style></head><body>
-<div class="meta">
-  <span class="rb">${c.region}</span>
-  <span class="topic">${c.topic}</span>
-  <span class="src-count">${c.sources.length} sources</span>
-</div>
-<h1>${c.headline}</h1>
-${c.tags&&c.tags.length?`<div class="tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>`:""}
-<div class="bs">
-  <div class="bst">Coverage bias — AllSides ratings</div>
-  <div class="bsr">
-    <span style="color:#1a4eb0">Left ${bias.left}%</span>
-    <span style="color:#166534">Center ${bias.center}%</span>
-    <span style="color:#c0392b">Right ${bias.right}%</span>
-  </div>
-  <div class="bt">
-    <div class="sl" style="width:${bias.left}%"></div>
-    <div class="sc" style="width:${bias.center}%"></div>
-    <div class="sr" style="width:${bias.right}%"></div>
-  </div>
-</div>
-<div class="st">All sources (${c.sources.length})</div>
-<div id="sources-list"></div>
-<p class="note">Close this tab to return to Wood's Wild News</p>
-<script>
-const KEY=${JSON.stringify(key)};
-const HEADLINE=${JSON.stringify(c.headline)};
-const SOURCES=${sourcesJSON};
-
-function leanClass(l){return l.replace("-","_").replace(" ","_");}
-
-async function getSummary(srcName,srcUrl,idx){
-  const el=document.getElementById("ai-"+idx);
-  if(!el)return;
-  if(!KEY){el.innerHTML='<span style="color:${mutedColor}">Add a Gemini key in Wood\'s Wild News settings for AI summaries.</span>';return;}
-  el.innerHTML='<em>Generating...</em>';
-  try{
-    const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+KEY,{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({contents:[{parts:[{text:"In 1-2 sentences, describe how "+srcName+" covers this story and what angle or perspective they bring. Story headline: "+HEADLINE+". Source URL: "+srcUrl+". Be neutral and factual."}]}]})
-    });
-    const d=await r.json();
-    const t=d.candidates?.[0]?.content?.parts?.[0]?.text;
-    el.textContent=t||"Could not generate summary.";
-  }catch(e){el.innerHTML="<span style='color:#c00'>Failed: "+e.message+"</span>";}
-}
-
-function buildSources(){
-  const list=document.getElementById("sources-list");
-  console.log("[VIEWER] buildSources called, list el:", list, "SOURCES:", SOURCES);
-  if(!list){console.error("[VIEWER] sources-list element not found!");return;}
-  if(!SOURCES||!SOURCES.length){console.error("[VIEWER] SOURCES is empty!");return;}
-  SOURCES.forEach(function(s,i){
-    const card=document.createElement("div");
-    card.className="card";
-
-    const top=document.createElement("div");
-    top.className="card-top";
-
-    const info=document.createElement("div");
-    const name=document.createElement("div");
-    name.className="sn";
-    name.textContent=s.name;
-    const lean=document.createElement("span");
-    lean.className="lean "+leanClass(s.lean);
-    lean.textContent=s.lean;
-    info.appendChild(name);
-    info.appendChild(lean);
-
-    const btn=document.createElement("a");
-    btn.href=s.url;
-    btn.target="_blank";
-    btn.rel="noopener noreferrer";
-    btn.className="btn";
-    btn.textContent="Read →";
-
-    top.appendChild(info);
-    top.appendChild(btn);
-
-    const aiRow=document.createElement("div");
-    aiRow.className="ai-row";
-
-    const aiLabel=document.createElement("div");
-    aiLabel.className="ai-label";
-    aiLabel.textContent="✨ Gemini — "+s.name+"'s angle";
-
-    const aiText=document.createElement("div");
-    aiText.className="ai-text";
-    aiText.id="ai-"+i;
-
-    if(KEY){
-      const aiBtn=document.createElement("button");
-      aiBtn.className="ai-btn";
-      aiBtn.textContent="Generate summary →";
-      aiBtn.onclick=function(){getSummary(s.name,s.url,i);};
-      aiText.appendChild(aiBtn);
-    } else {
-      const noKey=document.createElement("span");
-      noKey.style.opacity="0.6";
-      noKey.textContent="Add Gemini key for summaries";
-      aiText.appendChild(noKey);
-    }
-
-    aiRow.appendChild(aiLabel);
-    aiRow.appendChild(aiText);
-    card.appendChild(top);
-    card.appendChild(aiRow);
-    list.appendChild(card);
+  // Safely encode all dynamic data as JSON - no template literal escaping needed
+  const dataJSON=JSON.stringify({
+    key:key,
+    headline:c.headline,
+    region:c.region,
+    topic:c.topic,
+    tags:c.tags||[],
+    sources:c.sources.map(s=>({name:s.name,lean:s.lean,url:s.url})),
+    bias:bias,
+    regionBg:col.bg,
+    regionColor:col.color,
+    accent:accent,
+    bodyBg:bodyBg,
+    textColor:textColor,
+    mutedColor:mutedColor,
+    borderColor:borderColor,
+    cardBg:cardBg
   });
-}
 
-document.addEventListener('DOMContentLoaded', function(){ buildSources(); });
-<\/script>
-</body></html>`;
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+c.headline.replace(/</g,'&lt;')+'</title>'
+  +'<script type="application/json" id="wwn-data">'+dataJSON+'<'+'/script>'
+  +'<style>'
+  +'*{box-sizing:border-box;margin:0;padding:0;}'
+  +'body{font-family:Verdana,Geneva,sans-serif;padding:2rem;max-width:960px;margin:0 auto;}'
+  +'h1{font-family:Georgia,serif;font-size:24px;font-weight:700;margin-bottom:.75rem;line-height:1.35;}'
+  +'.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.75rem;}'
+  +'.rb{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}'
+  +'.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1.25rem;}'
+  +'.tag{padding:3px 10px;border-radius:99px;border:1px solid #ccc;font-size:10px;font-weight:700;}'
+  +'.bs{border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;border:1px solid #ccc;}'
+  +'.bst{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;}'
+  +'.bsr{display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;font-weight:700;}'
+  +'.bt{height:8px;border-radius:4px;overflow:hidden;display:flex;background:rgba(128,128,128,.2);}'
+  +'.sl{background:#1a4eb0;}.sc{background:#16a34a;}.sr{background:#c0392b;}'
+  +'.st{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;}'
+  +'.card{border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;border:1px solid #ccc;background:#fff;}'
+  +'.card-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.65rem;}'
+  +'.sn{font-size:15px;font-weight:700;margin-bottom:3px;}'
+  +'.lean{display:inline-flex;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;}'
+  +'.left,.left_center{background:#dbeafe;color:#1e3a8a;}'
+  +'.center{background:#dcfce7;color:#14532d;}'
+  +'.right,.right_center{background:#fee2e2;color:#7f1d1d;}'
+  +'.btn{display:inline-block;padding:7px 18px;border-radius:99px;color:#fff;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;text-transform:uppercase;flex-shrink:0;}'
+  +'.btn:hover{opacity:.85;}'
+  +'.ai-row{border-top:1px solid #eee;padding-top:.65rem;margin-top:.1rem;}'
+  +'.ai-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem;}'
+  +'.ai-text{font-size:12px;line-height:1.65;font-style:italic;}'
+  +'.ai-btn{font-size:11px;font-weight:700;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline;}'
+  +'.note{font-size:11px;color:#777;margin-top:2rem;text-align:center;}'
+  +'</style></head><body>'
+  +'<div id="sources-list"></div>'
+  +'<p class="note">Close this tab to return to Wood's Wild News</p>'
+  +'<script>'
+  +'(function(){'
+  +'var D=JSON.parse(document.getElementById("wwn-data").textContent);'
+  +'document.body.style.background=D.bodyBg;'
+  +'document.body.style.color=D.textColor;'
+  // Build header
+  +'var hdr=document.createElement("div");'
+  +'hdr.innerHTML='<div class="meta"><span class="rb" style="background:'+D.regionBg+';color:'+D.regionColor+'">'+D.region+'</span><span style="font-size:11px;font-weight:700;color:'+D.mutedColor+'">'+D.topic+'</span><span style="margin-left:auto;font-size:11px;color:'+D.mutedColor+';font-weight:700">'+D.sources.length+' sources</span></div>';'
+  +'var h1=document.createElement("h1");h1.textContent=D.headline;h1.style.color=D.textColor;hdr.appendChild(h1);'
+  // Tags
+  +'if(D.tags&&D.tags.length){var trow=document.createElement("div");trow.className="tags";D.tags.forEach(function(t){var s=document.createElement("span");s.className="tag";s.textContent=t;s.style.color=D.mutedColor;trow.appendChild(s);});hdr.appendChild(trow);}'
+  // Bias bar
+  +'var bs=document.createElement("div");bs.className="bs";bs.style.background=D.cardBg;bs.style.borderColor=D.borderColor;'
+  +'bs.innerHTML='<div class="bst" style="color:'+D.mutedColor+'">Coverage Bias — AllSides Ratings</div><div class="bsr"><span style="color:#1a4eb0">Left '+D.bias.left+'%</span><span style="color:#16a34a">Center '+D.bias.center+'%</span><span style="color:#c0392b">Right '+D.bias.right+'%</span></div><div class="bt"><div class="sl" style="width:'+D.bias.left+'%"></div><div class="sc" style="width:'+D.bias.center+'%"></div><div class="sr" style="width:'+D.bias.right+'%"></div></div>';'
+  +'hdr.appendChild(bs);'
+  // Section title
+  +'var st=document.createElement("div");st.className="st";st.style.color=D.accent;st.textContent="All Sources ("+D.sources.length+")";hdr.appendChild(st);'
+  +'var list=document.getElementById("sources-list");'
+  +'list.parentNode.insertBefore(hdr,list);'
+  // Source cards
+  +'D.sources.forEach(function(s,i){'
+  +'var card=document.createElement("div");card.className="card";card.style.background=D.cardBg;card.style.borderColor=D.borderColor;'
+  +'var top=document.createElement("div");top.className="card-top";'
+  +'var info=document.createElement("div");'
+  +'var nm=document.createElement("div");nm.className="sn";nm.textContent=s.name;nm.style.color=D.textColor;'
+  +'var lc=s.lean.replace(/-/g,"_");'
+  +'var ln=document.createElement("span");ln.className="lean "+lc;ln.textContent=s.lean;'
+  +'info.appendChild(nm);info.appendChild(ln);'
+  +'var btn=document.createElement("a");btn.href=s.url;btn.target="_blank";btn.rel="noopener noreferrer";btn.className="btn";btn.textContent="Read →";btn.style.background=D.accent;'
+  +'top.appendChild(info);top.appendChild(btn);'
+  +'var air=document.createElement("div");air.className="ai-row";'
+  +'var ail=document.createElement("div");ail.className="ai-label";ail.textContent="✨ Gemini — "+s.name+"'s angle";ail.style.color=D.accent;'
+  +'var ait=document.createElement("div");ait.className="ai-text";ait.id="ai-"+i;ait.style.color=D.mutedColor;'
+  +'if(D.key){var ab=document.createElement("button");ab.className="ai-btn";ab.textContent="Generate summary →";ab.style.color=D.accent;(function(sn,su,ii){ab.onclick=function(){getSummary(sn,su,ii);};})(s.name,s.url,i);ait.appendChild(ab);}else{ait.textContent="Add Gemini key for summaries";}'
+  +'air.appendChild(ail);air.appendChild(ait);'
+  +'card.appendChild(top);card.appendChild(air);list.appendChild(card);'
+  +'});'
+  // getSummary function
+  +'function getSummary(sn,su,i){'
+  +'var el=document.getElementById("ai-"+i);if(!el)return;'
+  +'el.innerHTML="<em>Generating...</em>";'
+  +'fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+D.key,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:"In 1-2 sentences describe how "+sn+" covers this story and what angle they bring. Headline: "+D.headline+". Be neutral."}]}]})'
+  +').then(function(r){return r.json();}).then(function(d){el.textContent=d.candidates&&d.candidates[0]&&d.candidates[0].content.parts[0].text||"Could not generate.";}).catch(function(e){el.textContent="Failed: "+e.message;});'
+  +'}'
+  +'})();'
+  +'<'+'/script>'
+  +'</body></html>';
+
   const blob=new Blob([html],{type:"text/html"});
   const url=URL.createObjectURL(blob);
   window.open(url,"_blank");
