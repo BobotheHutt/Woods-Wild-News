@@ -270,6 +270,20 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
       <button onclick="saveGeminiKeySetting()" style="background:#1a56db">Save</button>
       <button onclick="clearGeminiKey()" style="background:#c00">Clear</button>
     </div>
+    <div class="key-setting-row" style="grid-column:1/-1;flex-wrap:wrap;gap:6px;">
+      <span class="setting-name">Local News ZIP:</span>
+      <input type="text" id="zip-input" placeholder="e.g. 99301" maxlength="5" style="max-width:80px;">
+      <select id="zip-radius" style="padding:4px 8px;border-radius:5px;border:1.5px solid #aaa;font-family:inherit;font-size:11px;">
+        <option value="10">10 miles</option>
+        <option value="25" selected>25 miles</option>
+        <option value="50">50 miles</option>
+        <option value="100">100 miles</option>
+        <option value="250">250 miles</option>
+      </select>
+      <button onclick="saveZip()" style="background:#1a56db;color:#fff;border:none;padding:4px 10px;border-radius:5px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">Save</button>
+      <button onclick="clearZip()" style="background:#c00;color:#fff;border:none;padding:4px 10px;border-radius:5px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">Clear</button>
+      <span id="zip-location" style="font-size:11px;color:#555;width:100%;margin-top:2px;"></span>
+    </div>
     <div class="key-setting-row" style="grid-column:1/-1">
       <span class="setting-name">Article Cache:</span>
       <span id="cache-status" style="font-size:11px;color:#555;flex:1">Calculating...</span>
@@ -476,7 +490,7 @@ let CACHE_TTL_MS = 5 * 60 * 1000;        // syncs with auto-refresh interval
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // drop articles older than 24h
 const arL=s=>s<60?s+"s":s<3600?(s/60)+"min":(s/3600)+"h";
 
-let allClusters=[],activeFilter="all",searchQuery="",allsidesOnly=true;
+let allClusters=[],activeFilter="all",searchQuery="",allsidesOnly=true,userZip="",userCity="",userState="",userCounty="",userRadius=25,userLat=null,userLng=null;
 let myTags=new Set(),activeTagFilters=new Set();
 let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
@@ -488,6 +502,15 @@ try{bookmarks=JSON.parse(localStorage.getItem("wp_bm")||"[]");}catch{}
 try{searchHistory=JSON.parse(localStorage.getItem("wp_sh")||"[]");}catch{}
 try{myTags=new Set(JSON.parse(localStorage.getItem("wp_tags")||"[]"));}catch{}
 try{geminiKey=localStorage.getItem("gemini_key")||"";}catch{}
+try{
+  userZip=localStorage.getItem("wwn_zip")||"";
+  userCity=localStorage.getItem("wwn_city")||"";
+  userState=localStorage.getItem("wwn_state")||"";
+  userCounty=localStorage.getItem("wwn_county")||"";
+  userRadius=parseInt(localStorage.getItem("wwn_radius")||"25");
+  userLat=parseFloat(localStorage.getItem("wwn_lat")||"0")||null;
+  userLng=parseFloat(localStorage.getItem("wwn_lng")||"0")||null;
+}catch{}
 
 const saveB=()=>{try{localStorage.setItem("wp_bm",JSON.stringify(bookmarks));}catch{}};
 const saveH=()=>{try{localStorage.setItem("wp_sh",JSON.stringify(searchHistory));}catch{}};
@@ -503,6 +526,58 @@ if(geminiKey)document.getElementById("gemini-key-setting").value="";
 function saveGeminiKey(){const k=document.getElementById("gemini-key-input").value.trim();if(!k)return;geminiKey=k;localStorage.setItem("gemini_key",k);document.getElementById("gemini-banner").style.display="none";showToast("✨ Gemini key saved! AI summaries enabled.");}
 function saveGeminiKeySetting(){const k=document.getElementById("gemini-key-setting").value.trim();if(!k)return;geminiKey=k;localStorage.setItem("gemini_key",k);document.getElementById("gemini-banner").style.display="none";document.getElementById("gemini-key-setting").value="";showToast("✨ Gemini key saved!");}
 function clearGeminiKey(){geminiKey="";localStorage.removeItem("gemini_key");document.getElementById("gemini-key-setting").value="";showToast("Gemini key cleared.");}
+
+async function saveZip(){
+  const z=(document.getElementById("zip-input").value||"").trim();
+  const r=parseInt(document.getElementById("zip-radius")?.value||"25");
+  if(!z||!/^\d{5}$/.test(z)){showToast("Enter a valid 5-digit ZIP");return;}
+  const locEl=document.getElementById("zip-location");
+  locEl.textContent="Looking up...";
+  try{
+    // zippopotam.us - free, no key needed
+    const res=await fetch("https://api.zippopotam.us/us/"+z);
+    if(!res.ok){locEl.textContent="ZIP not found";showToast("ZIP code not found");return;}
+    const data=await res.json();
+    const place=data.places[0];
+    userZip=z;
+    userCity=place["place name"];
+    userState=place["state abbreviation"];
+    userCounty=place["state"]||"";
+    userLat=parseFloat(place.latitude);
+    userLng=parseFloat(place.longitude);
+    userRadius=r;
+    localStorage.setItem("wwn_zip",userZip);
+    localStorage.setItem("wwn_city",userCity);
+    localStorage.setItem("wwn_state",userState);
+    localStorage.setItem("wwn_county",userCounty);
+    localStorage.setItem("wwn_lat",userLat);
+    localStorage.setItem("wwn_lng",userLng);
+    localStorage.setItem("wwn_radius",userRadius);
+    const msg=userCity+", "+userState+" ("+r+" mile radius)";
+    locEl.textContent=msg;
+    showToast("Local news: "+msg);
+    try{localStorage.removeItem(CACHE_KEY);}catch{}
+    loadFeeds(false);
+  }catch(e){locEl.textContent="Lookup failed — check connection";showToast("ZIP lookup failed");}
+}
+
+function clearZip(){
+  userZip="";userCity="";userState="";userCounty="";userLat=null;userLng=null;userRadius=25;
+  ["wwn_zip","wwn_city","wwn_state","wwn_county","wwn_lat","wwn_lng","wwn_radius"].forEach(k=>{try{localStorage.removeItem(k);}catch{}});
+  const zi=document.getElementById("zip-input");if(zi)zi.value="";
+  const zl=document.getElementById("zip-location");if(zl)zl.textContent="";
+  showToast("Local ZIP cleared");
+}
+
+// Get search terms for local news based on zip + radius
+function getLocalSearchTerms(){
+  if(!userCity)return [];
+  const terms=[userCity];
+  // Add nearby cities/regions based on radius using state
+  if(userRadius>=25)terms.push(userState);
+  if(userRadius>=50&&userCounty)terms.push(userCounty.replace(" County",""));
+  return terms;
+}
 function clearArticleCache(){
   try{localStorage.removeItem(CACHE_KEY);}catch{}
   showToast("Cache cleared — reloading feeds...");
@@ -713,7 +788,17 @@ function toggleTagManager(){
 }
 renderMyTagsRow();
 
-document.getElementById("gear-btn").addEventListener("click",function(){const o=document.getElementById("settings-panel").classList.toggle("open");this.className=o?"icon-btn active-gear":"icon-btn";if(o)updateCacheStatus();});
+document.getElementById("gear-btn").addEventListener("click",function(){
+  const o=document.getElementById("settings-panel").classList.toggle("open");
+  this.className=o?"icon-btn active-gear":"icon-btn";
+  if(o){
+    updateCacheStatus();
+    const zi=document.getElementById("zip-input");if(zi&&userZip)zi.value=userZip;
+    const zr=document.getElementById("zip-radius");if(zr&&userRadius)zr.value=userRadius;
+    const zl=document.getElementById("zip-location");
+    if(zl&&userCity)zl.textContent=userCity+", "+userState+" ("+userRadius+" mile radius)";
+  }
+});
 document.getElementById("bias-toggle").addEventListener("click",function(){showBias=!showBias;this.className=showBias?"tog on":"tog";document.querySelectorAll(".cluster-bias").forEach(e=>e.style.display=showBias?"block":"none");});
 document.getElementById("history-toggle").addEventListener("click",function(){historyEnabled=!historyEnabled;this.className=historyEnabled?"tog on":"tog";});
 document.getElementById("allsides-toggle").addEventListener("click",function(){
@@ -912,7 +997,21 @@ function cacheAge(outlet, cache){
 
 async function loadFeeds(silent=false){
   const cache = loadCache();
-  const activeOutlets = allsidesOnly ? OUTLETS : [...OUTLETS, ...GOOGLE_NEWS_FEEDS];
+  // Add local Google News feed if zip is set
+  let localFeeds=[];
+  if(userCity){
+    const localQ=encodeURIComponent(userCity+(userRadius>=25?","+userState:""));
+    localFeeds=[{
+      name:"Local News — "+userCity+", "+userState,
+      lean:"center",
+      rss:"https://news.google.com/rss/search?q="+localQ+"&ceid=US:en&hl=en-US&gl=US"
+    }];
+    if(userRadius>=50&&userCounty){
+      const countyQ=encodeURIComponent(userCounty+" "+userState);
+      localFeeds.push({name:"Local News — "+userCounty,lean:"center",rss:"https://news.google.com/rss/search?q="+countyQ+"&ceid=US:en&hl=en-US&gl=US"});
+    }
+  }
+  const activeOutlets = [...(allsidesOnly ? OUTLETS : [...OUTLETS, ...GOOGLE_NEWS_FEEDS]),...localFeeds];
   const stale = activeOutlets.filter(o => cacheAge(o, cache) > CACHE_TTL_MS);
   const fresh = activeOutlets.filter(o => cacheAge(o, cache) <= CACHE_TTL_MS);
 
@@ -1069,7 +1168,15 @@ function filterClusters(){
     f=f.filter(c=>c.region===activeFilter||c.topic===activeFilter);
   }
   // Local = US & Americas region (closest approximation without geolocation)
-  if(activeFilter==="local") f=f.filter(c=>c.region==="US & Americas");
+  if(activeFilter==="local"){
+    if(userCity){
+      const terms=getLocalSearchTerms().map(t=>t.toLowerCase());
+      f=f.filter(c=>{const txt=(c.headline+" "+(c.excerpt||"")).toLowerCase();return terms.some(t=>txt.includes(t));});
+      if(!f.length)f=allClusters.filter(c=>c.region==="US & Americas");
+    } else {
+      f=f.filter(c=>c.region==="US & Americas");
+    }
+  }
   if(searchQuery){const q=searchQuery.toLowerCase();f=f.filter(c=>c.headline.toLowerCase().includes(q)||(c.excerpt||"").toLowerCase().includes(q));}
   if(activeTagFilters.size>0)f=f.filter(c=>[...activeTagFilters].some(t=>(c.tags||[]).includes(t)));
   return f;
