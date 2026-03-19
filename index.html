@@ -467,10 +467,24 @@ function stripHTML(h){return(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&")
 async function fetchRSS(outlet){
   try{
     const res=await fetch(`/rss?url=${encodeURIComponent(outlet.rss)}`,{signal:AbortSignal.timeout(10000)});
-    if(!res.ok)return[];
+    if(!res.ok){
+      console.warn(`${outlet.name}: HTTP ${res.status}`);
+      return[];
+    }
     const text=await res.text();
+    if(!text||text.length<100){
+      console.warn(`${outlet.name}: empty response`);
+      return[];
+    }
     const doc=new DOMParser().parseFromString(text,"text/xml");
+    // Check for XML parse errors
+    const parseErr=doc.querySelector("parsererror");
+    if(parseErr){
+      console.warn(`${outlet.name}: XML parse error`,parseErr.textContent.slice(0,80));
+      return[];
+    }
     const items=[...doc.querySelectorAll("item, entry")];
+    if(outlet.name==="NPR") console.log(`NPR: found ${items.length} items`);
     return items.slice(0,15).map(item=>{
       const title=stripHTML(item.querySelector("title")?.textContent||"");
       const link=(item.querySelector("link")?.textContent||item.querySelector("link")?.getAttribute("href")||"").trim();
@@ -479,7 +493,7 @@ async function fetchRSS(outlet){
       return title&&link?{title,link,desc,pubDate,outlet}:null;
     }).filter(Boolean);
   }catch(e){
-    console.warn(`Feed failed: ${outlet.name}`,e.message);
+    console.warn(`${outlet.name} failed:`,e.message);
     return[];
   }
 }
@@ -530,18 +544,26 @@ function ageStr(d){
 async function loadFeeds(silent=false){
   if(!silent)document.getElementById("content").innerHTML='<div class="loading-state">Loading news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div>';
   
-  // Fetch in batches to avoid overwhelming feeds
+  // Test /rss route first
+  console.log("Testing /rss route...");
+  try{
+    const test=await fetch(`/rss?url=${encodeURIComponent("https://feeds.npr.org/1001/rss.xml")}`);
+    console.log("/rss test status:", test.status, test.statusText);
+    const testText=await test.text();
+    console.log("/rss test response (first 100 chars):", testText.slice(0,100));
+  }catch(e){console.error("/rss test failed:",e.message);}
+
+  // Fetch in batches
   const all=[];
   const batchSize=4;
   for(let i=0;i<OUTLETS.length;i+=batchSize){
     const batch=OUTLETS.slice(i,i+batchSize);
     const results=await Promise.all(batch.map(o=>fetchRSS(o)));
     results.forEach(r=>all.push(...r));
-    // Small delay between batches to respect rate limits
-    if(i+batchSize<OUTLETS.length) await new Promise(r=>setTimeout(r,300));
+    if(i+batchSize<OUTLETS.length) await new Promise(r=>setTimeout(r,200));
   }
   
-  console.log(`Loaded ${all.length} total articles from feeds`);
+  console.log(`Loaded ${all.length} total articles from ${OUTLETS.length} feeds`);
   
   if(!all.length){
     document.getElementById("content").innerHTML='<div class="loading-state">Could not load any feeds. Try refreshing in a moment.</div>';
