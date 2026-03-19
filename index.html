@@ -623,15 +623,63 @@ const OUTLETS=[
 ];
 
 const GOOGLE_NEWS_FEEDS=[
-  {name:"Google News — Top Stories",   lean:"center", rss:"https://news.google.com/rss?ceid=US:en&hl=en-US&gl=US"},
-  {name:"Google News — World",         lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/WORLD?ceid=US:en&hl=en-US&gl=US"},
-  {name:"Google News — U.S.",          lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/NATION?ceid=US:en&hl=en-US&gl=US"},
-  {name:"Google News — Business",      lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/BUSINESS?ceid=US:en&hl=en-US&gl=US"},
-  {name:"Google News — Technology",    lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?ceid=US:en&hl=en-US&gl=US"},
-  {name:"Google News — Science",       lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/SCIENCE?ceid=US:en&hl=en-US&gl=US"},
-  {name:"Google News — Health",        lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/HEALTH?ceid=US:en&hl=en-US&gl=US"},
-  {name:"Google News — Entertainment", lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?ceid=US:en&hl=en-US&gl=US"},
-  {name:"Google News — Sports",        lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/SPORTS?ceid=US:en&hl=en-US&gl=US"},
+  // ── TOP ──
+  {name:"GN — Top Stories",        lean:"center", rss:"https://news.google.com/rss?ceid=US:en&hl=en-US&gl=US"},
+
+  // ── NATION & WORLD ──
+  {name:"GN — U.S.",               lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/NATION?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — World",              lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/WORLD?ceid=US:en&hl=en-US&gl=US"},
+
+  // ── POLITICS ──
+  {name:"GN — Politics",           lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/POLITICS?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Elections",          lean:"center", rss:"https://news.google.com/rss/search?q=election+US&ceid=US:en&hl=en-US&gl=US"},
+
+  // ── BUSINESS & ECONOMY ──
+  {name:"GN — Business",           lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/BUSINESS?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Economy",            lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/ECONOMY?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Personal Finance",   lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/PERSONAL_FINANCE?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Jobs",               lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/JOBS?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Real Estate",        lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/REAL_ESTATE?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Energy",             lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/ENERGY?ceid=US:en&hl=en-US&gl=US"},
+
+  // ── TECHNOLOGY ──
+  {name:"GN — Technology",         lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — AI",                 lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?ceid=US:en&hl=en-US&gl=US&q=artificial+intelligence"},
+  {name:"GN — Cybersecurity",      lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/CYBERSECURITY?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Internet",           lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/INTERNET?ceid=US:en&hl=en-US&gl=US"},
+
+  // ── SCIENCE & ENVIRONMENT ──
+  {name:"GN — Science",            lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/SCIENCE?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Environment",        lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/ENVIRONMENT?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Climate",            lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/CLIMATE?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Space",              lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/SPACE?ceid=US:en&hl=en-US&gl=US"},
+
+  // ── HEALTH ──
+  {name:"GN — Health",             lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/HEALTH?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Mental Health",      lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/MENTAL_HEALTH?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Nutrition",          lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/NUTRITION?ceid=US:en&hl=en-US&gl=US"},
+
+  // ── ENTERTAINMENT ──
+  {name:"GN — Entertainment",      lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Movies",             lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/MOVIES?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Music",              lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/MUSIC?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — TV",                 lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/TELEVISION?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Celebrity",          lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/CELEBRITY?ceid=US:en&hl=en-US&gl=US"},
+
+  // ── SPORTS ──
+  {name:"GN — Sports",             lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/SPORTS?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — NFL",                lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/NFL?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — NBA",                lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/NBA?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — MLB",                lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/MLB?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — NHL",                lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/NHL?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — College Sports",     lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/COLLEGE_SPORTS?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Soccer",             lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/SOCCER?ceid=US:en&hl=en-US&gl=US"},
+
+  // ── LIFESTYLE ──
+  {name:"GN — Food",               lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/FOOD?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Travel",             lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/TRAVEL?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Autos",              lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/AUTO?ceid=US:en&hl=en-US&gl=US"},
+  {name:"GN — Education",          lean:"center", rss:"https://news.google.com/rss/headlines/section/topic/EDUCATION?ceid=US:en&hl=en-US&gl=US"},
 ];
 
 
@@ -1202,19 +1250,51 @@ function cacheAge(outlet, cache){
 }
 
 async function loadFeeds(silent=false){
+  // Try server-side KV cache first
+  try {
+    const res = await fetch("/api/news");
+    if (res.ok) {
+      const data = await res.json();
+      if (data.clusters && data.clusters.length) {
+        allClusters = data.clusters.slice(0, 500);
+        // Apply local filter if zip set
+        if (!silent) {
+          renderContent();
+          setTimeout(initScrollObserver, 100);
+          renderDirtyNews();
+          const age = data.built ? Math.round((Date.now()-new Date(data.built).getTime())/60000) : null;
+          if (age !== null) showToast(`${data.clusters.length} stories · updated ${age}m ago`);
+        } else {
+          renderDirtyNews();
+          showToast("Feeds updated — scroll up for new stories");
+        }
+        return;
+      }
+    }
+  } catch(e) {
+    console.warn("[WWN] KV cache unavailable, falling back to direct fetch:", e.message);
+  }
+
+  // Fallback: direct RSS fetching (original behavior)
+  await loadFeedsDirect(silent);
+}
+
+async function loadFeedsDirect(silent=false){
   const cache = loadCache();
-  // Add local Google News feed if zip is set
+  // Add local Google News feeds if zip is set
   let localFeeds=[];
   if(userCity){
-    const localQ=encodeURIComponent(userCity+(userRadius>=25?","+userState:""));
-    localFeeds=[{
-      name:"Local News — "+userCity+", "+userState,
-      lean:"center",
-      rss:"https://news.google.com/rss/search?q="+localQ+"&ceid=US:en&hl=en-US&gl=US"
-    }];
-    if(userRadius>=50&&userCounty){
-      const countyQ=encodeURIComponent(userCounty+" "+userState);
-      localFeeds.push({name:"Local News — "+userCounty,lean:"center",rss:"https://news.google.com/rss/search?q="+countyQ+"&ceid=US:en&hl=en-US&gl=US"});
+    const city=userCity, state=userState, county=userCounty;
+    const base="&ceid=US:en&hl=en-US&gl=US";
+    const q=s=>"https://news.google.com/rss/search?q="+encodeURIComponent(s)+base;
+    localFeeds.push({name:"Local — "+city,lean:"center",rss:q(city+" "+state)});
+    localFeeds.push({name:"Local — "+city+" news",lean:"center",rss:q(city+" "+state+" news")});
+    if(userRadius>=25){
+      if(county) localFeeds.push({name:"Local — "+county,lean:"center",rss:q(county+" "+state)});
+      localFeeds.push({name:"Local — "+state+" local news",lean:"center",rss:q(state+" local news")});
+    }
+    if(userRadius>=50){
+      localFeeds.push({name:"Local — "+city+" region",lean:"center",rss:q(city+" region "+state)});
     }
   }
   const activeOutlets = [...(allsidesOnly ? OUTLETS : [...OUTLETS, ...GOOGLE_NEWS_FEEDS]),...localFeeds];
@@ -1225,93 +1305,66 @@ async function loadFeeds(silent=false){
     if(fresh.length > 0 && stale.length < activeOutlets.length){
       document.getElementById("content").innerHTML=`<div class="loading-state">Refreshing ${stale.length} feeds, ${fresh.length} from cache<div class="dot-pulse"><span></span><span></span><span></span></div></div>`;
     } else {
-      document.getElementById("content").innerHTML=`<div class="loading-state">Loading ${activeOutlets.length} news feeds ${allsidesOnly?'(AllSides sources)':'(Full Google News)'}<div class="dot-pulse"><span></span><span></span><span></span></div></div>`;
+      document.getElementById("content").innerHTML=`<div class="loading-state">Loading ${activeOutlets.length} news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div>`;
     }
   }
 
-  // Fetch only stale outlets in batches
   if(stale.length > 0){
     const batchSize = 6;
     for(let i = 0; i < stale.length; i += batchSize){
       const batch = stale.slice(i, i + batchSize);
-      const results = await Promise.all(batch.map(o => fetchRSS(o)));
-      batch.forEach((outlet, j) => {
-        if(results[j].length > 0){
-          cache[outlet.name] = { fetchedAt: Date.now(), articles: results[j] };
-        } else if(!cache[outlet.name]) {
-          cache[outlet.name] = { fetchedAt: Date.now(), articles: [] };
-        } else {
-          // Keep old articles but update fetchedAt so we don't hammer a failing feed
-          cache[outlet.name].fetchedAt = Date.now();
-        }
-      });
-      if(i + batchSize < stale.length) await new Promise(r => setTimeout(r, 150));
+      await Promise.all(batch.map(async outlet => {
+        const articles = await fetchRSS(outlet);
+        if(articles.length) cache[outlet.name] = { articles, ts: Date.now() };
+      }));
     }
     saveCache(cache);
   }
 
-  // Combine all articles from cache
   const all = [];
-  activeOutlets.forEach(o => {
-    if(cache[o.name]) all.push(...cache[o.name].articles);
-  });
-  // Debug: check how many articles have images
+  activeOutlets.forEach(o => { if(cache[o.name]) all.push(...cache[o.name].articles); });
   const withImg = all.filter(a=>a.image).length;
   console.log(`[IMG] ${withImg}/${all.length} articles have images`);
-  if(all.length > 0){
-    const sample = all.find(a=>a.image);
-    if(sample) console.log("[IMG] Sample image URL:", sample.image);
-    const noImg = all.find(a=>!a.image);
-    if(noImg) console.log("[IMG] Sample article WITHOUT image - desc:", noImg.desc?.slice(0,200));
-  }
-
-  console.log(`Articles: ${all.length} total from ${activeOutlets.length} feeds (${stale.length} refreshed, ${fresh.length} cached) — ${allsidesOnly?'AllSides only':'Full Google News'}`);
+  console.log(`Articles: ${all.length} total from ${activeOutlets.length} feeds (${stale.length} refreshed, ${fresh.length} cached)`);
 
   if(!all.length){
     document.getElementById("content").innerHTML='<div class="loading-state">Could not load any feeds. Try refreshing in a moment.</div>';
     return;
   }
 
-  // Sort by date newest first
   all.sort((a,b)=>(b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0));
 
-  // Cluster similar headlines
   const clusters=[],used=new Set();
-  all.forEach((item,i)=>{
-    if(used.has(i))return;
-    const text=item.title+" "+item.desc;
-    const region=classifyRegion(text)||item.outlet.region||"US & Americas";
-    const cluster={
-      headline:item.title,
-      excerpt:item.desc,
-      topic:classifyTopic(text),
-      region,
-      tags:extractTags(item.title),
-      pubDate:item.pubDate,
-      image:item.image||null,
-      sources:[{name:item.outlet.name,lean:item.outlet.lean,url:item.link,image:item.image||null,desc:item.desc||''}]
-    };
-    used.add(i);
-    all.forEach((other,j)=>{
-      if(used.has(j)||j===i||other.outlet.name===item.outlet.name)return;
-      if(similarity(item.title,other.title)>=0.55){
-        cluster.sources.push({name:other.outlet.name,lean:other.outlet.lean,url:other.link,image:other.image||null,desc:other.desc||''});
-        used.add(j);
-        if(!cluster.image&&other.image)cluster.image=other.image;
+  all.forEach(item=>{
+    if(used.has(item.link))return;
+    const kw=getKeywords(item.title);
+    let merged=false;
+    for(const cl of clusters){
+      if(similarity(kw,cl.kw)>=0.55){
+        if(!cl.sources.find(s=>s.url===item.link)){
+          cl.sources.push({name:item.outlet.name,lean:item.outlet.lean,url:item.link,image:item.image||null,desc:item.desc||''});
+          if(!cl.image&&item.image)cl.image=item.image;
+          if(!cl.pubDate||new Date(item.pubDate)>new Date(cl.pubDate))cl.pubDate=item.pubDate;
+        }
+        used.add(item.link);merged=true;break;
       }
-    });
-    // If no image found yet, scan all sources for any image
-    if(!cluster.image){
-      for(const s of cluster.sources){if(s.image){cluster.image=s.image;break;}}
     }
-    clusters.push(cluster);
+    if(!merged){
+      clusters.push({headline:item.title,excerpt:item.desc,image:item.image||null,pubDate:item.pubDate,topic:classifyTopic(item.title),region:classifyRegion(item.title),tags:extractTags(item.title),kw,sources:[{name:item.outlet.name,lean:item.outlet.lean,url:item.link,image:item.image||null,desc:item.desc||''}]});
+      used.add(item.link);
+    }
   });
-
   clusters.sort((a,b)=>b.sources.length-a.sources.length||((b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0)));
   allClusters=clusters.slice(0,500);
-  renderContent();
-  setTimeout(initScrollObserver, 100);
-  renderDirtyNews();
+
+  if(silent){
+    renderDirtyNews();
+    showToast("Feeds updated — scroll up for new stories");
+  } else {
+    renderContent();
+    setTimeout(initScrollObserver,100);
+    renderDirtyNews();
+  }
 }
 
 
@@ -1378,7 +1431,13 @@ function filterClusters(){
   if(activeFilter==="local"){
     if(userCity){
       const terms=getLocalSearchTerms().map(t=>t.toLowerCase());
-      f=f.filter(c=>{const txt=(c.headline+" "+(c.excerpt||"")).toLowerCase();return terms.some(t=>txt.includes(t));});
+      // Match on headline, excerpt, OR source name containing "Local"
+      f=f.filter(c=>{
+        const txt=(c.headline+" "+(c.excerpt||"")).toLowerCase();
+        const fromLocalFeed=c.sources.some(s=>s.name.startsWith("Local —"));
+        return fromLocalFeed||terms.some(t=>txt.includes(t));
+      });
+      if(!f.length)f=allClusters.filter(c=>c.sources.some(s=>s.name.startsWith("Local —")));
       if(!f.length)f=allClusters.filter(c=>c.region==="US & Americas");
     } else {
       f=f.filter(c=>c.region==="US & Americas");
