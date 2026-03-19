@@ -12,7 +12,7 @@
 body{background:#cccccc;margin:0;padding:0;}
 #app{font-family:Verdana,Geneva,Tahoma,sans-serif;max-width:1100px;margin:0 auto;padding:1rem 1rem 90px;min-height:100vh;background-color:#cccccc;}
 .masthead{border-bottom:3px solid #111;padding-bottom:.85rem;margin-bottom:1.1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.masthead h1{font-family:'Lilita One',Georgia,serif;font-size:40px;font-weight:400;color:#111 !important;letter-spacing:.5px;}
+.masthead h1{font-family:'Lilita One',Georgia,serif;font-size:40px;font-weight:400;color:var(--accent);letter-spacing:.5px;}
 .mast-right{display:flex;align-items:center;gap:10px;}
 .safe-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:99px;background:#16a34a !important;font-size:11px;color:#fff !important;font-weight:700;}
 .safe-chip-dot{width:6px;height:6px;border-radius:50%;background:#bbf7d0;flex-shrink:0;}
@@ -542,9 +542,26 @@ const setBrightness=v=>{
 const toggleThemePanel=()=>{const p=document.getElementById("theme-panel");const o=p.classList.toggle("open");document.getElementById("theme-arrow").textContent=o?"▼":"▲";};
 
 function buildUI(){
+  // Inject theme bar into body via JS so we never have DOM timing issues
+  if(!document.getElementById("theme-bar-wrap")){
+    const bar=document.createElement("div");
+    bar.id="theme-bar-wrap";
+    bar.innerHTML=`
+  <button class="theme-toggle-btn" onclick="toggleThemePanel()">Theme <span id="theme-arrow">▲</span></button>
+  <div class="theme-panel" id="theme-panel">
+    <div class="tp-group"><div class="theme-section-label">Main Theme</div><div class="theme-swatches" id="theme-swatches"></div></div>
+    <div class="tp-divider"></div>
+    <div class="tp-group"><div class="theme-section-label">Accent</div><div class="accent-dots" id="accent-dots"></div></div>
+    <div class="tp-divider"></div>
+    <div class="tp-group"><div class="theme-section-label">Brightness</div><div class="bright-row"><input type="range" id="bright-slider" min="50" max="120" step="5" value="100" oninput="setBrightness(this.value)"><span class="bright-val" id="bright-val">100%</span></div></div>
+  </div>`;
+    document.body.appendChild(bar);
+  }
   const sw=document.getElementById("theme-swatches");
+  const ad=document.getElementById("accent-dots");
+  if(!sw||!ad){console.error("Theme elements not found");return;}
   THEMES.forEach(t=>{const wrap=document.createElement("div");wrap.className="theme-swatch";const thumb=document.createElement("div");thumb.className="swatch-thumb"+(t.id==="white"?" active":"");thumb.id="sw-"+t.id;thumb.style.background=`linear-gradient(135deg,${t.t1} 50%,${t.t2} 50%)`;thumb.onclick=()=>applyTheme(t.id);const lbl=document.createElement("div");lbl.className="swatch-label";lbl.textContent=t.label;wrap.appendChild(thumb);wrap.appendChild(lbl);sw.appendChild(wrap);});
-  ACCENTS.forEach(a=>{const btn=document.createElement("button");btn.className="acc-dot"+(a.id==="blue"?" active":"");btn.id="acc-"+a.id;btn.style.background=a.color;btn.onclick=()=>applyAccent(a.color,a.id);document.getElementById("accent-dots").appendChild(btn);});
+  ACCENTS.forEach(a=>{const btn=document.createElement("button");btn.className="acc-dot"+(a.id==="blue"?" active":"");btn.id="acc-"+a.id;btn.style.background=a.color;btn.onclick=()=>applyAccent(a.color,a.id);ad.appendChild(btn);});
 }
 // Restore saved theme and accent
 // Restore auto-refresh interval and sync cache TTL
@@ -956,16 +973,6 @@ ${c.tags&&c.tags.length?`<div class="tags">${c.tags.map(t=>`<span class="tag">${
 <div class="st">All sources (${c.sources.length})</div>
 ${c.sources.map(s=>`<div class="card"><div><div class="sn">${s.name}</div><span class="lean ${s.lean.replace("-","_")}">${s.lean}</span></div><a href="${s.url}" target="_blank" rel="noopener noreferrer" class="btn">Read →</a></div>`).join("")}
 <p class="note">Close this tab to return to Wood's Wild News</p>
-<div id="theme-bar-wrap">
-  <button class="theme-toggle-btn" onclick="toggleThemePanel()">Theme <span id="theme-arrow">▲</span></button>
-  <div class="theme-panel" id="theme-panel">
-    <div class="tp-group"><div class="theme-section-label">Main Theme</div><div class="theme-swatches" id="theme-swatches"></div></div>
-    <div class="tp-divider"></div>
-    <div class="tp-group"><div class="theme-section-label">Accent</div><div class="accent-dots" id="accent-dots"></div></div>
-    <div class="tp-divider"></div>
-    <div class="tp-group"><div class="theme-section-label">Brightness</div><div class="bright-row"><input type="range" id="bright-slider" min="50" max="120" step="5" value="100" oninput="setBrightness(this.value)"><span class="bright-val" id="bright-val">100%</span></div></div>
-  </div>
-</div>
 <script>
 (async()=>{
   const key=${JSON.stringify(key)};
