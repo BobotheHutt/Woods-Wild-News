@@ -1307,6 +1307,45 @@ async function loadFeeds(silent=false){
   await loadFeedsDirect(silent);
 }
 
+async function fetchLocalFeeds(){
+  // Fetch local feeds and merge into allClusters
+  const base="&ceid=US:en&hl=en-US&gl=US";
+  const q=s=>"https://news.google.com/rss/search?q="+encodeURIComponent(s)+base;
+  const localOutlets=[];
+  if(userCity){
+    localOutlets.push({name:"Local — "+userCity,lean:"center",rss:q(userCity+" "+userState)});
+    localOutlets.push({name:"Local — "+userCity+" news",lean:"center",rss:q(userCity+" "+userState+" news")});
+    if(userRadius>=25&&userCounty)localOutlets.push({name:"Local — "+userCounty,lean:"center",rss:q(userCounty+" "+userState)});
+  }
+  const articles=[];
+  await Promise.all(localOutlets.map(async o=>{
+    const items=await fetchRSS(o);
+    articles.push(...items);
+  }));
+  if(!articles.length)return;
+  // Cluster local articles and merge
+  articles.forEach(item=>{
+    if(!item||!item.title)return;
+    const kw=getKeywords(item.title);
+    let merged=false;
+    for(const cl of allClusters){
+      if(similarity(kw,cl.kw||[])>=0.55){
+        if(!cl.sources.find(s=>s.url===item.link)){
+          cl.sources.push({name:item.outlet.name,lean:item.outlet.lean,url:item.link,image:item.image||null,desc:item.desc||''});
+        }
+        merged=true;break;
+      }
+    }
+    if(!merged){
+      allClusters.push({headline:item.title,excerpt:item.desc,image:item.image||null,
+        pubDate:item.pubDate,topic:classifyTopic(item.title),region:"US & Americas",
+        tags:extractTags(item.title),kw,
+        sources:[{name:item.outlet.name,lean:item.outlet.lean,url:item.link,image:item.image||null,desc:item.desc||''}]
+      });
+    }
+  });
+}
+
 async function loadFeedsDirect(silent=false){
   const cache = loadCache();
   // Add local Google News feeds if zip is set
@@ -1451,28 +1490,57 @@ ${tagsHTML?`<div class="cluster-tags">${tagsHTML}</div>`:""}
 
 function filterClusters(){
   let f=allClusters;
-  if(activeFilter!=="all"&&activeFilter!=="local"){
-    // Match on region OR topic
-    f=f.filter(c=>c.region===activeFilter||c.topic===activeFilter);
-  }
-  // Local = US & Americas region (closest approximation without geolocation)
-  if(activeFilter==="local"){
+  const af=activeFilter;
+
+  if(af==="all"){
+    // show everything
+  } else if(af==="local"){
     if(userCity){
       const terms=getLocalSearchTerms().map(t=>t.toLowerCase());
-      // Match on headline, excerpt, OR source name containing "Local"
       f=f.filter(c=>{
-        const txt=(c.headline+" "+(c.excerpt||"")).toLowerCase();
         const fromLocalFeed=c.sources.some(s=>s.name.startsWith("Local —"));
-        return fromLocalFeed||terms.some(t=>txt.includes(t));
+        if(fromLocalFeed)return true;
+        const txt=(c.headline+" "+(c.excerpt||"")).toLowerCase();
+        return terms.some(t=>txt.includes(t));
       });
+      // fallback: just show local feed stories if no term matches
       if(!f.length)f=allClusters.filter(c=>c.sources.some(s=>s.name.startsWith("Local —")));
-      if(!f.length)f=allClusters.filter(c=>c.region==="US & Americas");
     } else {
       f=f.filter(c=>c.region==="US & Americas");
     }
+  } else if(af==="U.S."){
+    f=f.filter(c=>c.region==="US & Americas");
+  } else if(af==="World"){
+    // World = anything NOT US & Americas
+    f=f.filter(c=>c.region&&c.region!=="US & Americas");
+  } else if(af==="Business"){
+    f=f.filter(c=>c.topic==="Business"||c.topic==="Economy");
+  } else if(af==="Technology"){
+    f=f.filter(c=>c.topic==="Tech");
+  } else if(af==="Sports"){
+    f=f.filter(c=>c.topic==="Sports");
+  } else if(af==="Entertainment"){
+    f=f.filter(c=>c.topic==="Entertainment");
+  } else if(af==="Politics"){
+    f=f.filter(c=>c.topic==="Politics");
+  } else if(af==="Science"){
+    f=f.filter(c=>c.topic==="Science");
+  } else if(af==="Health"){
+    f=f.filter(c=>c.topic==="Health");
+  } else if(af==="Environment"){
+    f=f.filter(c=>c.topic==="Climate");
+  } else {
+    // fallback — try direct region or topic match
+    f=f.filter(c=>c.region===af||c.topic===af);
   }
-  if(searchQuery){const q=searchQuery.toLowerCase();f=f.filter(c=>c.headline.toLowerCase().includes(q)||(c.excerpt||"").toLowerCase().includes(q));}
-  if(activeTagFilters.size>0)f=f.filter(c=>[...activeTagFilters].some(t=>(c.tags||[]).includes(t)));
+
+  if(searchQuery){
+    const q=searchQuery.toLowerCase();
+    f=f.filter(c=>c.headline.toLowerCase().includes(q)||(c.excerpt||"").toLowerCase().includes(q));
+  }
+  if(activeTagFilters.size>0){
+    f=f.filter(c=>[...activeTagFilters].some(t=>(c.tags||[]).includes(t)));
+  }
   return f;
 }
 
@@ -1536,21 +1604,26 @@ function initScrollObserver(){
 function renderDirtyNews(){
   const el=document.getElementById("dirty-content");
   const leftOnly=[],rightOnly=[];
+  let totalRated=0,tooFewRated=0;
   allClusters.forEach(c=>{
     if(c.sources.length<2)return;
     // Only use AllSides-rated sources for one-sided detection (exclude GN center sources)
     const rated=c.sources.filter(s=>!s.name.startsWith("GN —")&&!s.name.startsWith("Local —"));
-    if(rated.length<2)return;
+    if(rated.length<1)return;
     const lc=rated.filter(s=>s.lean==="left"||s.lean==="left-center").length;
     const rc=rated.filter(s=>s.lean==="right"||s.lean==="right-center").length;
+    const cc=rated.filter(s=>s.lean==="center").length;
     const tot=rated.length;
-    if(lc>=1&&rc===0)leftOnly.push({...c,lpct:Math.min(95,Math.round(lc/tot*100+15))});
-    else if(rc>=1&&lc===0)rightOnly.push({...c,rpct:Math.min(95,Math.round(rc/tot*100+15))});
+    // Left-only: has left sources, zero right, zero center AllSides sources
+    if(lc>=1&&rc===0&&cc===0)leftOnly.push({...c,lpct:Math.min(95,Math.round(lc/tot*100+15))});
+    // Right-only: has right sources, zero left, zero center AllSides sources
+    else if(rc>=1&&lc===0&&cc===0)rightOnly.push({...c,rpct:Math.min(95,Math.round(rc/tot*100+15))});
   });
   let html="";
   if(leftOnly.length){html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#1a4eb0"></div><span class="dirty-left-lbl">Left-leaning coverage only</span></div>`;html+=leftOnly.slice(0,5).map(c=>`<div class="dirty-card dirty-card-left" onclick="window.open('${c.sources[0].url}','_blank')"><div class="dirty-hl">${c.headline}</div><div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-left" style="width:${c.lpct}%"></div></div><span class="dirty-pct dirty-pct-left">${c.lpct}%</span></div><div class="dirty-source">${c.sources.map(s=>s.name).join(", ")}</div></div>`).join("");html+=`</div>`;}
   if(rightOnly.length){html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#c0392b"></div><span class="dirty-right-lbl">Right-leaning coverage only</span></div>`;html+=rightOnly.slice(0,5).map(c=>`<div class="dirty-card dirty-card-right" onclick="window.open('${c.sources[0].url}','_blank')"><div class="dirty-hl">${c.headline}</div><div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-right" style="width:${c.rpct}%"></div></div><span class="dirty-pct dirty-pct-right">${c.rpct}%</span></div><div class="dirty-source">${c.sources.map(s=>s.name).join(", ")}</div></div>`).join("");html+=`</div>`;}
-  el.innerHTML=html||'<div class="empty-state">No clear one-sideds found yet.</div>';
+  console.log("[Dirty] clusters checked:",allClusters.filter(c=>c.sources.length>=2).length,"left-only:",leftOnly.length,"right-only:",rightOnly.length);
+  el.innerHTML=html||'<div class="empty-state">No dirty news found yet.</div>';
 }
 
 async function openStoryViewer(idx){
