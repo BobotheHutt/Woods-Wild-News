@@ -93,6 +93,29 @@ const OUTLETS=[
   {name:"TheBlaze",                 lean:"right",        rss:"https://www.theblaze.com/feeds/feed.rss"},
   {name:"American Conservative",    lean:"right",        rss:"https://www.theamericanconservative.com/feed/"},
   {name:"American Spectator",       lean:"right",        rss:"https://spectator.org/feed/"},
+  // ── ADDITIONAL RIGHT ──
+  {name:"Washington Free Beacon",   lean:"right-center", rss:"https://freebeacon.com/feed/"},
+  {name:"OAN",                      lean:"right",        rss:"https://www.oann.com/feed/"},
+  {name:"PJ Media",                 lean:"right",        rss:"https://pjmedia.com/feed/"},
+  {name:"Hot Air",                  lean:"right-center", rss:"https://hotair.com/feed/"},
+  {name:"RedState",                 lean:"right",        rss:"https://redstate.com/feed/"},
+  {name:"Daily Signal",             lean:"right-center", rss:"https://www.dailysignal.com/feed/"},
+  {name:"Newsbusters",              lean:"right",        rss:"https://newsbusters.org/blog/feed/"},
+  {name:"American Thinker",         lean:"right",        rss:"https://feeds.feedburner.com/americanthinker"},
+  {name:"Lifezette",                lean:"right",        rss:"https://www.lifezette.com/feed/"},
+  {name:"Gateway Pundit",           lean:"right",        rss:"https://www.thegatewaypundit.com/feed/"},
+  // ── ADDITIONAL LEFT ──
+  {name:"Common Dreams",            lean:"left",         rss:"https://www.commondreams.org/feeds/feed.rss"},
+  {name:"Truthout",                 lean:"left",         rss:"https://truthout.org/latest/feed/"},
+  {name:"Salon",                    lean:"left",         rss:"https://www.salon.com/feed/"},
+  {name:"Alternet",                 lean:"left",         rss:"https://www.alternet.org/feeds/feed.rss"},
+  {name:"American Prospect",        lean:"left",         rss:"https://prospect.org/feed/"},
+  {name:"In These Times",           lean:"left",         rss:"https://inthesetimes.com/feed"},
+  {name:"Rolling Stone Politics",   lean:"left",         rss:"https://www.rollingstone.com/politics/feed/"},
+  // ── ADDITIONAL CENTER ──
+  {name:"Voice of America",         lean:"center",       rss:"https://www.voanews.com/api/z_p$voa-news/feed.rss"},
+  {name:"The Conversation",         lean:"center",       rss:"https://theconversation.com/us/articles.atom"},
+  {name:"Axios Local",              lean:"center",       rss:"https://api.axios.com/feed/"},
 ];
 
 const GOOGLE_NEWS_FEEDS=[
