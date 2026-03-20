@@ -18,6 +18,12 @@ body{background:#cccccc;margin:0;padding:0;}
 .safe-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:99px;background:#16a34a !important;font-size:11px;color:#fff !important;font-weight:700;}
 .safe-chip-dot{width:6px;height:6px;border-radius:50%;background:#bbf7d0;flex-shrink:0;}
 .icon-btn{width:34px;height:34px;border-radius:6px;border:2px solid #555;background:#e0e0e0 !important;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#111 !important;font-size:18px;}
+.lean-filter-row{display:flex;gap:10px;margin-bottom:.75rem;}
+.lean-filter-btn{flex:1;padding:9px 16px;border-radius:8px;border:2px solid;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.03em;transition:all .15s;text-align:center;}
+.lean-left-btn{background:#dbeafe;border-color:#93c5fd;color:#1e3a8a;}
+.lean-left-btn:hover,.lean-left-btn.active{background:#1e3a8a;border-color:#1e3a8a;color:#fff;}
+.lean-right-btn{background:#fee2e2;border-color:#fca5a5;color:#7f1d1d;}
+.lean-right-btn:hover,.lean-right-btn.active{background:#7f1d1d;border-color:#7f1d1d;color:#fff;}
 .icon-btn:hover{background:#bbb !important;}
 .icon-btn.active-gear{background:#111 !important;color:#fff !important;}
 .tog{width:40px;height:22px;border-radius:11px;background:#999;border:2px solid #555;cursor:pointer;position:relative;flex-shrink:0;}
@@ -100,6 +106,7 @@ body{background:#cccccc;margin:0;padding:0;}
 .dirty-source{font-size:10px;color:#555;margin-top:2px;}
 .dirty-loading{text-align:center;padding:1.5rem .5rem;color:#444 !important;font-size:11px;}
 .search-row{display:flex;gap:8px;margin-bottom:.75rem;}
+.mobile-sidebar-btn{display:none;}
 #search-input{flex:1;padding:10px 14px;border-radius:8px;border:2px solid #555;background:#fff !important;color:#111 !important;font-size:13px;outline:none;font-family:inherit;}
 #search-input::placeholder{color:#888 !important;}
 #search-btn{padding:10px 20px;border-radius:8px;border:2px solid #111 !important;background:#111 !important;color:#fff !important;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;text-transform:uppercase;letter-spacing:.06em;}
@@ -311,8 +318,7 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
     border-bottom: 1px solid #ddd;
   }
   /* Mobile sidebar toggle button */
-  .mobile-sidebar-btn { display: none; }
-.mobile-sidebar-btn {
+  .mobile-sidebar-btn {
     display: flex;
     position: fixed;
     bottom: 70px;
@@ -401,7 +407,7 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
   <h1>Wood's Wild News!</h1>
   <div class="mast-right">
     <div class="safe-chip"><div class="safe-chip-dot"></div>Protected by SafeSearch</div>
-    <div class="tog-group"><span class="tog-label">Auto-refresh</span><button class="tog" id="ar-toggle"></button></div>
+<div class="tog-group"><span class="tog-label">Auto-refresh</span><button class="tog" id="ar-toggle"></button></div>
     <button class="icon-btn" id="gear-btn">⚙</button>
   </div>
 </div>
@@ -485,6 +491,10 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
 </div>
 <div class="body-layout">
   <div class="main-col">
+    <div class="lean-filter-row">
+      <button class="lean-filter-btn lean-left-btn" id="lean-left-btn" onclick="toggleLeanFilter('left')">◀ Left Only</button>
+      <button class="lean-filter-btn lean-right-btn" id="lean-right-btn" onclick="toggleLeanFilter('right')">Right Only ▶</button>
+    </div>
     <div class="search-row">
       <input id="search-input" type="text" placeholder="Filter stories by keyword..."/>
       <button id="search-btn">Search</button>
@@ -499,16 +509,17 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
   <button class="mobile-sidebar-btn" id="mobile-sidebar-btn" onclick="openMobileSidebar()">☰</button>
   <div class="sidebar" id="sidebar-el">
     <div class="sidebar-tab-row">
-      <button class="stab-btn dirty-active" onclick="setSidebar('dirty',this)"><span class="stab-icon">🔥</span><span class="stab-label">Dirty News</span></button>
-      <button class="stab-btn" onclick="setSidebar('bookmarks',this)"><span class="stab-icon">★</span><span class="stab-label">Bookmarks</span><span class="stab-badge" id="bmark-count">0</span></button>
+      <button class="stab-btn active" onclick="setSidebar('bookmarks',this)"><span class="stab-icon">★</span><span class="stab-label">Bookmarks</span><span class="stab-badge" id="bmark-count">0</span></button>
+      <button class="stab-btn" onclick="setSidebar('blocked',this)"><span class="stab-icon">🚫</span><span class="stab-label">Blocked</span><span class="stab-badge" id="blocked-count">0</span></button>
       <button class="stab-btn" onclick="setSidebar('history',this)"><span class="stab-icon">◷</span><span class="stab-label">History</span><span class="stab-badge" id="hist-count">0</span></button>
     </div>
     <div class="sidebar-panel">
-      <div id="dirty-panel">
-        <div class="dirty-intro">Stories covered heavily by one side only.</div>
-        <div id="dirty-content"><div class="dirty-loading">Loads after news feeds<div class="dot-pulse"><span></span><span></span><span></span></div></div></div>
+      <div id="bookmarks-panel"><div class="sidebar-panel-title">Bookmarks</div><div id="bmarks-content"><div class="empty-state">No bookmarks yet.</div></div></div>
+      <div id="blocked-panel" style="display:none">
+        <div class="sidebar-panel-title">Blocked Sources</div>
+        <div style="font-size:11px;color:#555;margin-bottom:.6rem;line-height:1.5;">Stories from blocked sources won't appear. Block a source from any story card.</div>
+        <div id="blocked-list"><div class="empty-state">No sources blocked yet.</div></div>
       </div>
-      <div id="bookmarks-panel" style="display:none"><div class="sidebar-panel-title">Bookmarks</div><div id="bmarks-content"><div class="empty-state">No bookmarks yet.</div></div></div>
       <div id="history-panel" style="display:none">
         <div class="sidebar-panel-title">Search history</div>
         <input id="hist-search" type="text" placeholder="Filter history..." oninput="renderHist()">
@@ -645,6 +656,29 @@ const OUTLETS=[
   {name:"TheBlaze",                 lean:"right",        rss:"https://www.theblaze.com/feeds/feed.rss"},
   {name:"American Conservative",    lean:"right",        rss:"https://www.theamericanconservative.com/feed/"},
   {name:"American Spectator",       lean:"right",        rss:"https://spectator.org/feed/"},
+  // ── ADDITIONAL RIGHT ──
+  {name:"Washington Free Beacon",   lean:"right-center", rss:"https://freebeacon.com/feed/"},
+  {name:"OAN",                      lean:"right",        rss:"https://www.oann.com/feed/"},
+  {name:"PJ Media",                 lean:"right",        rss:"https://pjmedia.com/feed/"},
+  {name:"Hot Air",                  lean:"right-center", rss:"https://hotair.com/feed/"},
+  {name:"RedState",                 lean:"right",        rss:"https://redstate.com/feed/"},
+  {name:"Daily Signal",             lean:"right-center", rss:"https://www.dailysignal.com/feed/"},
+  {name:"Newsbusters",              lean:"right",        rss:"https://newsbusters.org/blog/feed/"},
+  {name:"American Thinker",         lean:"right",        rss:"https://feeds.feedburner.com/americanthinker"},
+  {name:"Lifezette",                lean:"right",        rss:"https://www.lifezette.com/feed/"},
+  {name:"Gateway Pundit",           lean:"right",        rss:"https://www.thegatewaypundit.com/feed/"},
+  // ── ADDITIONAL LEFT ──
+  {name:"Common Dreams",            lean:"left",         rss:"https://www.commondreams.org/feeds/feed.rss"},
+  {name:"Truthout",                 lean:"left",         rss:"https://truthout.org/latest/feed/"},
+  {name:"Salon",                    lean:"left",         rss:"https://www.salon.com/feed/"},
+  {name:"Alternet",                 lean:"left",         rss:"https://www.alternet.org/feeds/feed.rss"},
+  {name:"American Prospect",        lean:"left",         rss:"https://prospect.org/feed/"},
+  {name:"In These Times",           lean:"left",         rss:"https://inthesetimes.com/feed"},
+  {name:"Rolling Stone Politics",   lean:"left",         rss:"https://www.rollingstone.com/politics/feed/"},
+  // ── ADDITIONAL CENTER ──
+  {name:"Voice of America",         lean:"center",       rss:"https://www.voanews.com/api/z_p$voa-news/feed.rss"},
+  {name:"The Conversation",         lean:"center",       rss:"https://theconversation.com/us/articles.atom"},
+  {name:"Axios Local",              lean:"center",       rss:"https://api.axios.com/feed/"},
 ];
 
 const GOOGLE_NEWS_FEEDS=[
@@ -727,8 +761,8 @@ let CACHE_TTL_MS = 5 * 60 * 1000;        // syncs with auto-refresh interval
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // drop articles older than 24h
 const arL=s=>s<60?s+"s":s<3600?(s/60)+"min":(s/3600)+"h";
 
-let allClusters=[],activeFilter="all",searchQuery="",allsidesOnly=false,userZip="",userCity="",userState="",userCounty="",userRadius=25,userLat=null,userLng=null;
-let myTags=new Set(),activeTagFilters=new Set();
+let allClusters=[],activeFilter="all",searchQuery="",allsidesOnly=false,leanFilter="",userZip="",userCity="",userState="",userCounty="",userRadius=25,userLat=null,userLng=null;
+let myTags=new Set(),activeTagFilters=new Set(),blockedSources=new Set();
 let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
 let autoRefresh=false,arIntervalSec=60,arTimer=null,arRemaining=0;
@@ -738,6 +772,7 @@ const AR_STEPS=[30,60,120,300,600,900,1800,3600,7200,14400];
 try{bookmarks=JSON.parse(localStorage.getItem("wp_bm")||"[]");}catch{}
 try{searchHistory=JSON.parse(localStorage.getItem("wp_sh")||"[]");}catch{}
 try{myTags=new Set(JSON.parse(localStorage.getItem("wp_tags")||"[]"));}catch{}
+try{blockedSources=new Set(JSON.parse(localStorage.getItem("wwn_blocked")||"[]"));}catch{}
 
 try{
   userZip=localStorage.getItem("wwn_zip")||"";
@@ -752,7 +787,8 @@ try{
 const saveB=()=>{try{localStorage.setItem("wp_bm",JSON.stringify(bookmarks));}catch{}};
 const saveH=()=>{try{localStorage.setItem("wp_sh",JSON.stringify(searchHistory));}catch{}};
 const saveTags=()=>{try{localStorage.setItem("wp_tags",JSON.stringify([...myTags]));}catch{}};
-const upCounts=()=>{document.getElementById("bmark-count").textContent=bookmarks.length;document.getElementById("hist-count").textContent=searchHistory.length;};
+const saveBlocked=()=>{try{localStorage.setItem("wwn_blocked",JSON.stringify([...blockedSources]));}catch{}};
+const upCounts=()=>{document.getElementById("bmark-count").textContent=bookmarks.length;document.getElementById("hist-count").textContent=searchHistory.length;const bc=document.getElementById("blocked-count");if(bc)bc.textContent=blockedSources.size;};
 upCounts();
 
 
@@ -1022,6 +1058,7 @@ function toggleTagManager(){
   }),10);
 }
 renderMyTagsRow();
+renderBM();
 
 document.getElementById("gear-btn").addEventListener("click",function(e){
   e.stopPropagation();
@@ -1072,6 +1109,20 @@ function updCD(){
   e.textContent=mins>=1?`Next refresh: ${mins}`:"";
 } 
 
+function toggleLeanFilter(side){
+  if(leanFilter===side){
+    // clicking active button turns it off
+    leanFilter="";
+    document.getElementById("lean-left-btn").classList.remove("active");
+    document.getElementById("lean-right-btn").classList.remove("active");
+  } else {
+    leanFilter=side;
+    document.getElementById("lean-left-btn").classList.toggle("active",side==="left");
+    document.getElementById("lean-right-btn").classList.toggle("active",side==="right");
+  }
+  renderContent();
+}
+
 function openMobileSidebar(){
   document.getElementById("sidebar-el").classList.add("open");
   document.getElementById("sidebar-overlay").classList.add("open");
@@ -1085,9 +1136,11 @@ function closeMobileSidebar(){
 
 function setSidebar(panel,btn){
   document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active","dirty-active"));
-  btn.classList.add(panel==="dirty"?"dirty-active":"active");
-  ["dirty","bookmarks","history"].forEach(p=>document.getElementById(p+"-panel").style.display=p===panel?"":"none");
-  if(panel==="bookmarks")renderBM();if(panel==="history")renderHist();
+  if(btn)btn.classList.add("active");
+  ["bookmarks","blocked","history"].forEach(p=>document.getElementById(p+"-panel").style.display=p===panel?"":"none");
+  if(panel==="bookmarks")renderBM();
+  if(panel==="history")renderHist();
+  if(panel==="blocked")renderBlocked();
 }
 const isBM=h=>bookmarks.some(b=>b.headline===h);
 function toggleBM(idx,el){const c=allClusters[idx];if(!c)return;const i=bookmarks.findIndex(b=>b.headline===c.headline);i===-1?bookmarks.unshift({...c,savedAt:new Date().toISOString()}):bookmarks.splice(i,1);saveB();upCounts();if(el)el.className=isBM(c.headline)?"bmark-btn-cluster saved":"bmark-btn-cluster";}
@@ -1096,6 +1149,29 @@ function rmBM(i){bookmarks.splice(i,1);saveB();upCounts();renderBM();}
 function addH(headline,url,outlet){if(!historyEnabled||!headline||!url)return;searchHistory=searchHistory.filter(h=>h.url!==url);searchHistory.unshift({headline,url,outlet:outlet||'',at:new Date().toISOString()});if(searchHistory.length>200)searchHistory=searchHistory.slice(0,200);saveH();upCounts();}
 function clearHistory(){searchHistory=[];saveH();upCounts();renderHist();}
 function delH(url){searchHistory=searchHistory.filter(h=>h.url!==url);saveH();upCounts();renderHist();}
+function blockSource(name){
+  blockedSources.add(name);saveBlocked();
+  upCounts();renderContent();renderBlocked();
+  showToast("Blocked: "+name);
+}
+function unblockSource(name){
+  blockedSources.delete(name);saveBlocked();
+  upCounts();renderContent();renderBlocked();
+  showToast("Unblocked: "+name);
+}
+function renderBlocked(){
+  const el=document.getElementById("blocked-list");
+  if(!el)return;
+  const bc=document.getElementById("blocked-count");
+  if(bc)bc.textContent=blockedSources.size;
+  if(!blockedSources.size){el.innerHTML='<div class="empty-state">No sources blocked yet.</div>';return;}
+  el.innerHTML=[...blockedSources].map(name=>`
+    <div class="blocked-item">
+      <span class="blocked-name">${name}</span>
+      <button class="blocked-unblock" onclick="unblockSource('${name.replace(/'/g,"\'")}')">Unblock</button>
+    </div>`).join("");
+}
+
 function ago(iso){const d=Math.floor((Date.now()-new Date(iso))/1000);if(d<60)return"just now";if(d<3600)return Math.floor(d/60)+"m ago";if(d<86400)return Math.floor(d/3600)+"h ago";return Math.floor(d/86400)+"d ago";}
 function renderHist(){
   const panel=document.getElementById("history-list");
@@ -1426,7 +1502,6 @@ async function loadFeedsDirect(silent=false){
   allClusters=clusters.slice(0,2000);
 
   if(silent){
-    renderDirtyNews();
     showToast("Feeds updated — scroll up for new stories");
   } else {
     renderContent();
@@ -1484,13 +1559,21 @@ ${tagsHTML?`<div class="cluster-tags">${tagsHTML}</div>`:""}
     ${showBias?`<div class="footer-bias-wrap"><div class="footer-bias-labels"><span class="blbl blbl-l">L ${bias.left}%</span><span class="blbl blbl-c">C ${bias.center}%</span><span class="blbl blbl-r">R ${bias.right}%</span></div><div class="bias-track"><div class="seg-l" style="width:${bias.left}%"></div><div class="seg-c" style="width:${bias.center}%"></div><div class="seg-r" style="width:${bias.right}%"></div></div></div>`:""}
     <span class="cluster-age">${ageStr(c.pubDate)}</span>
     <button class="bmark-btn-cluster${isBM(c.headline)?" saved":""}" onclick="toggleBM(${idx},this)">★</button>
+    <button class="block-src-btn" title="Block lead source" onclick="event.stopPropagation();blockSource('${lead.name.replace(/'/g,"\'")}')" style="background:none;border:none;cursor:pointer;font-size:13px;color:#bbb;padding:0;" onmouseover="this.style.color='#c00'" onmouseout="this.style.color='#bbb'">🚫</button>
   </div>
 </div>
 </div>`;
 }
 
 function filterClusters(){
-  let f=allClusters;
+  // Remove clusters where ALL sources are blocked; filter out individual blocked sources
+  let f=allClusters.map(c=>{
+    if(!blockedSources.size)return c;
+    const kept=c.sources.filter(s=>!blockedSources.has(s.name));
+    if(!kept.length)return null; // all sources blocked — hide card
+    if(kept.length===c.sources.length)return c; // nothing blocked
+    return {...c,sources:kept}; // partial — return with blocked sources removed
+  }).filter(Boolean);
   const af=activeFilter;
 
   if(af==="all"){
@@ -1535,6 +1618,17 @@ function filterClusters(){
     f=f.filter(c=>c.region===af||c.topic===af);
   }
 
+  if(leanFilter){
+    f=f.filter(c=>{
+      const sources=c.sources.filter(s=>!s.name.startsWith("GN —")&&!s.name.startsWith("Local —"));
+      if(!sources.length)return leanFilter===""||true; // no rated sources, show anyway
+      const hasLeft=sources.some(s=>s.lean==="left"||s.lean==="left-center");
+      const hasRight=sources.some(s=>s.lean==="right"||s.lean==="right-center");
+      if(leanFilter==="left")return hasLeft;
+      if(leanFilter==="right")return hasRight;
+      return true;
+    });
+  }
   if(searchQuery){
     const q=searchQuery.toLowerCase();
     f=f.filter(c=>c.headline.toLowerCase().includes(q)||(c.excerpt||"").toLowerCase().includes(q));
@@ -1602,36 +1696,66 @@ function initScrollObserver(){
 }
 
 
+function dirtyScore(dominant, total){
+  return (dominant/total) * Math.log2(dominant+1) * 10;
+}
+
 function renderDirtyNews(){
   const el=document.getElementById("dirty-content");
   const leftOnly=[],rightOnly=[];
-  let totalRated=0,tooFewRated=0;
   allClusters.forEach(c=>{
     if(c.sources.length<2)return;
-    // Only use AllSides-rated sources for one-sided detection (exclude GN center sources)
     const rated=c.sources.filter(s=>!s.name.startsWith("GN —")&&!s.name.startsWith("Local —"));
-    if(rated.length<1)return;
+    if(rated.length<2)return;
     const lc=rated.filter(s=>s.lean==="left"||s.lean==="left-center").length;
     const rc=rated.filter(s=>s.lean==="right"||s.lean==="right-center").length;
-    const cc=rated.filter(s=>s.lean==="center").length;
     const tot=rated.length;
-    // Left-only: has left sources, zero right, zero center AllSides sources
-    if(lc>=1&&rc===0&&cc===0)leftOnly.push({...c,lpct:Math.min(95,Math.round(lc/tot*100+15))});
-    // Right-only: has right sources, zero left, zero center AllSides sources
-    else if(rc>=1&&lc===0&&cc===0)rightOnly.push({...c,rpct:Math.min(95,Math.round(rc/tot*100+15))});
+    if(lc>=2&&rc===0&&lc/tot>=0.75){
+      leftOnly.push({...c,score:dirtyScore(lc,tot),lc,tot,lpct:Math.round(lc/tot*100)});
+    } else if(rc>=2&&lc===0&&rc/tot>=0.75){
+      rightOnly.push({...c,score:dirtyScore(rc,tot),rc,tot,rpct:Math.round(rc/tot*100)});
+    }
   });
+  leftOnly.sort((a,b)=>b.score-a.score);
+  rightOnly.sort((a,b)=>b.score-a.score);
   let html="";
-  if(leftOnly.length){html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#1a4eb0"></div><span class="dirty-left-lbl">Left-leaning coverage only</span></div>`;html+=leftOnly.slice(0,5).map(c=>`<div class="dirty-card dirty-card-left" onclick="window.open('${c.sources[0].url}','_blank')"><div class="dirty-hl">${c.headline}</div><div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-left" style="width:${c.lpct}%"></div></div><span class="dirty-pct dirty-pct-left">${c.lpct}%</span></div><div class="dirty-source">${c.sources.map(s=>s.name).join(", ")}</div></div>`).join("");html+=`</div>`;}
-  if(rightOnly.length){html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#c0392b"></div><span class="dirty-right-lbl">Right-leaning coverage only</span></div>`;html+=rightOnly.slice(0,5).map(c=>`<div class="dirty-card dirty-card-right" onclick="window.open('${c.sources[0].url}','_blank')"><div class="dirty-hl">${c.headline}</div><div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-right" style="width:${c.rpct}%"></div></div><span class="dirty-pct dirty-pct-right">${c.rpct}%</span></div><div class="dirty-source">${c.sources.map(s=>s.name).join(", ")}</div></div>`).join("");html+=`</div>`;}
-  console.log("[Dirty] clusters checked:",allClusters.filter(c=>c.sources.length>=2).length,"left-only:",leftOnly.length,"right-only:",rightOnly.length);
+  if(leftOnly.length){
+    html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#1a4eb0"></div><span class="dirty-left-lbl">Left-leaning coverage only</span></div>`;
+    html+=leftOnly.slice(0,6).map(c=>`<div class="dirty-card dirty-card-left" onclick="window.open('${c.sources[0].url}','_blank')">
+      <div class="dirty-hl">${c.headline}</div>
+      <div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-left" style="width:${c.lpct}%"></div></div><span class="dirty-pct dirty-pct-left">${c.lc} sources · ${c.lpct}%</span></div>
+      <div class="dirty-source">${c.sources.filter(s=>!s.name.startsWith("GN")).map(s=>s.name).join(", ")}</div>
+    </div>`).join("");
+    html+=`</div>`;
+  }
+  if(rightOnly.length){
+    html+=`<div class="dirty-section"><div class="dirty-section-label"><div class="dirty-dot" style="background:#c0392b"></div><span class="dirty-right-lbl">Right-leaning coverage only</span></div>`;
+    html+=rightOnly.slice(0,6).map(c=>`<div class="dirty-card dirty-card-right" onclick="window.open('${c.sources[0].url}','_blank')">
+      <div class="dirty-hl">${c.headline}</div>
+      <div class="dirty-bar-wrap"><div class="dirty-bar-bg"><div class="dirty-fill-right" style="width:${c.rpct}%"></div></div><span class="dirty-pct dirty-pct-right">${c.rc} sources · ${c.rpct}%</span></div>
+      <div class="dirty-source">${c.sources.filter(s=>!s.name.startsWith("GN")).map(s=>s.name).join(", ")}</div>
+    </div>`).join("");
+    html+=`</div>`;
+  }
   el.innerHTML=html||'<div class="empty-state">No dirty news found yet.</div>';
 }
+
 
 async function openStoryViewer(idx){
   const c=allClusters[idx];if(!c)return;
   const bias=calcBias(c.sources);
   const col=RC[c.region]||{bg:"#ddd",color:"#111"};
   const cs=getComputedStyle(document.documentElement);
+  // Compute dirty score for this story
+  const ratedSrc=c.sources.filter(s=>!s.name.startsWith("GN —")&&!s.name.startsWith("Local —"));
+  const dLC=ratedSrc.filter(s=>s.lean==="left"||s.lean==="left-center").length;
+  const dRC=ratedSrc.filter(s=>s.lean==="right"||s.lean==="right-center").length;
+  const dTot=ratedSrc.length;
+  let dirtyScore=0,dirtyDir="",dirtySrcCount=0,dirtyPct=0;
+  if(dTot>=2){
+    if(dLC>=2&&dRC===0){dirtyDir="left";dirtySrcCount=dLC;dirtyPct=Math.round(dLC/dTot*100);dirtyScore=(dLC/dTot)*Math.log2(dLC+1)*10;}
+    else if(dRC>=2&&dLC===0){dirtyDir="right";dirtySrcCount=dRC;dirtyPct=Math.round(dRC/dTot*100);dirtyScore=(dRC/dTot)*Math.log2(dRC+1)*10;}
+  }
   const D={
     headline:c.headline,
     region:c.region,
@@ -1639,6 +1763,10 @@ async function openStoryViewer(idx){
     tags:c.tags||[],
     sources:c.sources.map(s=>({name:s.name,lean:s.lean,url:s.url,desc:s.desc||""})),
     bias:bias,
+    dirtyScore:Math.round(dirtyScore*10)/10,
+    dirtyDir:dirtyDir,
+    dirtySrcCount:dirtySrcCount,
+    dirtyPct:dirtyPct,
     regionBg:col.bg,
     regionColor:col.color,
     accent:cs.getPropertyValue("--accent").trim()||"#1a56db",
@@ -1674,6 +1802,9 @@ async function openStoryViewer(idx){
     "sty(el('div',{},bt),{width:D.bias.right+'%',background:'#c0392b',height:'100%'});",
     // Section title
     "sty(el('div',{textContent:'All Sources ('+D.sources.length+')'},document.body),{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.accent,marginBottom:'1rem'});",
+    // Dirty news score
+    "if(D.dirtyScore>0){var ds=el('div',{},document.body);ds.style.cssText='border-radius:8px;padding:.6rem 1rem;margin-bottom:1rem;background:'+(D.dirtyDir==='left'?'#dbeafe':'#fee2e2')+';border:1px solid '+(D.dirtyDir==='left'?'#93c5fd':'#fca5a5')+';';var dsl=el('div',{},ds);dsl.style.cssText='font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+(D.dirtyDir==='left'?'#1e3a8a':'#7f1d1d')+';margin-bottom:3px;';dsl.textContent=(D.dirtyDir==='left'?'⚠ Covered mostly by left-leaning sources':'⚠ Covered mostly by right-leaning sources');var dsd=el('div',{},ds);dsd.style.cssText='font-size:11px;color:'+(D.dirtyDir==='left'?'#1e40af':'#991b1b')+';';dsd.textContent=D.dirtySrcCount+' '+D.dirtyDir+'-leaning sources · '+D.dirtyPct+'% coverage · score: '+Math.round(D.dirtyScore);}",
+
     // Source cards — headline + excerpt + read button
     "D.sources.forEach(function(s){",
     "  var card=el('div',{},document.body);card.style.cssText='background:#fff;border:1px solid #ddd;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;';",
