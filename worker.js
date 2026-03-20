@@ -446,7 +446,7 @@ async function buildCache(env) {
     clusters.push(cluster);
   });
 
-  clusters.sort((a,b)=>b.sources.length-a.sources.length||((b.pubDate?new Date(b.pubDate):0)-(a.pubDate?new Date(a.pubDate):0)));
+  clusters.sort((a,b)=>clusterScore(b)-clusterScore(a));
   const allClusters=clusters.slice(0,2000);
 
   console.log(`[WWN] Clustered into ${allClusters.length} stories`);
@@ -533,3 +533,37 @@ export default {
     ctx.waitUntil(buildCache(env));
   },
 };
+// ── CLUSTER SCORING ─────────────────────────────────────────────────────
+const PRESTIGE=new Set(["Associated Press","Reuters","BBC","New York Times","Washington Post","NPR","The Guardian","Wall Street Journal","Financial Times","The Economist","ABC News","CBS News","NBC News","PBS NewsHour"]);
+
+function clusterScore(c){
+  const sources=c.sources;
+  if(!sources.length)return 0;
+
+  // 1. Base: count sources, prestige outlets count 1.5x
+  let base=0;
+  sources.forEach(s=>{base+=PRESTIGE.has(s.name)?1.5:1;});
+
+  // 2. Diversity multiplier: 1.0 (one-sided) → 2.0 (perfectly balanced left+right)
+  const rated=sources.filter(s=>!s.name.startsWith("GN —")&&!s.name.startsWith("Local —"));
+  if(rated.length>=2){
+    const lc=rated.filter(s=>s.lean==="left"||s.lean==="left-center").length;
+    const rc=rated.filter(s=>s.lean==="right"||s.lean==="right-center").length;
+    const tot=rated.length;
+    const balance=1-(Math.abs(lc-rc)/tot); // 0=one-sided, 1=balanced
+    const diversity=1+balance;             // 1.0→2.0
+    base*=diversity;
+  }
+
+  // 3. Recency bonus
+  const ageMin=c.pubDate?Math.floor((Date.now()-new Date(c.pubDate))/60000):999;
+  let recency=0;
+  if(ageMin<60)recency=5;
+  else if(ageMin<120)recency=3;
+  else if(ageMin<360)recency=1.5;
+  else if(ageMin<720)recency=0.5;
+
+  return base+recency;
+}
+
+
