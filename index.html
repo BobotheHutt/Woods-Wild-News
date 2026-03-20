@@ -509,11 +509,11 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
   <button class="mobile-sidebar-btn" id="mobile-sidebar-btn" onclick="openMobileSidebar()">☰</button>
   <div class="sidebar" id="sidebar-el">
     <div class="sidebar-tab-row">
-      <button class="stab-btn active" onclick="setSidebar('bookmarks',this)"><span class="stab-icon">★</span><span class="stab-label">Bookmarks</span><span class="stab-badge" id="bmark-count">0</span></button>
+      <button class="stab-btn" onclick="setSidebar('bookmarks',this)"><span class="stab-icon">★</span><span class="stab-label">Bookmarks</span><span class="stab-badge" id="bmark-count">0</span></button>
       <button class="stab-btn" onclick="setSidebar('blocked',this)"><span class="stab-icon">🚫</span><span class="stab-label">Blocked</span><span class="stab-badge" id="blocked-count">0</span></button>
       <button class="stab-btn" onclick="setSidebar('history',this)"><span class="stab-icon">◷</span><span class="stab-label">History</span><span class="stab-badge" id="hist-count">0</span></button>
     </div>
-    <div class="sidebar-panel">
+    <div class="sidebar-panel" style="display:none">
       <div id="bookmarks-panel"><div class="sidebar-panel-title">Bookmarks</div><div id="bmarks-content"><div class="empty-state">No bookmarks yet.</div></div></div>
       <div id="blocked-panel" style="display:none">
         <div class="sidebar-panel-title">Blocked Sources</div>
@@ -1122,7 +1122,6 @@ function toggleTagManager(){
   }),10);
 }
 renderMyTagsRow();
-renderBM();
 
 document.getElementById("gear-btn").addEventListener("click",function(e){
   e.stopPropagation();
@@ -1198,9 +1197,20 @@ function closeMobileSidebar(){
   document.getElementById("mobile-sidebar-btn").style.display="";
 }
 
+let activeSidebarPanel="";
 function setSidebar(panel,btn){
+  const panelWrap=document.querySelector(".sidebar-panel");
+  if(activeSidebarPanel===panel){
+    // Same tab clicked — collapse
+    activeSidebarPanel="";
+    document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active"));
+    if(panelWrap)panelWrap.style.display="none";
+    return;
+  }
+  activeSidebarPanel=panel;
   document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active","dirty-active"));
   if(btn)btn.classList.add("active");
+  if(panelWrap)panelWrap.style.display="";
   ["bookmarks","blocked","history"].forEach(p=>document.getElementById(p+"-panel").style.display=p===panel?"":"none");
   if(panel==="bookmarks")renderBM();
   if(panel==="history")renderHist();
