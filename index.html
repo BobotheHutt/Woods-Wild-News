@@ -991,6 +991,59 @@ if(bSlider){bSlider.value=savedBrightness;setBrightness(savedBrightness);}
 const addTag=t=>{myTags.add(t);saveTags();renderMyTagsRow();renderContent();};
 const removeTag=t=>{myTags.delete(t);activeTagFilters.delete(t);saveTags();renderMyTagsRow();renderContent();};
 const toggleTagFilter=t=>{activeTagFilters.has(t)?activeTagFilters.delete(t):activeTagFilters.add(t);renderMyTagsRow();renderContent();};
+// Source info lookup
+const SOURCE_INFO={};
+[...OUTLETS,...(GOOGLE_NEWS_FEEDS||[])].forEach(o=>{SOURCE_INFO[o.name]={lean:o.lean,rss:o.rss};});
+
+function showSourcePopup(name,lean,x,y,targetEl){
+  let pop=document.getElementById("src-popup");
+  if(!pop){
+    pop=document.createElement("div");
+    pop.id="src-popup";
+    pop.style.cssText="position:fixed;z-index:9999;background:#fff;border:2px solid #555;border-radius:10px;padding:.65rem .85rem;font-family:Verdana,sans-serif;font-size:11px;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:220px;pointer-events:auto;";
+    document.body.appendChild(pop);
+  }
+  const leanColors={left:"#dbeafe::#1e3a8a","left-center":"#dbeafe::#1e3a8a",center:"#dcfce7::#14532d","right-center":"#fee2e2::#7f1d1d",right:"#fee2e2::#7f1d1d"};
+  const [bg,tc]=(leanColors[lean]||"#eee::#333").split("::");
+  const leanLabel={left:"Left","left-center":"Left-Center",center:"Center","right-center":"Right-Center",right:"Right"}[lean]||lean;
+  const blocked=blockedSources.has(name);
+  pop.innerHTML=`
+    <div style="font-weight:800;font-size:13px;color:#111;margin-bottom:5px;">${name}</div>
+    <span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;background:${bg};color:${tc};margin-bottom:8px;">${leanLabel}</span>
+    <button id="src-popup-block" style="display:block;width:100%;padding:5px 10px;border-radius:6px;border:1.5px solid ${blocked?'#16a34a':'#c00'};background:${blocked?'#dcfce7':'#fee2e2'};color:${blocked?'#166534':'#991b1b'};font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;">
+      ${blocked?'✓ Unblock Source':'🚫 Block Source'}
+    </button>`;
+  document.getElementById("src-popup-block").onclick=function(e){
+    e.stopPropagation();
+    if(blockedSources.has(name))unblockSource(name);else blockSource(name);
+    hideSourcePopup();
+  };
+  // Position near element
+  const rect=targetEl.getBoundingClientRect();
+  const pw=220,ph=100;
+  let px=rect.left;
+  let py=rect.bottom+4;
+  if(px+pw>window.innerWidth-8)px=window.innerWidth-pw-8;
+  if(py+ph>window.innerHeight-8)py=rect.top-ph-4;
+  pop.style.left=px+"px";
+  pop.style.top=py+"px";
+  pop.style.display="block";
+  pop._name=name;
+}
+
+function hideSourcePopup(){
+  const pop=document.getElementById("src-popup");
+  if(pop)pop.style.display="none";
+}
+
+// Hide popup on outside click
+document.addEventListener("click",e=>{
+  const pop=document.getElementById("src-popup");
+  if(pop&&pop.style.display!=="none"&&!pop.contains(e.target)){
+    hideSourcePopup();
+  }
+});
+
 const clearAllTags=()=>{myTags.clear();activeTagFilters.clear();saveTags();renderMyTagsRow();renderContent();};
 function handleTagClick(tag,el){if(myTags.has(tag)){toggleTagFilter(tag);renderMyTagsRow();renderContent();}else{addTag(tag);el.className="story-tag in-my-tags";el.innerHTML=tag;}}
 function renderMyTagsRow(){
@@ -1529,10 +1582,11 @@ function clusterHTML(c,idx){
   const tagsHTML=tags.map(tag=>{const inMT=myTags.has(tag);return`<span class="story-tag${inMT?" in-my-tags":""}" onclick="handleTagClick('${tag.replace(/'/g,"\\'")}',this)">${tag}${inMT?"":' <span class="tag-plus">+</span>'}</span>`;}).join("");
 
   // Source rows: always render exactly 3 rows to keep card heights consistent
-  const leadRow=`<div class="src-row"><a class="src-name" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${lead.name} →</a>${biasPill(lead.lean)}</div>`;
-  const allSub=[c.sources[1],c.sources[2]]; // always 2 slots (may be undefined)
+  const srcHover=(name,lean)=>`onmouseenter="showSourcePopup('${name.replace(/'/g,"\'")}','${lean}',0,0,this)" onmouseleave="setTimeout(()=>{const p=document.getElementById('src-popup');if(p&&p._name==='${name.replace(/'/g,"\'")}')hideSourcePopup();},200)"`;
+  const leadRow=`<div class="src-row"><a class="src-name" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ${srcHover(lead.name,lead.lean)}>${lead.name} →</a>${biasPill(lead.lean)}</div>`;
+  const allSub=[c.sources[1],c.sources[2]];
   const subRows=allSub.map(s=>s
-    ?`<div class="src-row src-row-sub"><a class="src-name src-name-sub" href="${s.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${s.name} →</a>${biasPill(s.lean)}</div>`
+    ?`<div class="src-row src-row-sub"><a class="src-name src-name-sub" href="${s.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ${srcHover(s.name,s.lean)}>${s.name} →</a>${biasPill(s.lean)}</div>`
     :`<div class="src-row src-row-sub src-row-empty">&nbsp;</div>`
   ).join("");
 
@@ -1559,7 +1613,6 @@ ${tagsHTML?`<div class="cluster-tags">${tagsHTML}</div>`:""}
     ${showBias?`<div class="footer-bias-wrap"><div class="footer-bias-labels"><span class="blbl blbl-l">L ${bias.left}%</span><span class="blbl blbl-c">C ${bias.center}%</span><span class="blbl blbl-r">R ${bias.right}%</span></div><div class="bias-track"><div class="seg-l" style="width:${bias.left}%"></div><div class="seg-c" style="width:${bias.center}%"></div><div class="seg-r" style="width:${bias.right}%"></div></div></div>`:""}
     <span class="cluster-age">${ageStr(c.pubDate)}</span>
     <button class="bmark-btn-cluster${isBM(c.headline)?" saved":""}" onclick="toggleBM(${idx},this)">★</button>
-    <button class="block-src-btn" title="Block lead source" onclick="event.stopPropagation();blockSource('${lead.name.replace(/'/g,"\'")}')" style="background:none;border:none;cursor:pointer;font-size:13px;color:#bbb;padding:0;" onmouseover="this.style.color='#c00'" onmouseout="this.style.color='#bbb'">🚫</button>
   </div>
 </div>
 </div>`;
@@ -1711,9 +1764,9 @@ function renderDirtyNews(){
     const rc=rated.filter(s=>s.lean==="right"||s.lean==="right-center").length;
     const tot=rated.length;
     if(lc>=2&&rc===0&&lc/tot>=0.75){
-      leftOnly.push({...c,score:dirtyScore(lc,tot),lc,tot,lpct:Math.round(lc/tot*100)});
+      leftOnly.push({...c,score:dirtyScore(lc,rc,tot),lc,tot,lpct:Math.round(lc/tot*100)});
     } else if(rc>=2&&lc===0&&rc/tot>=0.75){
-      rightOnly.push({...c,score:dirtyScore(rc,tot),rc,tot,rpct:Math.round(rc/tot*100)});
+      rightOnly.push({...c,score:dirtyScore(rc,lc,tot),rc,tot,rpct:Math.round(rc/tot*100)});
     }
   });
   leftOnly.sort((a,b)=>b.score-a.score);
@@ -1743,25 +1796,28 @@ function renderDirtyNews(){
 
 async function openStoryViewer(idx){
   const c=allClusters[idx];if(!c)return;
-  const bias=calcBias(c.sources);
+  const bias=calcBias(allSources);
   const col=RC[c.region]||{bg:"#ddd",color:"#111"};
   const cs=getComputedStyle(document.documentElement);
   // Compute dirty score for this story
-  const ratedSrc=c.sources.filter(s=>!s.name.startsWith("GN —")&&!s.name.startsWith("Local —"));
+  const ratedSrc=allSources.filter(s=>!s.name.startsWith("GN —")&&!s.name.startsWith("Local —"));
   const dLC=ratedSrc.filter(s=>s.lean==="left"||s.lean==="left-center").length;
   const dRC=ratedSrc.filter(s=>s.lean==="right"||s.lean==="right-center").length;
   const dTot=ratedSrc.length;
   let dirtyScore=0,dirtyDir="",dirtySrcCount=0,dirtyPct=0;
-  if(dTot>=2){
-    if(dLC>=2&&dRC===0){dirtyDir="left";dirtySrcCount=dLC;dirtyPct=Math.round(dLC/dTot*100);dirtyScore=(dLC/dTot)*Math.log2(dLC+1)*10;}
-    else if(dRC>=2&&dLC===0){dirtyDir="right";dirtySrcCount=dRC;dirtyPct=Math.round(dRC/dTot*100);dirtyScore=(dRC/dTot)*Math.log2(dRC+1)*10;}
+  if(dTot>=1){
+    const ds=dirtyScore(dLC,dRC,dTot);
+    dirtyScore=ds;
+    if(dLC>dRC){dirtyDir="left";dirtySrcCount=dLC;dirtyPct=Math.round(dLC/dTot*100);}
+    else if(dRC>dLC){dirtyDir="right";dirtySrcCount=dRC;dirtyPct=Math.round(dRC/dTot*100);}
+    else{dirtyDir="";} // perfectly balanced
   }
   const D={
     headline:c.headline,
     region:c.region,
     topic:c.topic,
     tags:c.tags||[],
-    sources:c.sources.map(s=>({name:s.name,lean:s.lean,url:s.url,desc:s.desc||""})),
+    sources:allSources.map(s=>({name:s.name,lean:s.lean,url:s.url,desc:s.desc||"",isExtra:s.isExtra||false})),
     bias:bias,
     dirtyScore:Math.round(dirtyScore*10)/10,
     dirtyDir:dirtyDir,
@@ -1789,21 +1845,32 @@ async function openStoryViewer(idx){
     "var h1=el('h1',{textContent:D.headline},document.body);h1.style.cssText='font-family:Georgia,serif;font-size:24px;font-weight:700;margin-bottom:.75rem;line-height:1.35;color:'+D.textColor+';';",
     // Tags
     "if(D.tags.length){var tr=el('div',{},document.body);tr.style.cssText='display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem;';D.tags.forEach(function(t){sty(el('span',{textContent:t},tr),{padding:'3px 10px',borderRadius:'99px',border:'1px solid #ccc',fontSize:'10px',fontWeight:'700',color:D.mutedColor});});}",
-    // Bias
-    "var bs=el('div',{},document.body);bs.style.cssText='background:#f8f8f8;border:1px solid #ddd;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;';",
-    "sty(el('div',{textContent:'Coverage Bias — AllSides Ratings'},bs),{fontSize:'10px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.mutedColor,marginBottom:'.5rem'});",
-    "var bsr=el('div',{},bs);bsr.style.cssText='display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;font-weight:700;';",
-    "el('span',{textContent:'Left '+D.bias.left+'%'},bsr).style.color='#1a4eb0';",
-    "el('span',{textContent:'Center '+D.bias.center+'%'},bsr).style.color='#16a34a';",
-    "el('span',{textContent:'Right '+D.bias.right+'%'},bsr).style.color='#c0392b';",
-    "var bt=el('div',{},bs);bt.style.cssText='height:8px;border-radius:4px;overflow:hidden;display:flex;background:rgba(128,128,128,.2);';",
-    "sty(el('div',{},bt),{width:D.bias.left+'%',background:'#1a4eb0',height:'100%'});",
-    "sty(el('div',{},bt),{width:D.bias.center+'%',background:'#16a34a',height:'100%'});",
-    "sty(el('div',{},bt),{width:D.bias.right+'%',background:'#c0392b',height:'100%'});",
+    // Bias now integrated into dirty score block below
     // Section title
     "sty(el('div',{textContent:'All Sources ('+D.sources.length+')'},document.body),{fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'.1em',color:D.accent,marginBottom:'1rem'});",
-    // Dirty news score
-    "if(D.dirtyScore>0){var ds=el('div',{},document.body);ds.style.cssText='border-radius:8px;padding:.6rem 1rem;margin-bottom:1rem;background:'+(D.dirtyDir==='left'?'#dbeafe':'#fee2e2')+';border:1px solid '+(D.dirtyDir==='left'?'#93c5fd':'#fca5a5')+';';var dsl=el('div',{},ds);dsl.style.cssText='font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+(D.dirtyDir==='left'?'#1e3a8a':'#7f1d1d')+';margin-bottom:3px;';dsl.textContent=(D.dirtyDir==='left'?'⚠ Covered mostly by left-leaning sources':'⚠ Covered mostly by right-leaning sources');var dsd=el('div',{},ds);dsd.style.cssText='font-size:11px;color:'+(D.dirtyDir==='left'?'#1e40af':'#991b1b')+';';dsd.textContent=D.dirtySrcCount+' '+D.dirtyDir+'-leaning sources · '+D.dirtyPct+'% coverage · score: '+Math.round(D.dirtyScore);}",
+    // Dirty score badge + bias bar
+    "// always show score block",
+    "  var scoreRow=el('div',{},document.body);scoreRow.style.cssText='display:flex;align-items:stretch;gap:0;margin-bottom:1.25rem;border-radius:10px;overflow:hidden;border:2px solid #ddd;';",
+    // Dirty score badge (left side)
+    "  var badge=el('div',{},scoreRow);",
+    "  var bColor=D.dirtyScore>0?(D.dirtyDir==='left'?'#1e3a8a':'#7f1d1d'):'#374151';",
+    "  badge.style.cssText='background:'+bColor+';color:#fff;padding:.75rem 1.1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:90px;flex-shrink:0;';",
+    "  var bIcon=el('div',{textContent:D.dirtyScore>0?(D.dirtyDir==='left'?'◀':'▶'):'●'},badge);bIcon.style.cssText='font-size:18px;line-height:1;margin-bottom:3px;';",
+    "  var bLabel=el('div',{textContent:'Dirty Score'},badge);bLabel.style.cssText='font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.8;margin-bottom:2px;';",
+    "  var bNum=el('div',{textContent:D.dirtyScore>0?Math.round(D.dirtyScore):'-'},badge);bNum.style.cssText='font-size:28px;font-weight:900;line-height:1;';",
+    "  var bPct=el('div',{textContent:D.dirtyScore>0?D.dirtyPct+'%':'balanced'},badge);bPct.style.cssText='font-size:10px;font-weight:700;opacity:.85;margin-top:1px;';",
+    // Bias bar (right side)
+    "  var biasBox=el('div',{},scoreRow);biasBox.style.cssText='flex:1;background:#f8f8f8;padding:.65rem 1rem;display:flex;flex-direction:column;justify-content:center;gap:5px;';",
+    "  var bst=el('div',{textContent:'Coverage Bias — AllSides Ratings'},biasBox);bst.style.cssText='font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#888;';",
+    "  var bsr=el('div',{},biasBox);bsr.style.cssText='display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:3px;';",
+    "  el('span',{textContent:'Left '+D.bias.left+'%'},bsr).style.color='#1a4eb0';",
+    "  el('span',{textContent:'Center '+D.bias.center+'%'},bsr).style.color='#16a34a';",
+    "  el('span',{textContent:'Right '+D.bias.right+'%'},bsr).style.color='#c0392b';",
+    "  var bt=el('div',{},biasBox);bt.style.cssText='height:10px;border-radius:5px;overflow:hidden;display:flex;background:#e5e7eb;';",
+    "  sty(el('div',{},bt),{width:D.bias.left+'%',background:'#1a4eb0',height:'100%'});",
+    "  sty(el('div',{},bt),{width:D.bias.center+'%',background:'#16a34a',height:'100%'});",
+    "  sty(el('div',{},bt),{width:D.bias.right+'%',background:'#c0392b',height:'100%'});",
+    "// end score block",
 
     // Source cards — headline + excerpt + read button
     "D.sources.forEach(function(s){",
