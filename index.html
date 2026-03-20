@@ -10,8 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#cccccc;margin:0;padding:0;}
-#app{font-family:Verdana,Geneva,Tahoma,sans-serif;max-width:100%;margin:0;padding:1rem 2rem 90px;min-height:100vh;}
+body{background:#cccccc;margin:0;padding:0;padding-bottom:24px;}
+#app{font-family:Verdana,Geneva,Tahoma,sans-serif;max-width:100%;margin:0;padding:1rem 2rem 90px 2rem;min-height:100vh;}
 .masthead{border-bottom:3px solid var(--accent);padding-bottom:.85rem;margin-bottom:1.1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .masthead h1{font-family:'Lilita One',Georgia,serif;font-size:40px;font-weight:400;color:var(--accent);letter-spacing:.5px;text-shadow:0 1px 3px rgba(0,0,0,.2);}
 .mast-right{display:flex;align-items:center;gap:10px;}
@@ -1500,9 +1500,9 @@ async function loadFeeds(silent=false){
   try {
     const res = await fetch("/api/news");
     if (res.ok) {
-      const text = await res.text();
-      if(!text.startsWith('{')&&!text.startsWith('['))throw new Error("Not JSON: "+text.slice(0,50));
-      const data = JSON.parse(text);
+      const ct = res.headers.get("content-type")||"";
+      if(!ct.includes("json"))throw new Error("Not JSON, got: "+ct);
+      const data = await res.json();
       if (data.clusters && data.clusters.length) {
         allClusters = data.clusters.slice(0, 500);
         // Apply local filter if zip set
@@ -1928,10 +1928,10 @@ async function openStoryViewer(idx){
   const dLC=ratedSrc.filter(s=>s.lean==="left"||s.lean==="left-center").length;
   const dRC=ratedSrc.filter(s=>s.lean==="right"||s.lean==="right-center").length;
   const dTot=ratedSrc.length;
-  let dirtyScore=0,dirtyDir="",dirtySrcCount=0,dirtyPct=0;
+  let dirtyScoreVal=0,dirtyDir="",dirtySrcCount=0,dirtyPct=0;
   if(dTot>=1){
     const ds=dirtyScore(dLC,dRC,dTot);
-    dirtyScore=ds;
+    dirtyScoreVal=ds;
     if(dLC>dRC){dirtyDir="left";dirtySrcCount=dLC;dirtyPct=Math.round(dLC/dTot*100);}
     else if(dRC>dLC){dirtyDir="right";dirtySrcCount=dRC;dirtyPct=Math.round(dRC/dTot*100);}
     else{dirtyDir="";} // perfectly balanced
@@ -1943,7 +1943,7 @@ async function openStoryViewer(idx){
     tags:c.tags||[],
     sources:allSources.map(s=>({name:s.name,lean:s.lean,url:s.url,desc:s.desc||"",isExtra:s.isExtra||false})),
     bias:bias,
-    dirtyScore:Math.round(dirtyScore*10)/10,
+    dirtyScore:Math.round(dirtyScoreVal*10)/10,
     dirtyDir:dirtyDir,
     dirtySrcCount:dirtySrcCount,
     dirtyPct:dirtyPct,
@@ -2042,6 +2042,6 @@ buildUI();
 loadFeeds();
 </script>
 
-<div style="position:fixed;bottom:6px;left:8px;font-size:9px;font-weight:700;color:rgba(128,128,128,.4);pointer-events:none;z-index:9999;font-family:Verdana,sans-serif;">v034</div>
+<div style="position:fixed;bottom:8px;left:14px;font-size:9px;font-weight:700;color:rgba(128,128,128,.4);pointer-events:none;z-index:9999;font-family:Verdana,sans-serif;">v036</div>
 </body>
 </html>
