@@ -762,7 +762,7 @@ const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // drop articles older than 24h
 const arL=s=>s<60?s+"s":s<3600?(s/60)+"min":(s/3600)+"h";
 
 let allClusters=[],activeFilter="all",searchQuery="",allsidesOnly=false,leanFilter="",userZip="",userCity="",userState="",userCounty="",userRadius=25,userLat=null,userLng=null;
-let myTags=new Set(),activeTagFilters=new Set(),blockedSources=new Set(),favoriteSources=new Set();
+let myTags=new Set(),activeTagFilters=new Set(),blockedSources=new Set();
 let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
 let autoRefresh=false,arIntervalSec=60,arTimer=null,arRemaining=0;
@@ -773,7 +773,6 @@ try{bookmarks=JSON.parse(localStorage.getItem("wp_bm")||"[]");}catch{}
 try{searchHistory=JSON.parse(localStorage.getItem("wp_sh")||"[]");}catch{}
 try{myTags=new Set(JSON.parse(localStorage.getItem("wp_tags")||"[]"));}catch{}
 try{blockedSources=new Set(JSON.parse(localStorage.getItem("wwn_blocked")||"[]"));}catch{}
-try{favoriteSources=new Set(JSON.parse(localStorage.getItem("wwn_fav")||"[]"));}catch{}
 
 try{
   userZip=localStorage.getItem("wwn_zip")||"";
@@ -788,9 +787,7 @@ try{
 const saveB=()=>{try{localStorage.setItem("wp_bm",JSON.stringify(bookmarks));}catch{}};
 const saveH=()=>{try{localStorage.setItem("wp_sh",JSON.stringify(searchHistory));}catch{}};
 const saveTags=()=>{try{localStorage.setItem("wp_tags",JSON.stringify([...myTags]));}catch{}};
-const saveBlocked=()=>{try{localStorage.setItem("wwn_blocked",JSON.stringify([...blockedSources]));}catch{}};
-const saveFav=()=>{try{localStorage.setItem("wwn_fav",JSON.stringify([...favoriteSources]));}catch{}};
-const upCounts=()=>{document.getElementById("bmark-count").textContent=bookmarks.length;document.getElementById("hist-count").textContent=searchHistory.length;const bc=document.getElementById("blocked-count");if(bc)bc.textContent=blockedSources.size;};
+const saveBlocked=()=>{try{localStorage.setItem("wwn_blocked",JSON.stringify([...blockedSources]));}catch{}};const upCounts=()=>{document.getElementById("bmark-count").textContent=bookmarks.length;document.getElementById("hist-count").textContent=searchHistory.length;const bc=document.getElementById("blocked-count");if(bc)bc.textContent=blockedSources.size;};
 upCounts();
 
 
@@ -1009,7 +1006,7 @@ function showSourcePopup(name,lean,x,y,targetEl){
   const [bg,tc]=(leanColors[lean]||"#eee::#333").split("::");
   const leanLabel={left:"Left","left-center":"Left-Center",center:"Center","right-center":"Right-Center",right:"Right"}[lean]||lean;
   const blocked=blockedSources.has(name);
-  const faved=favoriteSources.has(name);
+  const faved=myTags.has(name);
   pop.innerHTML=`
     <div style="font-weight:800;font-size:13px;color:#111;margin-bottom:5px;">${name}</div>
     <span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;background:${bg};color:${tc};margin-bottom:8px;">${leanLabel}</span>
@@ -1021,7 +1018,7 @@ function showSourcePopup(name,lean,x,y,targetEl){
     </button>`;
   document.getElementById("src-popup-fav").onclick=function(e){
     e.stopPropagation();
-    if(favoriteSources.has(name))unfavoriteSource(name);else favoriteSource(name);
+    if(myTags.has(name))unfavoriteSource(name);else favoriteSource(name);
     hideSourcePopup();
   };
   document.getElementById("src-popup-block").onclick=function(e){
@@ -1236,14 +1233,12 @@ function addH(headline,url,outlet){if(!historyEnabled||!headline||!url)return;se
 function clearHistory(){searchHistory=[];saveH();upCounts();renderHist();}
 function delH(url){searchHistory=searchHistory.filter(h=>h.url!==url);saveH();upCounts();renderHist();}
 function favoriteSource(name){
-  favoriteSources.add(name);saveFav();
-  showToast("⭐ Favorited: "+name);
-  renderContent();
+  addTag(name);
+  showToast("⭐ "+name+" added to My Tags");
 }
 function unfavoriteSource(name){
-  favoriteSources.delete(name);saveFav();
-  showToast("Removed favorite: "+name);
-  renderContent();
+  removeTag(name);
+  showToast("Removed "+name+" from My Tags");
 }
 
 function blockSource(name){
@@ -1627,6 +1622,7 @@ function clusterHTML(c,idx){
 
   // Source rows: always render exactly 3 rows to keep card heights consistent
   const srcHover=(name,lean)=>`onmouseenter="showSourcePopup('${name.replace(/'/g,"\'")}','${lean}',0,0,this)" onmouseleave="setTimeout(()=>{const p=document.getElementById('src-popup');if(p&&p._name==='${name.replace(/'/g,"\'")}')hideSourcePopup();},200)"`;
+  const srcLabel=(name)=>myTags.has(name)?`⭐ ${name}`:name;
   const leadRow=`<div class="src-row"><a class="src-name" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ${srcHover(lead.name,lead.lean)}>${srcLabel(lead.name)} →</a>${biasPill(lead.lean)}</div>`;
   const allSub=[c.sources[1],c.sources[2]];
   const subRows=allSub.map(s=>s
