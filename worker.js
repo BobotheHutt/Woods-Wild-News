@@ -502,13 +502,10 @@ export default {
     if (path === "/api/news") {
       let cached = await env.WWN_CACHE.get(CACHE_KEY);
       if (!cached) {
-        // No cache yet — build it now
-        await buildCache(env);
-        cached = await env.WWN_CACHE.get(CACHE_KEY);
-      }
-      if (!cached) {
-        return new Response(JSON.stringify({ error: "Cache unavailable" }), {
-          status: 503, headers: { ...CORS, "Content-Type": "application/json" }
+        // No cache yet — trigger build in background, return empty so client falls back
+        ctx.waitUntil(buildCache(env));
+        return new Response(JSON.stringify({ clusters: [], built: null, building: true }), {
+          headers: { ...CORS, "Content-Type": "application/json" }
         });
       }
       return new Response(cached, {
