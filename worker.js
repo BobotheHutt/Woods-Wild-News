@@ -157,9 +157,27 @@ const GOOGLE_NEWS_FEEDS=[
 
 
 // ── NLP helpers ──────────────────────────────────────────────────────────
-const TOPIC_KW={Politics:["trump","biden","congress","senate","election","democrat","republican","president","white house","vote","campaign","supreme court","gop","legislation","governor","mayor","political"],Economy:["economy","market","stock","inflation","fed","interest rate","gdp","recession","jobs","unemployment","trade","tariff","budget","debt","bank","financial","wall street","dollar","oil"],Conflict:["war","attack","military","troops","missile","bomb","explosion","killed","dead","casualties","fighting","ceasefire","invasion","battle","terrorist","nato","defense","drone"],Climate:["climate","environment","weather","hurricane","flood","wildfire","earthquake","storm","emissions","carbon","green","renewable","temperature","drought","tornado"],Tech:["ai","artificial intelligence","technology","cyber","hack","data","silicon valley","apple","google","microsoft","meta","twitter","social media","software","robot","privacy","chip"],Health:["health","covid","virus","vaccine","cancer","drug","fda","cdc","hospital","medicine","disease","outbreak","mental health","opioid"],Science:["science","nasa","space","research","study","discovery","biology","physics","gene","dna","planet","species"]};
+const TOPIC_KW={
+  Politics:["trump","biden","congress","senate","election","democrat","republican","president","white house","vote","campaign","supreme court","gop","legislation","governor","mayor","political","harris","maga"],
+  Economy:["economy","market","stock","inflation","fed","interest rate","gdp","recession","jobs","unemployment","trade","tariff","budget","deficit","debt","bank","financial","wall street","dollar","oil","prices","earnings","revenue","billion"],
+  Conflict:["war","attack","military","troops","missile","bomb","explosion","killed","dead","casualties","fighting","ceasefire","invasion","battle","terrorist","nato","defense","drone","shooting","hostage","siege"],
+  Climate:["climate","environment","weather","hurricane","flood","wildfire","earthquake","storm","emissions","carbon","green","renewable","temperature","drought","tornado","blizzard","heat wave"],
+  Tech:["ai","artificial intelligence","technology","cyber","hack","data","silicon valley","apple","google","microsoft","meta","twitter","x.com","social media","software","robot","privacy","chip","openai","tesla","startup","app","iphone","android"],
+  Health:["health","covid","virus","vaccine","cancer","drug","fda","cdc","hospital","medicine","disease","outbreak","mental health","opioid","obesity","surgery","treatment","pandemic","alzheimer"],
+  Science:["science","nasa","space","research","study","discovery","biology","physics","gene","dna","planet","species","asteroid","climate study","experiment"],
+  Sports:["nfl","nba","mlb","nhl","soccer","football","basketball","baseball","hockey","tennis","golf","olympics","championship","playoff","super bowl","world cup","league","coach","player","trade","draft","score","win","loss","stadium"],
+  Entertainment:["movie","film","show","series","album","song","music","celebrity","actor","actress","director","netflix","disney","hbo","award","oscar","grammy","emmy","concert","tour","release","box office","streaming","spotify"],
+  Business:["company","ceo","merger","acquisition","ipo","startup","earnings","revenue","profit","loss","layoff","hire","corporate","deal","investment","fund","venture","brand","retail","amazon","walmart","target"]
+};
 
-const REGION_KW={Europe:["europe","uk","britain","france","germany","russia","ukraine","eu","nato","poland","spain","italy","greece","brussels","london","paris","berlin"],Asia:["china","japan","korea","india","pakistan","taiwan","hong kong","southeast asia","vietnam","thailand","indonesia","philippines","beijing","tokyo"],"Middle East":["israel","gaza","iran","iraq","syria","saudi","yemen","lebanon","jordan","palestine","hamas","hezbollah","middle east","tehran"],Africa:["africa","nigeria","kenya","ethiopia","south africa","libya","somalia","congo","sudan","ghana","tanzania","morocco"]};
+const REGION_KW={
+  "US & Americas":["washington","new york","california","texas","florida","chicago","los angeles","boston","atlanta","seattle","miami","houston","philadelphia","phoenix","u.s.","united states","american","america","canada","mexico","brazil","latin america","pentagon","capitol"],
+  Europe:["europe","uk","britain","england","france","germany","russia","ukraine","eu","nato","poland","spain","italy","greece","brussels","london","paris","berlin","sweden","norway","finland","denmark","netherlands","switzerland"],
+  Asia:["china","japan","korea","india","pakistan","taiwan","hong kong","southeast asia","vietnam","thailand","indonesia","philippines","beijing","tokyo","shanghai","delhi","mumbai","singapore","myanmar","bangladesh","sri lanka"],
+  "Middle East":["israel","gaza","iran","iraq","syria","saudi","yemen","lebanon","jordan","palestine","hamas","hezbollah","middle east","tehran","riyadh","tel aviv","west bank","netanyahu"],
+  Africa:["africa","nigeria","kenya","ethiopia","south africa","libya","somalia","congo","sudan","ghana","tanzania","morocco","egypt","algeria","zimbabwe","mozambique"],
+  "Latin America":["mexico","brazil","argentina","colombia","venezuela","chile","peru","cuba","haiti","guatemala","honduras","nicaragua","panama","ecuador","bolivia"]
+};
 
 const TOPIC_EMOJI={Politics:"🏛️",Economy:"📈",Conflict:"⚔️",Climate:"🌍",Tech:"💻",Health:"🏥",Science:"🔬",General:"📰"};
 
@@ -255,21 +273,29 @@ function getKeywords(h){
   return h.toLowerCase().replace(/[^\w\s]/g,"").split(/\s+/).filter(w=>w.length>3&&!stop.has(w));
 }
 function classifyTopic(t){const tl=t.toLowerCase();for(const[k,kw]of Object.entries(TOPIC_KW))if(kw.some(w=>tl.includes(w)))return k;return"General";}
-function classifyRegion(t){const tl=t.toLowerCase();for(const[k,kw]of Object.entries(REGION_KW))if(kw.some(w=>tl.includes(w)))return k==="Middle_East"?"Middle East":k;return null;}
+function classifyRegion(t){
+  if(!t||typeof t!=="string")return"US & Americas";
+  const tl=t.toLowerCase();
+  for(const[k,kw]of Object.entries(REGION_KW))if(kw.some(w=>tl.includes(w)))return k==="Middle_East"?"Middle East":k;
+  // Default to US & Americas for unmatched stories (most are US-focused)
+  return"US & Americas";
+}
 
 function extractTags(text){
-  const stop=new Set(["the","a","an","in","on","at","to","for","of","and","or","but","is","are","was","were","has","have","had","that","this","with","from","by","as","it","its","says","said","after","before","over"]);
+  if(!text||typeof text!=="string")return[];
+  const stop=new Set(["The","A","An","In","On","At","To","For","Of","And","Or","But","Is","Are","Was","Were","Has","Have","Had","That","This","With","From","By","As","It","Its","Says","Said","After","Before","Over","After","New","How","What","Who","Why","When","Where","After","More","Than","Will","Been","Just","Also","Now","Here","There","About","After","Still","First","Last","After","Next","He","She","They","We","You","I"]);
+  const junk=new Set(["Null","Undefined","True","False","None","Html","Css","Rss","Xml","Http","Https"]);
   const tags=new Set();
-  const re=/([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,2})/g;
+  const re=/([A-Z][a-zA-Z]{2,}(?:\s+[A-Z][a-zA-Z]{2,}){0,2})/g;
   let m;
   while((m=re.exec(text))!==null){
     const p=m[1].trim();
-    if(p.split(" ").every(w=>!stop.has(w.toLowerCase()))&&p.length>3&&p.length<28){tags.add(p);}
-    if(tags.size>=4)break;
+    if(!stop.has(p)&&!junk.has(p)&&p.length>=4&&p.length<=30&&!/^\d/.test(p)){
+      tags.add(p);
+    }
+    if(tags.size>=5)break;
   }
-  const topic=classifyTopic(text);
-  if(topic!=="General")tags.add(topic);
-  return[...tags].slice(0,4);
+  return[...tags].slice(0,5);
 }
 
 function similarity(h1,h2){
