@@ -1010,9 +1010,12 @@ function showSourcePopup(name,lean,x,y,targetEl){
   pop.innerHTML=`
     <div style="font-weight:800;font-size:13px;color:#111;margin-bottom:5px;">${name}</div>
     <span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;background:${bg};color:${tc};margin-bottom:8px;">${leanLabel}</span>
-    <button id="src-popup-fav" style="display:block;width:100%;padding:5px 10px;border-radius:6px;border:1.5px solid ${faved?'#b45309':'#d1d5db'};background:${faved?'#fef3c7':'#f9fafb'};color:${faved?'#92400e':'#374151'};font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;margin-bottom:5px;">
-      ${faved?'⭐ Unfavorite Source':'☆ Favorite Source'}
-    </button>
+    <div style="margin-bottom:6px;">
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:4px;">My Tags</div>
+      <button id="src-popup-fav" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;border:2px solid ${faved?'var(--accent)':'#bbb'};background:${faved?'var(--accent)':'#fff'};color:${faved?'#fff':'#555'};font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">
+        ${faved?'✓ '+name:name+' +'}
+      </button>
+    </div>
     <button id="src-popup-block" style="display:block;width:100%;padding:5px 10px;border-radius:6px;border:1.5px solid ${blocked?'#16a34a':'#c00'};background:${blocked?'#dcfce7':'#fee2e2'};color:${blocked?'#166534':'#991b1b'};font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;">
       ${blocked?'✓ Unblock Source':'🚫 Block Source'}
     </button>`;
@@ -1622,7 +1625,7 @@ function clusterHTML(c,idx){
 
   // Source rows: always render exactly 3 rows to keep card heights consistent
   const srcHover=(name,lean)=>`onmouseenter="showSourcePopup('${name.replace(/'/g,"\'")}','${lean}',0,0,this)" onmouseleave="setTimeout(()=>{const p=document.getElementById('src-popup');if(p&&p._name==='${name.replace(/'/g,"\'")}')hideSourcePopup();},200)"`;
-  const srcLabel=(name)=>myTags.has(name)?`⭐ ${name}`:name;
+  const srcLabel=(name)=>name; // tags shown separately under search bar
   const leadRow=`<div class="src-row"><a class="src-name" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ${srcHover(lead.name,lead.lean)}>${srcLabel(lead.name)} →</a>${biasPill(lead.lean)}</div>`;
   const allSub=[c.sources[1],c.sources[2]];
   const subRows=allSub.map(s=>s
