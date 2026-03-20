@@ -762,7 +762,7 @@ const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // drop articles older than 24h
 const arL=s=>s<60?s+"s":s<3600?(s/60)+"min":(s/3600)+"h";
 
 let allClusters=[],activeFilter="all",searchQuery="",allsidesOnly=false,leanFilter="",userZip="",userCity="",userState="",userCounty="",userRadius=25,userLat=null,userLng=null;
-let myTags=new Set(),activeTagFilters=new Set(),blockedSources=new Set();
+let myTags=new Set(),activeTagFilters=new Set(),blockedSources=new Set(),favoriteSources=new Set();
 let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
 let autoRefresh=false,arIntervalSec=60,arTimer=null,arRemaining=0;
@@ -773,6 +773,7 @@ try{bookmarks=JSON.parse(localStorage.getItem("wp_bm")||"[]");}catch{}
 try{searchHistory=JSON.parse(localStorage.getItem("wp_sh")||"[]");}catch{}
 try{myTags=new Set(JSON.parse(localStorage.getItem("wp_tags")||"[]"));}catch{}
 try{blockedSources=new Set(JSON.parse(localStorage.getItem("wwn_blocked")||"[]"));}catch{}
+try{favoriteSources=new Set(JSON.parse(localStorage.getItem("wwn_fav")||"[]"));}catch{}
 
 try{
   userZip=localStorage.getItem("wwn_zip")||"";
@@ -788,6 +789,7 @@ const saveB=()=>{try{localStorage.setItem("wp_bm",JSON.stringify(bookmarks));}ca
 const saveH=()=>{try{localStorage.setItem("wp_sh",JSON.stringify(searchHistory));}catch{}};
 const saveTags=()=>{try{localStorage.setItem("wp_tags",JSON.stringify([...myTags]));}catch{}};
 const saveBlocked=()=>{try{localStorage.setItem("wwn_blocked",JSON.stringify([...blockedSources]));}catch{}};
+const saveFav=()=>{try{localStorage.setItem("wwn_fav",JSON.stringify([...favoriteSources]));}catch{}};
 const upCounts=()=>{document.getElementById("bmark-count").textContent=bookmarks.length;document.getElementById("hist-count").textContent=searchHistory.length;const bc=document.getElementById("blocked-count");if(bc)bc.textContent=blockedSources.size;};
 upCounts();
 
@@ -1007,12 +1009,21 @@ function showSourcePopup(name,lean,x,y,targetEl){
   const [bg,tc]=(leanColors[lean]||"#eee::#333").split("::");
   const leanLabel={left:"Left","left-center":"Left-Center",center:"Center","right-center":"Right-Center",right:"Right"}[lean]||lean;
   const blocked=blockedSources.has(name);
+  const faved=favoriteSources.has(name);
   pop.innerHTML=`
     <div style="font-weight:800;font-size:13px;color:#111;margin-bottom:5px;">${name}</div>
     <span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;background:${bg};color:${tc};margin-bottom:8px;">${leanLabel}</span>
+    <button id="src-popup-fav" style="display:block;width:100%;padding:5px 10px;border-radius:6px;border:1.5px solid ${faved?'#b45309':'#d1d5db'};background:${faved?'#fef3c7':'#f9fafb'};color:${faved?'#92400e':'#374151'};font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;margin-bottom:5px;">
+      ${faved?'⭐ Unfavorite Source':'☆ Favorite Source'}
+    </button>
     <button id="src-popup-block" style="display:block;width:100%;padding:5px 10px;border-radius:6px;border:1.5px solid ${blocked?'#16a34a':'#c00'};background:${blocked?'#dcfce7':'#fee2e2'};color:${blocked?'#166534':'#991b1b'};font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;">
       ${blocked?'✓ Unblock Source':'🚫 Block Source'}
     </button>`;
+  document.getElementById("src-popup-fav").onclick=function(e){
+    e.stopPropagation();
+    if(favoriteSources.has(name))unfavoriteSource(name);else favoriteSource(name);
+    hideSourcePopup();
+  };
   document.getElementById("src-popup-block").onclick=function(e){
     e.stopPropagation();
     if(blockedSources.has(name))unblockSource(name);else blockSource(name);
@@ -1196,12 +1207,45 @@ function setSidebar(panel,btn){
   if(panel==="blocked")renderBlocked();
 }
 const isBM=h=>bookmarks.some(b=>b.headline===h);
-function toggleBM(idx,el){const c=allClusters[idx];if(!c)return;const i=bookmarks.findIndex(b=>b.headline===c.headline);i===-1?bookmarks.unshift({...c,savedAt:new Date().toISOString()}):bookmarks.splice(i,1);saveB();upCounts();if(el)el.className=isBM(c.headline)?"bmark-btn-cluster saved":"bmark-btn-cluster";}
-function renderBM(){const el=document.getElementById("bmarks-content");if(!bookmarks.length){el.innerHTML='<div class="empty-state">No bookmarks yet.</div>';return;}el.innerHTML=bookmarks.map((c,i)=>`<div class="bmark-card"><div class="bmark-hl">${c.headline}</div><div class="bmark-meta"><span>${c.sources[0]?c.sources[0].name:""} · ${ago(c.savedAt)}</span><button class="bmark-del" onclick="rmBM(${i})">✕</button></div></div>`).join("");}
+function toggleBM(idx,el){
+  const c=allClusters[idx];if(!c)return;
+  const i=bookmarks.findIndex(b=>b.headline===c.headline);
+  if(i===-1){
+    const lead=c.sources[0];
+    bookmarks.unshift({headline:c.headline,url:lead?lead.url:"",outlet:lead?lead.name:"",savedAt:new Date().toISOString()});
+  } else {
+    bookmarks.splice(i,1);
+  }
+  saveB();upCounts();
+  if(el)el.className=isBM(c.headline)?"bmark-btn-cluster saved":"bmark-btn-cluster";
+}
+function renderBM(){
+  const el=document.getElementById("bmarks-content");
+  if(!bookmarks.length){el.innerHTML='<div class="empty-state">No bookmarks yet.</div>';return;}
+  el.innerHTML=bookmarks.map((b,i)=>`
+    <div class="bmark-card">
+      <a class="bmark-hl" href="${b.url}" target="_blank" rel="noopener" style="text-decoration:none;color:#111;display:block;margin-bottom:3px;">${b.headline}</a>
+      <div class="bmark-meta">
+        <span>${b.outlet||""} · ${ago(b.savedAt)}</span>
+        <button class="bmark-del" onclick="rmBM(${i})">✕</button>
+      </div>
+    </div>`).join("");
+}
 function rmBM(i){bookmarks.splice(i,1);saveB();upCounts();renderBM();}
 function addH(headline,url,outlet){if(!historyEnabled||!headline||!url)return;searchHistory=searchHistory.filter(h=>h.url!==url);searchHistory.unshift({headline,url,outlet:outlet||'',at:new Date().toISOString()});if(searchHistory.length>200)searchHistory=searchHistory.slice(0,200);saveH();upCounts();}
 function clearHistory(){searchHistory=[];saveH();upCounts();renderHist();}
 function delH(url){searchHistory=searchHistory.filter(h=>h.url!==url);saveH();upCounts();renderHist();}
+function favoriteSource(name){
+  favoriteSources.add(name);saveFav();
+  showToast("⭐ Favorited: "+name);
+  renderContent();
+}
+function unfavoriteSource(name){
+  favoriteSources.delete(name);saveFav();
+  showToast("Removed favorite: "+name);
+  renderContent();
+}
+
 function blockSource(name){
   blockedSources.add(name);saveBlocked();
   upCounts();renderContent();renderBlocked();
@@ -1583,10 +1627,10 @@ function clusterHTML(c,idx){
 
   // Source rows: always render exactly 3 rows to keep card heights consistent
   const srcHover=(name,lean)=>`onmouseenter="showSourcePopup('${name.replace(/'/g,"\'")}','${lean}',0,0,this)" onmouseleave="setTimeout(()=>{const p=document.getElementById('src-popup');if(p&&p._name==='${name.replace(/'/g,"\'")}')hideSourcePopup();},200)"`;
-  const leadRow=`<div class="src-row"><a class="src-name" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ${srcHover(lead.name,lead.lean)}>${lead.name} →</a>${biasPill(lead.lean)}</div>`;
+  const leadRow=`<div class="src-row"><a class="src-name" href="${lead.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ${srcHover(lead.name,lead.lean)}>${srcLabel(lead.name)} →</a>${biasPill(lead.lean)}</div>`;
   const allSub=[c.sources[1],c.sources[2]];
   const subRows=allSub.map(s=>s
-    ?`<div class="src-row src-row-sub"><a class="src-name src-name-sub" href="${s.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ${srcHover(s.name,s.lean)}>${s.name} →</a>${biasPill(s.lean)}</div>`
+    ?`<div class="src-row src-row-sub"><a class="src-name src-name-sub" href="${s.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ${srcHover(s.name,s.lean)}>${srcLabel(s.name)} →</a>${biasPill(s.lean)}</div>`
     :`<div class="src-row src-row-sub src-row-empty">&nbsp;</div>`
   ).join("");
 
@@ -1796,6 +1840,11 @@ function renderDirtyNews(){
 
 async function openStoryViewer(idx){
   const c=allClusters[idx];if(!c)return;
+
+  // Fetch extra sources from Google News search
+  const extraSources=await fetchExtraSources(c.headline, c.sources);
+  const allSources=[...c.sources,...extraSources];
+
   const bias=calcBias(allSources);
   const col=RC[c.region]||{bg:"#ddd",color:"#111"};
   const cs=getComputedStyle(document.documentElement);
