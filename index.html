@@ -1886,6 +1886,33 @@ function renderDirtyNews(){
 }
 
 
+async function fetchExtraSources(headline, existingSources){
+  try {
+    const q=encodeURIComponent(headline);
+    const rssUrl=`https://news.google.com/rss/search?q=${q}&ceid=US:en&hl=en-US&gl=US`;
+    const res=await fetch(`/rss?url=${encodeURIComponent(rssUrl)}`,{signal:AbortSignal.timeout(8000)});
+    if(!res.ok)return[];
+    const xml=await res.text();
+    const doc=new DOMParser().parseFromString(xml,"text/xml");
+    if(doc.querySelector("parsererror"))return[];
+    const items=[...doc.querySelectorAll("item")];
+    const existingUrls=new Set(existingSources.map(s=>s.url));
+    const extra=[];
+    items.forEach(item=>{
+      const title=stripHTML(item.querySelector("title")?.textContent||"");
+      const link=(item.querySelector("link")?.textContent||"").trim();
+      const desc=stripHTML(item.querySelector("description")?.textContent||"").slice(0,200);
+      if(!link||existingUrls.has(link))return;
+      const parts=title.split(" - ");
+      const publisher=parts.length>1?parts[parts.length-1].trim():"Unknown";
+      if(existingSources.some(s=>s.name===publisher))return;
+      extra.push({name:publisher,lean:"center",url:link,desc,isExtra:true});
+      existingUrls.add(link);
+    });
+    return extra;
+  }catch(e){return[];}
+}
+
 async function openStoryViewer(idx){
   const c=allClusters[idx];if(!c)return;
 
@@ -2015,5 +2042,6 @@ buildUI();
 loadFeeds();
 </script>
 
+<div style="position:fixed;bottom:6px;left:8px;font-size:9px;font-weight:700;color:rgba(128,128,128,.4);pointer-events:none;z-index:9999;font-family:Verdana,sans-serif;">v034</div>
 </body>
 </html>
