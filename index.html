@@ -406,7 +406,7 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
 <div class="masthead">
   <div style="display:flex;align-items:baseline;gap:6px;">
     <h1>Wood's Wild News!</h1>
-    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v049</span>
+    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v052</span>
   </div>
   <div class="mast-right">
     
@@ -764,7 +764,7 @@ let allClusters=[],activeFilter="all",searchQuery="",allsidesOnly=false,leanFilt
 let myTags=new Set(),activeTagFilters=new Set(),blockedSources=new Set();
 let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
-let autoRefresh=true,arIntervalSec=600,arTimer=null,arRemaining=0;
+let autoRefresh=true,arIntervalSec=300,arTimer=null,arRemaining=0;
 const AR_STEPS=[30,60,120,300,600,900,1800,3600,7200,14400];
 
 
@@ -999,6 +999,8 @@ function showSourcePopup(name,lean,x,y,targetEl){
     pop=document.createElement("div");
     pop.id="src-popup";
     pop.style.cssText="position:fixed;z-index:9999;background:#fff;border:2px solid #555;border-radius:10px;padding:.65rem .85rem;font-family:Verdana,sans-serif;font-size:11px;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:220px;pointer-events:auto;";
+    pop.addEventListener("mouseenter",()=>{pop._hovering=true;});
+    pop.addEventListener("mouseleave",()=>{pop._hovering=false;hideSourcePopup();});
     document.body.appendChild(pop);
   }
   const leanColors={left:"#dbeafe::#1e3a8a","left-center":"#dbeafe::#1e3a8a",center:"#dcfce7::#14532d","right-center":"#fee2e2::#7f1d1d",right:"#fee2e2::#7f1d1d"};
@@ -1039,11 +1041,12 @@ function showSourcePopup(name,lean,x,y,targetEl){
   pop.style.top=py+"px";
   pop.style.display="block";
   pop._name=name;
+  pop._hovering=false;
 }
 
 function hideSourcePopup(){
   const pop=document.getElementById("src-popup");
-  if(pop)pop.style.display="none";
+  if(pop&&!pop._hovering)pop.style.display="none";
 }
 
 // Hide popup on outside click
@@ -1201,22 +1204,14 @@ function closeMobileSidebar(){
 
 let activeSidebarPanel="";
 function setSidebar(panel,btn){
-  const sidebarEl=document.getElementById("sidebar-el");
   const panelWrap=document.querySelector(".sidebar-panel");
-  const tabRow=document.querySelector(".sidebar-tab-row");
   if(activeSidebarPanel===panel){
-    // Same tab clicked — collapse sidebar, expand main content
     activeSidebarPanel="";
     document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active"));
     if(panelWrap)panelWrap.style.display="none";
-    if(sidebarEl){sidebarEl.style.width="0";sidebarEl.style.overflow="hidden";}
-    if(tabRow)tabRow.style.position="fixed",tabRow.style.right="8px",tabRow.style.top="56px",tabRow.style.zIndex="200",tabRow.style.margin="0";
     return;
   }
-  // Expand sidebar
   activeSidebarPanel=panel;
-  if(sidebarEl){sidebarEl.style.width="";sidebarEl.style.overflow="";}
-  if(tabRow)tabRow.style.cssText="";
   document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active","dirty-active"));
   if(btn)btn.classList.add("active");
   if(panelWrap)panelWrap.style.display="";
