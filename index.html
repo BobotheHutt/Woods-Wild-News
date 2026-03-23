@@ -1122,6 +1122,15 @@ function toggleTagManager(){
   }),10);
 }
 renderMyTagsRow();
+// Start sidebar collapsed — articles get full width
+document.addEventListener("DOMContentLoaded",function(){
+  const sidebarEl=document.getElementById("sidebar-el");
+  const panelWrap=document.querySelector(".sidebar-panel");
+  const tabRow=document.querySelector(".sidebar-tab-row");
+  if(sidebarEl){sidebarEl.style.width="0";sidebarEl.style.overflow="hidden";}
+  if(panelWrap)panelWrap.style.display="none";
+  if(tabRow)tabRow.style.cssText="position:fixed;right:8px;top:56px;z-index:200;margin:0;";
+});
 
 document.getElementById("gear-btn").addEventListener("click",function(e){
   e.stopPropagation();
@@ -1214,7 +1223,7 @@ function setSidebar(panel,btn){
   // Expand sidebar
   activeSidebarPanel=panel;
   if(sidebarEl){sidebarEl.style.width="";sidebarEl.style.overflow="";}
-  if(tabRow)tabRow.style.position="",tabRow.style.right="",tabRow.style.top="",tabRow.style.zIndex="",tabRow.style.margin="";
+  if(tabRow)tabRow.style.cssText="";
   document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active","dirty-active"));
   if(btn)btn.classList.add("active");
   if(panelWrap)panelWrap.style.display="";
@@ -2049,6 +2058,6 @@ buildUI();
 loadFeeds();
 </script>
 
-<div style="position:fixed;bottom:8px;left:10px;font-size:9px;font-weight:700;color:rgba(128,128,128,.4);pointer-events:none;z-index:9999;font-family:Verdana,sans-serif;">v038</div>
+<div style="position:fixed;bottom:8px;left:10px;font-size:9px;font-weight:700;color:rgba(128,128,128,.4);pointer-events:none;z-index:9999;font-family:Verdana,sans-serif;">v040</div>
 </body>
 </html>
