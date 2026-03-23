@@ -406,7 +406,7 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
 <div class="masthead">
   <div style="display:flex;align-items:baseline;gap:6px;">
     <h1>Wood's Wild News!</h1>
-    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v052</span>
+    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v054</span>
   </div>
   <div class="mast-right">
     
@@ -806,8 +806,7 @@ function clearZip(){
 function getLocalSearchTerms(){
   if(!userCity)return [];
   const terms=[userCity];
-  // Add nearby cities/regions based on radius using state
-  if(userRadius>=25)terms.push(userState);
+  // Only add county — never add state name (too broad, matches DC/national stories)
   if(userRadius>=50&&userCounty)terms.push(userCounty.replace(" County",""));
   return terms;
 }
@@ -1727,18 +1726,23 @@ function filterClusters(){
   if(af==="all"){
     // show everything
   } else if(af==="local"){
+    // Only show stories from local feeds or matching local search terms
+    // Never fall back to "all US stories" — that's not local
     if(userCity){
       const terms=getLocalSearchTerms().map(t=>t.toLowerCase());
       f=f.filter(c=>{
         const fromLocalFeed=c.sources.some(s=>s.name.startsWith("Local —"));
         if(fromLocalFeed)return true;
         const txt=(c.headline+" "+(c.excerpt||"")).toLowerCase();
-        return terms.some(t=>txt.includes(t));
+        // Use word-boundary style match to avoid "washington" matching "washington d.c." etc.
+        return terms.some(t=>{
+          const re=new RegExp('\\b'+t.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b');
+          return re.test(txt);
+        });
       });
-      // fallback: just show local feed stories if no term matches
-      if(!f.length)f=allClusters.filter(c=>c.sources.some(s=>s.name.startsWith("Local —")));
     } else {
-      f=f.filter(c=>c.region==="US & Americas");
+      // No ZIP set — only show stories from local feeds (there won't be any)
+      f=f.filter(c=>c.sources.some(s=>s.name.startsWith("Local —")));
     }
   } else if(af==="U.S."){
     f=f.filter(c=>c.region==="US & Americas");
