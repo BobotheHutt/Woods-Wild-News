@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#cccccc;margin:0;padding:0;padding-bottom:24px;}
+body{background:#cccccc;margin:0;padding:0;padding-bottom:24px;overflow-x:hidden;}
 #app{font-family:Verdana,Geneva,Tahoma,sans-serif;max-width:100%;margin:0;padding:1rem 1rem 90px 1rem;min-height:100vh;}
 .masthead{border-bottom:3px solid var(--accent);padding-bottom:.85rem;margin-bottom:1.1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .masthead h1{font-family:'Lilita One',Georgia,serif;font-size:40px;font-weight:400;color:var(--accent);letter-spacing:.5px;text-shadow:0 1px 3px rgba(0,0,0,.2);}
@@ -62,7 +62,7 @@ body{background:#cccccc;margin:0;padding:0;padding-bottom:24px;}
 .key-setting-row button{padding:4px 10px;border-radius:5px;border:none;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .body-layout{display:flex;gap:16px;align-items:flex-start;width:100%;}
 .main-col{flex:1;min-width:0;}
-.sidebar{width:0;flex-shrink:0;padding:0;margin:0;border:none;overflow:visible;}
+.sidebar{width:290px;flex-shrink:0;}
 .sidebar-tab-row{display:flex;border:2px solid #555;border-radius:8px;overflow:hidden;background:#cccccc;}
 .stab-btn{flex:1;padding:8px 2px;border:none;background:transparent !important;color:#222 !important;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-right:2px solid #555;}
 .stab-btn:last-child{border-right:none;}
@@ -72,7 +72,7 @@ body{background:#cccccc;margin:0;padding:0;padding-bottom:24px;}
 .stab-icon{font-size:14px;line-height:1;}.stab-label{font-size:9px;white-space:nowrap;}
 .stab-badge{font-size:9px;background:#888;color:#fff !important;border-radius:99px;padding:1px 5px;font-weight:700;}
 .stab-btn.active .stab-badge,.stab-btn.dirty-active .stab-badge{background:rgba(255,255,255,.3);}
-.sidebar-panel{background:#fff;border:2px solid #ccc;border-radius:10px;padding:.85rem;}
+.sidebar-panel{background:#fff;border:2px solid #ccc;border-radius:10px;padding:.85rem;position:fixed;right:8px;width:280px;max-height:80vh;overflow-y:auto;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,.2);}
 .sidebar-panel-title{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid #aaa;}
 .bmark-card{background:#e8e8e8;border:1px solid #aaa;border-radius:7px;padding:.55rem .65rem;margin-bottom:5px;cursor:pointer;}
 .bmark-card:hover{border-color:#555;}
@@ -406,11 +406,10 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
 <div class="masthead">
   <div style="display:flex;align-items:baseline;gap:6px;">
     <h1>Wood's Wild News!</h1>
-    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v056</span>
+    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v062</span>
   </div>
   <div class="mast-right">
-    
-<div class="tog-group"><span class="tog-label">Auto-refresh</span><button class="tog" id="ar-toggle"></button></div>
+    <div class="tog-group"><span class="tog-label">Auto-refresh</span><button class="tog" id="ar-toggle"></button></div>
     <button class="icon-btn" id="gear-btn">⚙</button>
   </div>
 </div>
@@ -1204,6 +1203,7 @@ function closeMobileSidebar(){
 let activeSidebarPanel="";
 function setSidebar(panel,btn){
   const panelWrap=document.querySelector(".sidebar-panel");
+  const tabRow=document.querySelector(".sidebar-tab-row");
   if(activeSidebarPanel===panel){
     activeSidebarPanel="";
     document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active"));
@@ -1213,6 +1213,11 @@ function setSidebar(panel,btn){
   activeSidebarPanel=panel;
   document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active","dirty-active"));
   if(btn)btn.classList.add("active");
+  // Position panel just below the tab row
+  if(tabRow&&panelWrap){
+    const rect=tabRow.getBoundingClientRect();
+    panelWrap.style.top=(rect.bottom+4)+"px";
+  }
   if(panelWrap)panelWrap.style.display="";
   ["bookmarks","blocked","history"].forEach(p=>document.getElementById(p+"-panel").style.display=p===panel?"":"none");
   if(panel==="bookmarks")renderBM();
