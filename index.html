@@ -11,7 +11,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#cccccc;margin:0;padding:0;padding-bottom:24px;}
-#app{font-family:Verdana,Geneva,Tahoma,sans-serif;max-width:100%;margin:0;padding:1rem 2.5rem 90px 2.5rem;min-height:100vh;transition:padding-right .2s;}
+#app{font-family:Verdana,Geneva,Tahoma,sans-serif;max-width:100%;margin:0;padding:1rem 1rem 90px 1rem;min-height:100vh;}
 .masthead{border-bottom:3px solid var(--accent);padding-bottom:.85rem;margin-bottom:1.1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .masthead h1{font-family:'Lilita One',Georgia,serif;font-size:40px;font-weight:400;color:var(--accent);letter-spacing:.5px;text-shadow:0 1px 3px rgba(0,0,0,.2);}
 .mast-right{display:flex;align-items:center;gap:10px;}
@@ -62,7 +62,7 @@ body{background:#cccccc;margin:0;padding:0;padding-bottom:24px;}
 .key-setting-row button{padding:4px 10px;border-radius:5px;border:none;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .body-layout{display:flex;gap:16px;align-items:flex-start;width:100%;}
 .main-col{flex:1;min-width:0;}
-.sidebar{width:280px;flex-shrink:0;}
+.sidebar{width:0;flex-shrink:0;padding:0;margin:0;border:none;overflow:visible;}
 .sidebar-tab-row{display:flex;border:2px solid #555;border-radius:8px;overflow:hidden;background:#cccccc;}
 .stab-btn{flex:1;padding:8px 2px;border:none;background:transparent !important;color:#222 !important;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-right:2px solid #555;}
 .stab-btn:last-child{border-right:none;}
@@ -406,7 +406,7 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
 <div class="masthead">
   <div style="display:flex;align-items:baseline;gap:6px;">
     <h1>Wood's Wild News!</h1>
-    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v054</span>
+    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v056</span>
   </div>
   <div class="mast-right">
     
@@ -1536,9 +1536,27 @@ async function fetchLocalFeeds(){
   const q=s=>"https://news.google.com/rss/search?q="+encodeURIComponent(s)+base;
   const localOutlets=[];
   if(userCity){
-    localOutlets.push({name:"Local — "+userCity,lean:"center",rss:q(userCity+" "+userState)});
-    localOutlets.push({name:"Local — "+userCity+" news",lean:"center",rss:q(userCity+" "+userState+" news")});
-    if(userRadius>=25&&userCounty)localOutlets.push({name:"Local — "+userCounty,lean:"center",rss:q(userCounty+" "+userState)});
+    const city=userCity, state=userState, county=(userCounty||"").replace(" County","");
+    // Core city queries
+    localOutlets.push({name:"Local — "+city,lean:"center",rss:q(city+" "+state)});
+    localOutlets.push({name:"Local — "+city+" news",lean:"center",rss:q(city+" "+state+" local news")});
+    localOutlets.push({name:"Local — "+city+" breaking",lean:"center",rss:q(city+" "+state+" breaking news")});
+    // County queries
+    if(county){
+      localOutlets.push({name:"Local — "+county+" County",lean:"center",rss:q(county+" County "+state)});
+      localOutlets.push({name:"Local — "+county+" news",lean:"center",rss:q(county+" County "+state+" news")});
+    }
+    // Broader region queries at higher radius
+    if(userRadius>=25){
+      localOutlets.push({name:"Local — "+city+" community",lean:"center",rss:q('"'+city+'" '+state+' community OR city OR town')});
+    }
+    if(userRadius>=50){
+      localOutlets.push({name:"Local — "+state+" regional",lean:"center",rss:q(city+" "+state+" regional news")});
+    }
+    // Try to find actual local paper RSS feeds via Google News publisher search
+    localOutlets.push({name:"Local — "+city+" herald",lean:"center",rss:q(city+" herald OR gazette OR tribune OR times "+state)});
+    localOutlets.push({name:"Local — "+city+" TV",lean:"center",rss:q(city+" "+state+" KIRO OR KING OR KOMO OR KVEW OR KNDO OR NBC OR CBS OR ABC OR FOX news")});
+    localOutlets.push({name:"Local — "+city+" radio",lean:"center",rss:q(city+" "+state+" NPR OR public radio OR KPBX OR KXLY")});
   }
   const articles=[];
   await Promise.all(localOutlets.map(async o=>{
@@ -1567,6 +1585,12 @@ async function fetchLocalFeeds(){
       });
     }
   });
+  // Re-sort with new local articles included
+  allClusters.sort((a,b)=>clusterScore(b)-clusterScore(a));
+  const localCount=allClusters.filter(c=>c.sources.some(s=>s.name.startsWith("Local —"))).length;
+  if(localCount>0)showToast(`Found ${localCount} local stories for ${userCity}`);
+  renderContent();
+  setTimeout(initScrollObserver,100);
 }
 
 async function loadFeedsDirect(silent=false){
