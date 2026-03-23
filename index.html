@@ -62,8 +62,8 @@ body{background:#cccccc;margin:0;padding:0;padding-bottom:24px;overflow-x:hidden
 .key-setting-row button{padding:4px 10px;border-radius:5px;border:none;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
 .body-layout{display:flex;gap:16px;align-items:flex-start;width:100%;}
 .main-col{flex:1;min-width:0;}
-.sidebar{width:290px;flex-shrink:0;}
-.sidebar-tab-row{display:flex;border:2px solid #555;border-radius:8px;overflow:hidden;background:#cccccc;}
+.sidebar{flex-shrink:0;}
+.sidebar-tab-row{display:flex;border:2px solid #555;border-radius:8px;overflow:hidden;background:#cccccc;white-space:nowrap;}
 .stab-btn{flex:1;padding:8px 2px;border:none;background:transparent !important;color:#222 !important;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-right:2px solid #555;}
 .stab-btn:last-child{border-right:none;}
 .stab-btn:hover{background:#aaa !important;color:#000 !important;}
@@ -72,7 +72,7 @@ body{background:#cccccc;margin:0;padding:0;padding-bottom:24px;overflow-x:hidden
 .stab-icon{font-size:14px;line-height:1;}.stab-label{font-size:9px;white-space:nowrap;}
 .stab-badge{font-size:9px;background:#888;color:#fff !important;border-radius:99px;padding:1px 5px;font-weight:700;}
 .stab-btn.active .stab-badge,.stab-btn.dirty-active .stab-badge{background:rgba(255,255,255,.3);}
-.sidebar-panel{background:#fff;border:2px solid #ccc;border-radius:10px;padding:.85rem;position:fixed;right:8px;width:280px;max-height:80vh;overflow-y:auto;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+.sidebar-panel{background:#fff;border:2px solid #ccc;border-radius:10px;padding:.85rem;position:fixed;top:200px;right:8px;width:280px;max-height:80vh;overflow-y:auto;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,.2);}
 .sidebar-panel-title{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid #aaa;}
 .bmark-card{background:#e8e8e8;border:1px solid #aaa;border-radius:7px;padding:.55rem .65rem;margin-bottom:5px;cursor:pointer;}
 .bmark-card:hover{border-color:#555;}
@@ -406,7 +406,7 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
 <div class="masthead">
   <div style="display:flex;align-items:baseline;gap:6px;">
     <h1>Wood's Wild News!</h1>
-    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v062</span>
+    <span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.05em;padding-bottom:4px;">v065</span>
   </div>
   <div class="mast-right">
     <div class="tog-group"><span class="tog-label">Auto-refresh</span><button class="tog" id="ar-toggle"></button></div>
@@ -1203,7 +1203,6 @@ function closeMobileSidebar(){
 let activeSidebarPanel="";
 function setSidebar(panel,btn){
   const panelWrap=document.querySelector(".sidebar-panel");
-  const tabRow=document.querySelector(".sidebar-tab-row");
   if(activeSidebarPanel===panel){
     activeSidebarPanel="";
     document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active"));
@@ -1213,11 +1212,21 @@ function setSidebar(panel,btn){
   activeSidebarPanel=panel;
   document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active","dirty-active"));
   if(btn)btn.classList.add("active");
-  // Position panel just below the tab row
-  if(tabRow&&panelWrap){
-    const rect=tabRow.getBoundingClientRect();
-    panelWrap.style.top=(rect.bottom+4)+"px";
-  }
+  // Position panel below search bar, aligned with tab buttons
+  requestAnimationFrame(()=>{
+    const tabRow=document.querySelector(".sidebar-tab-row");
+    const searchRow=document.querySelector(".search-row");
+    if(!tabRow||!panelWrap)return;
+    const tabRect=tabRow.getBoundingClientRect();
+    const searchRect=searchRow?searchRow.getBoundingClientRect():tabRect;
+    // Top = bottom of search bar + gap
+    panelWrap.style.top=(searchRect.bottom+6)+"px";
+    // Left = left edge of tab buttons
+    panelWrap.style.left=tabRect.left+"px";
+    // Width = exact width of tab row
+    panelWrap.style.width=tabRect.width+"px";
+    panelWrap.style.right="auto";
+  });
   if(panelWrap)panelWrap.style.display="";
   ["bookmarks","blocked","history"].forEach(p=>document.getElementById(p+"-panel").style.display=p===panel?"":"none");
   if(panel==="bookmarks")renderBM();
