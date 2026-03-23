@@ -350,8 +350,10 @@ async function fetchFeed(outlet) {
     while ((match = itemRegex.exec(xml)) !== null) {
       const raw = match[1] || match[2];
       const get = (tag) => {
-        const m = raw.match(new RegExp(`<${tag}[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/${tag}>`, "i"));
-        return m ? m[1].trim() : "";
+        const m = raw.match(new RegExp(`<${tag}[^>]*>\s*(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?\s*<\/${tag}>`, "i"));
+        if (!m) return "";
+        // Strip any remaining CDATA markers
+        return m[1].replace(/<!\[CDATA\[/g,"").replace(/\]\]>/g,"").trim();
       };
       const getAttr = (tag, attr) => {
         const m = raw.match(new RegExp(`<${tag}[^>]*${attr}=["']([^"']+)["']`, "i"));
@@ -363,7 +365,11 @@ async function fetchFeed(outlet) {
       const pub   = get("pubDate") || get("published") || get("updated");
 
       if (!title || !link) continue;
-      if (pub && Date.now() - new Date(pub).getTime() > 24 * 60 * 60 * 1000) continue;
+      // Skip obviously old articles (>48h) but be lenient to catch timezone issues
+      if (pub) {
+        const age = Date.now() - new Date(pub).getTime();
+        if (age > 48 * 60 * 60 * 1000) continue;
+      }
 
       // Extract image from media tags or description
       const mediaUrl = getAttr("content","url") || getAttr("thumbnail","url") || getAttr("enclosure","url");
@@ -396,6 +402,7 @@ async function fetchFeed(outlet) {
 async function buildCache(env) {
   const allOutlets = [...OUTLETS, ...GOOGLE_NEWS_FEEDS];
   console.log(`[WWN] Fetching ${allOutlets.length} feeds...`);
+  let fetchErrors = 0, fetchSuccess = 0;
 
   // Fetch all feeds in parallel batches of 10
   const all = [];
@@ -403,9 +410,13 @@ async function buildCache(env) {
   for (let i = 0; i < allOutlets.length; i += batchSize) {
     const batch = allOutlets.slice(i, i + batchSize);
     const results = await Promise.all(batch.map(o => fetchFeed(o)));
-    results.forEach(r => all.push(...r));
+    results.forEach((r,i) => {
+      if(r.length > 0) fetchSuccess++;
+      else fetchErrors++;
+      all.push(...r);
+    });
   }
-  console.log(`[WWN] Fetched ${all.length} articles`);
+  console.log(`[WWN] Fetched ${all.length} articles from ${fetchSuccess} feeds (${fetchErrors} empty/failed)`);
 
   // Sort newest first
   all.sort((a,b) => (b.pubDate ? new Date(b.pubDate) : 0) - (a.pubDate ? new Date(a.pubDate) : 0));
