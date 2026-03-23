@@ -406,7 +406,7 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
 <div class="masthead">
   <h1>Wood's Wild News!</h1>
   <div class="mast-right">
-    <div class="safe-chip"><div class="safe-chip-dot"></div>Protected by SafeSearch</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1px;"><div class="safe-chip"><div class="safe-chip-dot"></div>Protected by SafeSearch</div><div style="font-size:8px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.05em;">v046</div></div>
 <div class="tog-group"><span class="tog-label">Auto-refresh</span><button class="tog" id="ar-toggle"></button></div>
     <button class="icon-btn" id="gear-btn">⚙</button>
   </div>
@@ -427,10 +427,7 @@ button.my-tag.active{background:var(--accent) !important;color:#fff !important;b
       <div class="setting-info"><span class="setting-name">AllSides sources only</span><span class="setting-desc">Off = full Google News (way more articles)</span></div>
       <button class="tog" id="allsides-toggle"></button>
     </div>
-    <div class="safe-perm-row">
-      <div><div class="safe-perm-name">SafeSearch — always on</div><div class="safe-perm-desc">Only AllSides-rated reputable outlets</div></div>
-      <span style="font-size:16px">🔒</span>
-    </div>
+
     <div class="setting-row">
       <div class="setting-info"><span class="setting-name">Article history</span><span class="setting-desc">Articles you've clicked</span></div>
       <button onclick="clearHistory();showToast('History cleared')" style="background:#c00;color:#fff;border:none;padding:4px 12px;border-radius:5px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">Clear</button>
@@ -765,7 +762,7 @@ let allClusters=[],activeFilter="all",searchQuery="",allsidesOnly=false,leanFilt
 let myTags=new Set(),activeTagFilters=new Set(),blockedSources=new Set();
 let showBias=true,historyEnabled=true;
 let bookmarks=[],searchHistory=[];
-let autoRefresh=false,arIntervalSec=60,arTimer=null,arRemaining=0;
+let autoRefresh=true,arIntervalSec=600,arTimer=null,arRemaining=0;
 const AR_STEPS=[30,60,120,300,600,900,1800,3600,7200,14400];
 
 
@@ -987,9 +984,12 @@ const savedBrightness=localStorage.getItem("wwn_brightness")||"100";
 const bSlider=document.getElementById("bright-slider");
 if(bSlider){bSlider.value=savedBrightness;setBrightness(savedBrightness);}
 
-const addTag=t=>{myTags.add(t);saveTags();renderMyTagsRow();renderContent();};
-const removeTag=t=>{myTags.delete(t);activeTagFilters.delete(t);saveTags();renderMyTagsRow();renderContent();};
-const toggleTagFilter=t=>{activeTagFilters.has(t)?activeTagFilters.delete(t):activeTagFilters.add(t);renderMyTagsRow();renderContent();};
+const addTag=t=>{myTags.add(t);saveTags();renderMyTagsRow();
+startAR(); // auto-refresh on by defaultrenderContent();};
+const removeTag=t=>{myTags.delete(t);activeTagFilters.delete(t);saveTags();renderMyTagsRow();
+startAR(); // auto-refresh on by defaultrenderContent();};
+const toggleTagFilter=t=>{activeTagFilters.has(t)?activeTagFilters.delete(t):activeTagFilters.add(t);renderMyTagsRow();
+startAR(); // auto-refresh on by defaultrenderContent();};
 // Source info lookup
 const SOURCE_INFO={};
 [...OUTLETS,...(GOOGLE_NEWS_FEEDS||[])].forEach(o=>{SOURCE_INFO[o.name]={lean:o.lean,rss:o.rss};});
@@ -1055,8 +1055,10 @@ document.addEventListener("click",e=>{
   }
 });
 
-const clearAllTags=()=>{myTags.clear();activeTagFilters.clear();saveTags();renderMyTagsRow();renderContent();};
-function handleTagClick(tag,el){if(myTags.has(tag)){toggleTagFilter(tag);renderMyTagsRow();renderContent();}else{addTag(tag);el.className="story-tag in-my-tags";el.innerHTML=tag;}}
+const clearAllTags=()=>{myTags.clear();activeTagFilters.clear();saveTags();renderMyTagsRow();
+startAR(); // auto-refresh on by defaultrenderContent();};
+function handleTagClick(tag,el){if(myTags.has(tag)){toggleTagFilter(tag);renderMyTagsRow();
+startAR(); // auto-refresh on by defaultrenderContent();}else{addTag(tag);el.className="story-tag in-my-tags";el.innerHTML=tag;}}
 function renderMyTagsRow(){
   const sec=document.getElementById("my-tags-section"),row=document.getElementById("my-tags-row");
   if(myTags.size===0){sec.style.display="none";return;}
@@ -1154,6 +1156,8 @@ document.getElementById("allsides-toggle").addEventListener("click",function(){
   try{localStorage.removeItem(CACHE_KEY);}catch{}
   loadFeeds(false);
 });
+document.getElementById("ar-toggle").className="tog on-green";
+startAR();
 document.getElementById("ar-toggle").addEventListener("click",()=>{autoRefresh=!autoRefresh;document.getElementById("ar-toggle").className=autoRefresh?"tog on-green":"tog";autoRefresh?startAR():stopAR();});
 function onARSlider(v){
   arIntervalSec=AR_STEPS[parseInt(v)];
@@ -1200,22 +1204,14 @@ function closeMobileSidebar(){
 
 let activeSidebarPanel="";
 function setSidebar(panel,btn){
-  const sidebarEl=document.getElementById("sidebar-el");
   const panelWrap=document.querySelector(".sidebar-panel");
-  const tabRow=document.querySelector(".sidebar-tab-row");
   if(activeSidebarPanel===panel){
-    // Same tab clicked — collapse sidebar, expand main content
     activeSidebarPanel="";
     document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active"));
     if(panelWrap)panelWrap.style.display="none";
-    if(sidebarEl){sidebarEl.style.width="0";sidebarEl.style.overflow="hidden";}
-    if(tabRow)tabRow.style.position="fixed",tabRow.style.right="8px",tabRow.style.top="56px",tabRow.style.zIndex="200",tabRow.style.margin="0";
     return;
   }
-  // Expand sidebar
   activeSidebarPanel=panel;
-  if(sidebarEl){sidebarEl.style.width="";sidebarEl.style.overflow="";}
-  if(tabRow)tabRow.style.cssText="";
   document.querySelectorAll(".stab-btn").forEach(b=>b.classList.remove("active","dirty-active"));
   if(btn)btn.classList.add("active");
   if(panelWrap)panelWrap.style.display="";
@@ -2039,6 +2035,7 @@ document.getElementById("topic-nav").addEventListener("click",e=>{
 document.getElementById("search-btn").onclick=()=>{
   searchQuery=document.getElementById("search-input").value.trim();
   activeFilter="all";activeTagFilters.clear();renderMyTagsRow();
+startAR(); // auto-refresh on by default
   document.querySelectorAll("#topic-nav .tnav").forEach((p,i)=>{p.classList.toggle("active",i===0);p.style.background=i===0?"#111":"transparent";p.style.color=i===0?"#fff":"#555";});
   renderContent();
   setTimeout(initScrollObserver,100);
@@ -2050,6 +2047,6 @@ buildUI();
 loadFeeds();
 </script>
 
-<div style="position:fixed;bottom:8px;left:10px;font-size:9px;font-weight:700;color:rgba(128,128,128,.4);pointer-events:none;z-index:9999;font-family:Verdana,sans-serif;">v044</div>
+
 </body>
 </html>
